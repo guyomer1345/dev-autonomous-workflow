@@ -260,6 +260,23 @@ finished file.
 costs tokens, means nothing to a Claude using the skill). *Evidence:* user, this session.
 → applied across `skills/`, `agents/`, `shared/`; rule added to `shared/format.md`.
 
+## D35 — Local work autonomous; outward actions gated **[DECIDED]**
+The workflow runs **local/reversible work autonomously** (edits, `commit` — local only) but **gates every
+outward, side-effecting action behind explicit human permission**: `git push`, `gh issue create`
+(`create-issue`), `gh issue close` (`close-issue`), and later deploys / message-sends. The loop **never
+stalls** on this — it keeps committing locally and **queues** outward actions for approval; one approval can
+release a batch. **Default = gated** (a checkpoint-style "authorize an outward action" — a new flavour
+distinct from demo/qa/setup, which verify or do); users may **opt into standing pre-authorization**, a
+config allowlist exactly like Claude Code's own Bash permission rules.
+*Why:* validated live this session — the harness let commits proceed but **gated a push to `main`** and
+required explicit human auth. Mirrors the master rule (D3) and the existing commit/push split (commit =
+autonomous checkpoint marker; push = beyond the skill).
+*Rejected:* treating push / `gh` actions as fully autonomous (publishes irreversibly; surprises the user;
+would demand standing outward permission they may not grant). *Mechanics OPEN → `07`* (per-action vs
+standing, batching, which checkpoint kind).
+*Evidence:* user + live harness behaviour, this session. → `04`, `skills/commit`, `skills/create-issue`,
+`skills/close-issue`, `07`.
+
 ---
 
 ## Not yet decided (tracked in `07`)
@@ -267,4 +284,4 @@ Knowledge maintenance / ingest mechanics; model/effort map; collision details; A
 autonomous reset mechanism; website stack. Intake follow-ons: engineering-feasibility pass; demo-skill
 mechanics; commitment-status storage. `init` follow-ons: brownfield ingest, console launch, orchestrator
 CLAUDE.md, full disk layout. Skill-review follow-ons: incidental-issue-resolution detection (`close-issue`
-beyond 1:1) — deferred; format rollout to the remaining 11 skills + 2 agents — in progress.
+beyond 1:1) — deferred; outward-action permission mechanics (D35) — see `07`.

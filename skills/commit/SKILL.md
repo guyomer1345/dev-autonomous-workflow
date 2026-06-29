@@ -35,3 +35,5 @@ A commit — the checkpoint marker. Its `Closes:` trailer names the issue that `
 
 ## References
 Remote push and the branch lifecycle (the parallel-work merge/conflict extension) sit beyond this skill.
+Commit is local and autonomous; **push is an outward action — gated behind explicit human permission** (the
+loop keeps committing and queues the push for approval).
