@@ -1,0 +1,87 @@
+# 10 — Capability Roster (Space 2 v1)
+
+Closes the `02` open item (roster + I/O contracts + skill-vs-agent + topology). Derived by walking a full
+new-project loop end-to-end (session 2026-06-29). Each capability's full contract lives in its own package
+file; artifact formats live in `shared/schemas.md`. **This doc is the map** — roster, loop order,
+call-graph, open items.
+
+## Package layout **[DECIDED — D25]**
+Claude-Code-native plugin source at the repo root:
+- `skills/<name>/SKILL.md` — procedure capabilities
+- `agents/<name>.md` — context-heavy worker capabilities
+- `shared/schemas.md` — inter-capability artifact schemas
+
+(Later: `commands/`, `hooks/`, `CLAUDE.md`, `.claude-plugin/plugin.json`.) The repo is now **both** the
+spec (`00`–`10`) and the package source.
+
+## Skill vs agent **[DECIDED — D24, D27]**
+- **skill** = a procedure / controller — run by the orchestrator; defines *how*; **may dispatch agents**.
+- **agent** = a **leaf worker** — its own tools, persistent/re-messageable (D4); does the heavy lifting;
+  **never spawns sub-agents.**
+- Topology (closes `02`): **strict hub-and-spoke** — only skills/orchestrator fan out; agents are leaves.
+- Consequence: the only agents are `research` and `setup-guide`; all adjudicators (`verify`, `debug`,
+  `decision-engineer`) are skills.
+
+## The adjudicate pattern **[DECIDED — D24]**
+One base skill `adjudicate` (gather views → judge → confidence-gate → loop/escalate), specialized by
+`verify` / `debug` / `decision-engineer`. Collapses the prior Arbiter / engineer-agent / decision-engineer
+overlap into one adjudicator.
+
+## Roster
+| capability | kind | one-line job | file |
+|---|---|---|---|
+| adjudicate | skill (base) | gather views → judge → confidence-gate | `skills/adjudicate` |
+| discuss | skill | intake conversation → `spec` | `skills/discuss` |
+| create-demo | skill | throwaway sandbox for product approval | `skills/create-demo` |
+| prioritize | skill | order the backlog, emit the next item | `skills/prioritize` |
+| planner | skill | decompose → `roadmap` / plan one item → `plan` | `skills/planner` |
+| decision-engineer | skill | resolve an open build decision (adjudicate) | `skills/decision-engineer` |
+| research | agent | gather info (Investigation worker) | `agents/research` |
+| execute | skill | run a plan, decide nothing → `changelog` | `skills/execute` |
+| verify | skill | artifact conformance (adjudicate) | `skills/verify` |
+| debug | skill | root-cause behaviour ≠ intended (adjudicate) | `skills/debug` |
+| refine | skill | route corrections back through planner→execute | `skills/refine` |
+| checkpoint | skill | pause for a human verdict (demo / qa / setup) | `skills/checkpoint` |
+| setup-guide | agent | precise human steps for a manual external task | `agents/setup-guide` |
+| document | skill | fold changes + decisions into the knowledge base | `skills/document` |
+| commit | skill | git snapshot (the checkpoint marker) | `skills/commit` |
+| create-issue | skill | capture a problem/idea into the backlog | `skills/create-issue` |
+
+## Loop order (the spine)
+```
+backlog
+  → prioritize (pick next)
+  → discuss  ┐ intake (09)
+  → create-demo ┘ (if the gate fires)
+  → planner ──► decision-engineer ──► research
+  → execute (→ changelog)
+  → verify ──on-fail──► debug ──► refine (routes correction back to planner→execute)
+  → checkpoint: human-test gate  (+ setup-guide for kind=setup)
+  → document (→ Space 6 Sessions)
+  → commit (the checkpoint marker)
+
+create-issue → backlog   (side-door, from anywhere)
+research                  (service, callable from anywhere)
+```
+
+## Call-graph (who calls whom)
+- `planner` → `decision-engineer` → `research`
+- `create-demo` → `checkpoint`
+- `checkpoint`(setup) → `setup-guide`  *(leaf: does its own research)*
+- `verify` → `debug` → `refine` → `planner` → `execute`
+- `debug` → `research`
+- any → `create-issue` · any → `research`
+
+## Build status
+- **All 16 capability files written** (`skills/`, `agents/`) + `shared/schemas.md`. Roster v1 complete.
+
+## Candidate capabilities (next pass)
+- **`init`** (skill) — the workflow's start/bootstrap command (D10, D28). **greenfield:** repo-setup →
+  scaffold workflow structure → launch console → hand to `discuss`. **brownfield/integrate:** the above
+  plus a Space-6 **ingest** pass (build the initial knowledge base + reconstructed spec from existing
+  code — "map to our standard"). `gh auth` etc. = `checkpoint`(kind=setup) walkthroughs. Brownfield ingest
+  depends on the open knowledge-ingest mechanics (`06`).
+
+## Still open
+- The **collision model** — when two items are independent enough to run in parallel (`02` / `07`).
+- `init` **brownfield-ingest** detail (depends on Space-6 ingest mechanics).
