@@ -1,20 +1,32 @@
 ---
 name: create-issue
-description: Capture a problem, bug, or "do this later" into the backlog without addressing it now. The side-door into the loop — issues are later consumed by planner. Used for found bugs, deferred work, and every provisional spec item (tracked debt).
+description: Capture a problem, bug, or "do this later" without addressing it now, and open a real GitHub issue for it. The side-door into the loop — issues are later consumed by planner and closed by close-issue. Use for found bugs, deferred work, and every provisional spec item (tracked debt).
 ---
 
-# Create-issue
+# Create-issue — the backlog side-door
+
+Core principle: capture without addressing. Every issue is dual-tracked — a backlog entry for the loop and
+a real GitHub issue for durable, external visibility — so nothing relies on in-memory state.
 
 ## When
-A bug / unwanted behaviour surfaces, the user wants something noted for later, or a `provisional` spec
-item needs a finalize-later ticket (D23).
+A bug / unwanted behaviour surfaces, the user wants something noted for later, or a `provisional` spec item
+needs a finalize-later ticket.
 
-## Do
-Write an `issue` `{ title, kind: bug|feature|debt, description, severity, source }` → backlog.
+## Inputs
+The problem/idea + its `kind` (bug|feature|debt), `severity`, and `source`.
 
-## Note
-`severity` is set here (e.g. a universal-invariant-class bug). It feeds `prioritize`'s ordering — but the
-machine never self-preempts (pure queue, D26).
+## Workflow
+1. File the backlog `issue` `{ title, kind, description, severity, source }`.
+2. Open the matching GitHub issue (`gh issue create`), labelling from `kind` and `severity`.
+3. Store the returned issue number on the backlog item as `github_ref`.
 
-## Exit
-Issue filed; `prioritize` re-runs.
+## Rules
+- Capture only — never start fixing here.
+- `severity` is set here (e.g. a universal-invariant-class bug); it feeds `prioritize`'s ordering, but the
+  machine never self-preempts (pure queue).
+
+## Output
+A backlog `issue` carrying its `github_ref`, mirrored by a real GitHub issue.
+
+## Route
+→ backlog (side-door, from anywhere); `prioritize` re-runs.

@@ -1,19 +1,19 @@
 # Shared Artifact Schemas
 
 The data formats that flow between capabilities. One source of truth — skills/agents reference these by
-name. On-disk storage paths are still TBD (disk layout, `05`).
+name. On-disk storage paths are still TBD (disk layout).
 
 ## spec
 The product definition `discuss` produces and the whole build runs against.
-- `audience` — who it's for (D20)
-- `runtime` — where it runs (D20)
+- `audience` — who it's for
+- `runtime` — where it runs
 - `purpose`
 - `screens[]` — `{ name, role, commitment }`
 - `features[]` — `{ name, purpose, acceptance_criteria, commitment }`
 - `data_model`
 - `integrations[]` — `{ name, kind: auth|payments|…, → triggers a setup checkpoint }`
 - `tech_stack` — value | `"TBD → decision-engineer"`
-- `commitment` ∈ `{ locked, provisional, unspecified }` (D23) — tagged per element
+- `commitment` ∈ `{ locked, provisional, unspecified }` — tagged per element
 
 ## roadmap  · produced by `planner` (decompose mode)
 - `phases[]` — `{ name, goal, depends_on[], acceptance, commitment }`
@@ -23,7 +23,9 @@ The product definition `discuss` produces and the whole build runs against.
 - `source_spec_ref`
 - `files_touched[]`
 - `steps[]` — ordered, each independently verifiable
-- `acceptance_criteria` — the definition-of-done (D17)
+- `acceptance_criteria[]` — the definition-of-done; each `{ criterion, gate: artifact | human-qa }`.
+  `artifact` → checked by `verify`; `human-qa` → confirmed by a `checkpoint` (kind=qa). A plan with zero
+  `human-qa` criteria never triggers a QA checkpoint.
 
 ## changelog  · produced by `execute`
 - `plan_ref`
@@ -42,7 +44,7 @@ The product definition `discuss` produces and the whole build runs against.
 - `confidence`
 - `sources[]`
 
-## debug-report  · produced by `debug` (also the Space-6 `# Sessions` entry format, D13)
+## debug-report  · produced by `debug` (also the knowledge-base `# Sessions` entry format)
 - `symptom`, `cause`, `fix`, `avoid`
 - `confidence`
 
@@ -50,5 +52,7 @@ The product definition `discuss` produces and the whole build runs against.
 - `request` — `{ kind: demo|qa|setup, what, expected, how?(←setup-guide), blocking: true }`
 - `verdict` — `{ pass, notes }`  · pass → continue · fail → debug→refine
 
-## issue  · produced by `create-issue`
+## issue  · produced by `create-issue`, closed by `close-issue`
 - `{ title, kind: bug|feature|debt, description, severity, source }`
+- `github_ref` — the mirrored GitHub issue number (`create-issue` opens it; `close-issue` closes it)
+- `state` ∈ `{ open, closed }`

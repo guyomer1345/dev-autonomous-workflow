@@ -1,0 +1,31 @@
+---
+name: close-issue
+description: Close the GitHub issue a completed item resolved, at the tail of the loop after commit. The mirror of create-issue. Use once an item has passed verify (and any qa checkpoint) and been committed.
+---
+
+# Close-issue — retire the resolved tracker
+
+Core principle: an issue is closed only when its work is truly done — past `verify` (and any qa
+`checkpoint`) and committed. Closing earlier (e.g. after `execute`) would retire work that may still fail.
+
+## When
+At item completion, immediately after `commit`.
+
+## Inputs
+- the completed item and its `issue.github_ref`
+- the `commit` it landed in (for the SHA).
+
+## Workflow
+1. Close the item's own GitHub issue — `gh issue close <github_ref>`.
+2. Comment the resolving commit SHA on the issue.
+
+## Rules
+- Close only the completed item's own issue — 1:1. Detecting issues *incidentally* resolved by the change
+  is out of scope for now.
+- No `github_ref` (item came from steering, not an issue) → nothing to close; exit quietly.
+
+## Output
+The resolved GitHub issue closed and linked to the commit.
+
+## Route
+→ `prioritize` (the loop picks the next item).

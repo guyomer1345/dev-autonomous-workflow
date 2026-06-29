@@ -11,6 +11,7 @@ Claude-Code-native plugin source at the repo root:
 - `skills/<name>/SKILL.md` — procedure capabilities (model-invoked)
 - `agents/<name>.md` — leaf worker capabilities
 - `shared/schemas.md` — inter-capability artifact schemas
+- `shared/format.md` — the authoring format every package file follows (D31/D34)
 
 (Later: `hooks/`, `CLAUDE.md`, `.claude-plugin/plugin.json`.) The repo is now **both** the spec (`00`–`10`)
 and the package source.
@@ -46,8 +47,9 @@ overlap into one adjudicator.
 | checkpoint | skill | pause for a human verdict (demo / qa / setup) | `skills/checkpoint` |
 | setup-guide | agent | precise human steps for a manual external task | `agents/setup-guide` |
 | document | skill | fold changes + decisions into the knowledge base | `skills/document` |
-| commit | skill | git snapshot (the checkpoint marker) | `skills/commit` |
-| create-issue | skill | capture a problem/idea into the backlog | `skills/create-issue` |
+| commit | skill | git snapshot (Conventional Commit; the checkpoint marker) | `skills/commit` |
+| create-issue | skill | capture a problem/idea → backlog + GitHub issue | `skills/create-issue` |
+| close-issue | skill | close the GitHub issue a completed item resolved (commit tail) | `skills/close-issue` |
 
 ## Loop order (the spine)
 ```
@@ -58,9 +60,10 @@ backlog
   → planner ──► decision-engineer ──► research
   → execute (→ changelog)
   → verify ──on-fail──► debug ──► refine (routes correction back to planner→execute)
-  → checkpoint: human-test gate  (+ setup-guide for kind=setup)
+  → checkpoint (qa: only if the plan declared human-qa criteria; setup for kind=setup)
   → document (→ Space 6 Sessions)
   → commit (the checkpoint marker)
+  → close-issue (close the GitHub issue the item resolved)
 
 create-issue → backlog   (side-door, from anywhere)
 research                  (service, callable from anywhere)
@@ -73,9 +76,13 @@ research                  (service, callable from anywhere)
 - `verify` → `debug` → `refine` → `planner` → `execute`
 - `debug` → `research`
 - any → `create-issue` · any → `research`
+- item-complete tail: `verify`(pass) → `document` → `commit` → `close-issue`
 
 ## Build status
-- **All 16 capability files written** (`skills/`, `agents/`) + `shared/schemas.md`. Roster v1 complete.
+- **All 17 capability files written** (`skills/`, `agents/`) + `shared/schemas.md`. Roster v1 complete
+  (added `close-issue`, D33).
+- **Authoring-format pass complete (D31/D34):** all 17 skills + 2 agents follow `shared/format.md` and
+  carry no spec-internal refs.
 
 ## `init` / `/start`  **[BUILT v1 — D29 → `commands/start.md`]**
 The bootstrap command (D10/D28). **greenfield** = repo-setup → scaffold → (stub) console → hand to

@@ -19,7 +19,8 @@ or take a screen-share and give live feedback.
 
 ## To close **[OPEN]**
 - **What a checkpoint IS** (the data model) — awaiting more examples from Guy.
-- What triggers a checkpoint (who decides one is needed).
+- What triggers a checkpoint (who decides one is needed). *(kind=qa resolved — the plan's `human-qa`-gated
+  acceptance criteria, D30; demo/setup triggers still open.)*
 - Which help features are MVP (doc links / screenshots / screen-share / live feedback).
 
 ## Out of scope (designed-for, not built) **[DEFERRED]**

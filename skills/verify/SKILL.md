@@ -1,24 +1,34 @@
 ---
 name: verify
-description: Check that what was built conforms to what was asked — plan vs changelog, and whether the intent and acceptance criteria were actually met. Operates on artifacts, not runtime behaviour. Use after execute (skippable for trivial changes); on failure, hand off to debug.
+description: Check that built artifacts conform to what was asked — plan vs changelog, and whether the spec intent and the plan's acceptance criteria were met. Operates on artifacts, not runtime behaviour. Use after execute (skippable for trivial changes); on failure, hand off to debug.
 ---
 
-# Verify
+# Verify — artifact conformance ({asked} vs {done})
 
-An `adjudicate` implementation (views = {asked, done}). Conformance on **artifacts** — not runtime
-behaviour (that's `debug`).
+Core principle: an `adjudicate` specialization — gather the two views (what was *asked*, what was *done*),
+judge conformance, gate on confidence. Conformance on **artifacts only**; runtime behaviour is `debug`'s
+job and live-app confirmation is `checkpoint`'s.
 
-## Do — two checks
-- **A. Plan ↔ changelog:** the changes asked for in the `plan` match the changes recorded in the
-  `changelog`.
-- **B. Intent met:** the `spec`/discuss intent and the plan's `acceptance_criteria` are reflected and
-  actually achieved. (This is the definition-of-done gate, D17.)
+## Inputs
+- `plan` — the asked-for changes + `acceptance_criteria`, each tagged `gate: artifact | human-qa`.
+- `changelog` — what `execute` recorded doing.
+- `spec` — the intent the plan serves.
 
-Lean implementation — for small changes you may judge directly without fanning out workers.
+## Workflow — two checks
+1. **Plan ↔ changelog:** the changes the `plan` asked for match the changes the `changelog` records.
+2. **Intent met:** the `spec` intent and the plan's **`artifact`-gated** `acceptance_criteria` are reflected
+   and actually achieved (the definition-of-done gate).
+
+Lean: for small changes, judge directly without fanning out workers.
+
+## Rules
+- Artifacts only — never run or observe the live app.
+- Never pass/fail a `human-qa`-gated criterion; those are confirmed by a `checkpoint` (kind=qa), not here.
 
 ## Output
 `verify-verdict { pass, mismatches[], confidence }`.
 
 ## Route
-- **pass** → `checkpoint` (human QA) → `document` / `commit`.
+- **pass** → `document` / `commit`. If the `plan` declared any `human-qa` acceptance criteria, the
+  orchestrator inserts a `checkpoint` (kind=qa) first; otherwise straight through — no blanket human QA.
 - **fail** → `debug`. A failed check is a valid debug trigger even with no live error.

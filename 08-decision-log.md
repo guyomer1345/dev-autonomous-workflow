@@ -202,10 +202,69 @@ The bootstrap capability (D28) is realised as a human-invoked **slash command `/
   backlog, decisions/, checkpoints/ committed) + `spec/` + `.knowledge/`.
 *Evidence:* user (design what's buildable now, note the rest to expand). → `10`, `01`, `05`, `06`.
 
+## Skill review + format pass (session 2026-06-29)
+
+## D30 — Human QA is plan-declared, not a blanket post-verify gate **[DECIDED]**
+The plan owns the "does a human need to look at this?" decision, upstream where intent lives. Each
+`acceptance_criterion` is tagged `gate: artifact | human-qa`: `artifact` criteria are checked by
+`verify`; `human-qa` criteria are confirmed by a `checkpoint` (kind=qa) on the live app. `verify` stays a
+**pure artifact check** and always routes `pass → document/commit`; the orchestrator inserts a qa
+checkpoint *only* when the plan declared ≥1 `human-qa` criterion. Most changes (internal/refactor) declare
+none and flow straight through — no human gate after every verify.
+*Rejected:* the old `verify` route `pass → checkpoint (human QA) → document/commit`, which implied
+mandatory human QA on every pass; a `needs_human_qa` flag computed *by* verify (puts product-intent logic
+into an artifact checker). *Evidence:* user, this session. → `shared/schemas.md` (plan), `skills/verify`,
+`skills/planner` (tags the gate), closes the `04` open item "who decides a checkpoint is needed" for kind=qa.
+
+## D31 — Canonical authoring format for skills & agents **[DECIDED]**
+Every package file follows one canonical shape so the roster reads as a graph of typed nodes
+(`Inputs → … → Output → Route`). A **menu, not a mandatory skeleton**: a required spine + optional sections
+included only when they earn their tokens. Definitions live in the contract sections (Inputs/Output name
+`schemas.md` artifacts) — the current files are under-*defined* (jargon like `adjudicate`, implicit artifact
+contents), not under-described; the fix is defining contracts, not adding prose. Recorded in
+`shared/format.md`; imperative node-names kept on purpose (they double as routing-graph labels).
+*Rejected:* a mandatory all-sections skeleton (fights "concise is key", forces padding); the
+background-research read of "don't template at all" (over-applies generic large-skill guidance to small
+orchestrated nodes — Anthropic separately endorses a "cohesive skill library"); "describe more" via prose.
+*Evidence:* Anthropic skill-authoring best-practices doc + this session. → `shared/format.md`, applied
+skill-by-skill starting with `verify`.
+
+## D32 — Commit message convention **[DECIDED]**
+`commit` writes **Conventional Commits** + linking trailers. Type from the item's `kind`
+(`bug → fix`, `feature → feat`, `debt → refactor`/`chore`); `Refs: item #<backlog-id>` always;
+`Closes: #<gh-issue>` when the commit resolves a tracked issue. Rationale: the commit log becomes
+machine-readable loop state, and the trailer is the hinge `close-issue` keys off.
+*Evidence:* user. → `skills/commit`.
+
+## D33 — Issue lifecycle: real GitHub issues + close-at-commit-tail **[DECIDED]**
+`create-issue` **dual-writes**: files the backlog `issue` **and** opens a real GitHub issue
+(`gh issue create`, labels from `kind`/`severity`), storing the number as `issue.github_ref`. GitHub is the
+durable external tracker; the backlog references it. A new leaf-tail skill **`close-issue`** closes the
+resolved issue at **item completion (commit tail)** — not after `execute` (which runs pre-`verify`, so
+closing there would retire work that may still fail). MVP: close the completed item's own `github_ref` 1:1
+and comment the commit SHA.
+*Rejected:* closing after `execute` (wrong point in the loop); relying on the `Closes:` commit keyword to
+auto-close (only fires once pushed, and push is out of `commit`'s scope, so an explicit `gh issue close` is
+needed regardless); building incidental-resolution detection now (deferred).
+*Evidence:* user (delegated the create-issue mechanics), this session.
+→ `skills/create-issue`, `skills/close-issue` (new), `shared/schemas.md` (issue), `10`.
+
+## D34 — Package files carry no spec-internal references **[DECIDED]**
+The shippable package (`skills/`, `agents/`, `shared/`) states behaviour and rationale in plain language
+with **no spec-internal citations** — neither decision IDs (`Dxx`) nor design-doc numbers (`05`, `09`, …).
+Those are provenance and live only in the numbered design docs (`00`–`10`) and this log. Provenance is
+**one-directional**: the log names the file a decision governs; the file never cites back (only the
+citation is removed — the rationale stays inline). Temporary markers are fine *during* design, not in the
+finished file.
+*Rejected:* leaving internal IDs in package files (leaks design-process artifacts into the runtime context,
+costs tokens, means nothing to a Claude using the skill). *Evidence:* user, this session.
+→ applied across `skills/`, `agents/`, `shared/`; rule added to `shared/format.md`.
+
 ---
 
 ## Not yet decided (tracked in `07`)
 Knowledge maintenance / ingest mechanics; model/effort map; collision details; Arbiter input contract;
 autonomous reset mechanism; website stack. Intake follow-ons: engineering-feasibility pass; demo-skill
 mechanics; commitment-status storage. `init` follow-ons: brownfield ingest, console launch, orchestrator
-CLAUDE.md, full disk layout.
+CLAUDE.md, full disk layout. Skill-review follow-ons: incidental-issue-resolution detection (`close-issue`
+beyond 1:1) — deferred; format rollout to the remaining 11 skills + 2 agents — in progress.

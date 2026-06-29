@@ -1,19 +1,37 @@
 ---
 name: commit
-description: Snapshot project state to git after a phase is documented — the durable checkpoint marker. One commit per completed phase/item.
+description: Snapshot project state to git after a phase is documented — the durable checkpoint marker the loop resumes from. One commit per completed phase/item, written as a Conventional Commit linked back to its work item. Use at the tail of a completed item, after document.
 ---
 
-# Commit
+# Commit — the durable checkpoint marker
+
+Core principle: one commit per completed phase/item. The commit is what the loop resumes from and what the
+handoff relies on, so its message is machine-readable loop state, not just prose.
 
 ## When
 After `document`, per completed phase/item.
 
-## Do
-1. Stage the phase's changes.
-2. Commit with a message tracing back to the item/plan.
+## Inputs
+- the completed item's staged changes
+- the `plan` / backlog item it traces back to (for the id) and any `issue` it resolves (for `github_ref`).
+
+## Workflow
+1. Stage the item's changes.
+2. Write a **Conventional Commit** — `type(scope): summary`, type from the item's `kind`
+   (`bug → fix`, `feature → feat`, `debt → refactor`/`chore`).
+3. Add linking trailers:
+   - `Refs: item #<backlog-id>` — always.
+   - `Closes: #<github-issue>` — when this item resolves a tracked issue.
+
+## Rules
+- One commit per completed item; never bundle unrelated items.
+- The message must trace back to the item — no bare "wip"/"fix" subjects.
 
 ## Output
-A commit — the durable checkpoint marker the loop resumes from, and the one the handoff relies on (D10).
+A commit — the checkpoint marker. Its `Closes:` trailer names the issue that `close-issue` then closes.
 
-## Note
+## Route
+→ `close-issue` (close the GitHub issue this item resolved), then the loop picks the next item.
+
+## References
 Remote push and the branch lifecycle (the parallel-work merge/conflict extension) sit beyond this skill.
