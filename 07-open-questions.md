@@ -10,6 +10,9 @@ Deliberately deferred — known unknowns, to close during build or later.
   *(Interrupt model closed: pure queue, D26.)*
 - **`init` / bootstrap capability** (`10`, D28) — greenfield is straightforward; brownfield **ingest**
   (build the knowledge base + reconstructed spec from existing code) depends on Space-6 ingest mechanics.
+- **Commit-message convention** (`skills/commit`) — currently loose ("trace to the item/plan"); commits
+  are the loop's checkpoint markers (D10), so a **machine-parseable** format is wanted, plus a decision on
+  whether the workflow's own commits carry the `Co-Authored-By` trailer. *Surfaced 2026-06-29.*
 - **Agent roster v1** — **CLOSED in `10`** (names, I/O contracts, skill-vs-agent, topology). Remaining
   slivers: the collision model (`02`) and the `prioritize` interrupt model (`09`).
 - **What a checkpoint is** (`04`) — data model now in `shared/schemas.md` (demo/qa/setup + verdict).
