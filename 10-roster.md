@@ -7,12 +7,13 @@ call-graph, open items.
 
 ## Package layout **[DECIDED — D25]**
 Claude-Code-native plugin source at the repo root:
-- `skills/<name>/SKILL.md` — procedure capabilities
-- `agents/<name>.md` — context-heavy worker capabilities
+- `commands/<name>.md` — human-invoked entry points (e.g. `/start`)
+- `skills/<name>/SKILL.md` — procedure capabilities (model-invoked)
+- `agents/<name>.md` — leaf worker capabilities
 - `shared/schemas.md` — inter-capability artifact schemas
 
-(Later: `commands/`, `hooks/`, `CLAUDE.md`, `.claude-plugin/plugin.json`.) The repo is now **both** the
-spec (`00`–`10`) and the package source.
+(Later: `hooks/`, `CLAUDE.md`, `.claude-plugin/plugin.json`.) The repo is now **both** the spec (`00`–`10`)
+and the package source.
 
 ## Skill vs agent **[DECIDED — D24, D27]**
 - **skill** = a procedure / controller — run by the orchestrator; defines *how*; **may dispatch agents**.
@@ -30,6 +31,7 @@ overlap into one adjudicator.
 ## Roster
 | capability | kind | one-line job | file |
 |---|---|---|---|
+| start (init) | command | bootstrap the workflow; greenfield/brownfield (D28/D29) | `commands/start` |
 | adjudicate | skill (base) | gather views → judge → confidence-gate | `skills/adjudicate` |
 | discuss | skill | intake conversation → `spec` | `skills/discuss` |
 | create-demo | skill | throwaway sandbox for product approval | `skills/create-demo` |
@@ -75,12 +77,12 @@ research                  (service, callable from anywhere)
 ## Build status
 - **All 16 capability files written** (`skills/`, `agents/`) + `shared/schemas.md`. Roster v1 complete.
 
-## Candidate capabilities (next pass)
-- **`init`** (skill) — the workflow's start/bootstrap command (D10, D28). **greenfield:** repo-setup →
-  scaffold workflow structure → launch console → hand to `discuss`. **brownfield/integrate:** the above
-  plus a Space-6 **ingest** pass (build the initial knowledge base + reconstructed spec from existing
-  code — "map to our standard"). `gh auth` etc. = `checkpoint`(kind=setup) walkthroughs. Brownfield ingest
-  depends on the open knowledge-ingest mechanics (`06`).
+## `init` / `/start`  **[BUILT v1 — D29 → `commands/start.md`]**
+The bootstrap command (D10/D28). **greenfield** = repo-setup → scaffold → (stub) console → hand to
+`discuss`; **fully supported now.** **brownfield/integrate** = the shared scaffold plus a Space-6
+**ingest** pass + reconciliation checkpoint; **mostly STUB** pending ingest mechanics (`06`). Stubbed
+sub-steps to expand: orchestrator CLAUDE.md (`01`), console launch (`03`), brownfield ingest (`06`), full
+disk layout (`05`).
 
 ## Still open
 - The **collision model** — when two items are independent enough to run in parallel (`02` / `07`).

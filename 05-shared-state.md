@@ -13,12 +13,20 @@ A **local HTTP loopback service** (the website's backend) is the message channel
 - File-watching is **rejected for control-flow** (fragile, polling, races); fine only for one-way
   state display.
 
-## Disk layout **[OPEN — assemble]**
-Known pieces to place:
-- `handoff.md` — orchestrator reset/handoff state.
-- `state.json` — live state for the website.
-- the roadmap / todos.
-- `.knowledge/` — the knowledge base (Space 6).
-- checkpoint request/verdict records.
+## Disk layout **[PROVISIONAL first cut — D29; EXPAND]**
+`init` (`commands/start.md`) scaffolds this provisional layout in a target project:
+```
+.workflow/
+  state.json        # live console state — RUNTIME, gitignored
+  handoff.md        # orchestrator reset/handoff state   (committed)
+  backlog.md        # issues + roadmap items             (committed)
+  decisions/        # decision-records                   (committed)
+  checkpoints/      # checkpoint request/verdict records (committed)
+spec/               # the product spec (discuss fills it)(committed)
+.knowledge/         # knowledge base — Space 6           (committed)
+```
+**Commit policy:** everything durable is committed; only `.workflow/state.json` (a regenerable view for
+the console) is gitignored.
 
-To close: the full file tree + read/write ownership + the request/response protocol.
+Still to close: read/write ownership per file + the request/response protocol; whether `spec/` and
+`.knowledge/` merge under a single docs root; symbol-level knowledge paths.

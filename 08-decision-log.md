@@ -187,9 +187,25 @@ code — "map to our standard"). `repo-setup` folds in as a step; `gh auth` and 
 (kind=setup) walkthroughs. Brownfield ingest depends on the still-open knowledge-ingest mechanics (`06`).
 *Evidence:* user. → `10`, `01`, `06`.
 
+## D29 — `init` / `/start` bootstrap, design v1 **[DECIDED — partial; expand]**
+The bootstrap capability (D28) is realised as a human-invoked **slash command `/start`** (conceptually
+"init"; not `/init`, which is a Claude Code built-in) → `commands/start.md`. Adds a third primitive class:
+**commands = human-invoked entry points** (alongside skills = model-invoked, agents = leaf workers, D27).
+- **Mode detect + idempotency:** detect greenfield (empty) vs brownfield (existing code), confirm with the
+  user; if `.workflow/` already exists, don't clobber (offer resume from `handoff.md`).
+- **Shared steps:** repo-setup; scaffold the workflow layout; install orchestrator framing (CLAUDE.md —
+  STUB); launch console (STUB); commit.
+- **Greenfield:** empty spec/knowledge → hand to `discuss` (inception). **Fully buildable now.**
+- **Brownfield:** ingest existing code → `.knowledge/` + reconstructed spec, then a reconciliation
+  checkpoint. **Mostly STUB** — depends on the open Space-6 ingest mechanics (`06`).
+- **Provisional disk layout (Space 5, EXPAND):** `.workflow/` (state.json runtime/gitignored; handoff,
+  backlog, decisions/, checkpoints/ committed) + `spec/` + `.knowledge/`.
+*Evidence:* user (design what's buildable now, note the rest to expand). → `10`, `01`, `05`, `06`.
+
 ---
 
 ## Not yet decided (tracked in `07`)
 Knowledge maintenance / ingest mechanics; model/effort map; collision details; Arbiter input contract;
 autonomous reset mechanism; website stack. Intake follow-ons: engineering-feasibility pass; demo-skill
-mechanics; commitment-status storage. `init` brownfield-ingest detail.
+mechanics; commitment-status storage. `init` follow-ons: brownfield ingest, console launch, orchestrator
+CLAUDE.md, full disk layout.
