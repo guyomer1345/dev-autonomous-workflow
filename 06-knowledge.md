@@ -37,9 +37,19 @@ Aider repomap (tree-sitter + PageRank): auto-extract *structural* edges (imports
 so the LLM only authors the *semantic* `why` + impact judgment. (Code Property Graph validates typed
 edges; nobody combines a typed impact-graph + per-file memory → open intersection.)
 
+## Generated vs durable — the split **[DECIDED — D39, sharpens the above]**
+The two halves sit on opposite sides of the design law (`shared/memory-model.md`, D38): the **structural
+graph** (`graph.json`, imports/calls) is **generated** (tree-sitter/repomap) — regenerable, never
+authoritative prose, never hand-edited (a hand-maintained map goes stale and lies). The **experiential
+memory** (per-file `why` + the `# Sessions` postmortems) is the **only durable hand-written layer** — the
+non-derivable intent that earns its tokens. (Code Property Graph is overkill for context — security-scan
+step only.)
+
 ## Granularity **[DECIDED]**
 Start file-level; leave a seam for symbol/function-level later.
 
-## Maintenance / freshness **[OPEN — intentionally not closing now]**
-How the graph + sessions stay current as code changes (regenerate vs incremental-on-edit vs a loop
-step; staleness markers; an audit pass). Just need to know it exists. → see 07.
+## Maintenance / freshness **[OPEN — mechanisms only; D41 set the shape]**
+The **shape** is decided (D38/D41): the structural graph regenerates (it cannot drift); `document` keeps
+durable docs + diagrams fresh in the **same item as the code**; an audit-phase **prune pass** keeps
+guidance high-signal. Still open: the concrete **staleness-detection** signal, the **prune-pass**
+mechanism, and regenerate-vs-incremental for the graph. → see 07.

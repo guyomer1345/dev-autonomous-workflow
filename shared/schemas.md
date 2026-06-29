@@ -21,11 +21,17 @@ The product definition `discuss` produces and the whole build runs against.
 ## plan  · produced by `planner` (plan-one mode)
 - `goal`
 - `source_spec_ref`
+- `decisions[]` — refs to the `decision-record`s this plan implements; every one must map to ≥1 step or
+  `planner` blocks the plan (D43 coverage gate).
+- `risk_class` ∈ `{ code-only, data-additive, data-destructive, prod-touching }` (D42).
+- `backup` — required when `risk_class` is destructive: `{ what, mechanism, verification, restore }`.
+  `execute` refuses a destructive plan without it and runs+verifies it before the destructive step.
 - `files_touched[]`
 - `steps[]` — ordered, each independently verifiable
 - `acceptance_criteria[]` — the definition-of-done; each `{ criterion, gate: artifact | human-qa }`.
-  `artifact` → checked by `verify`; `human-qa` → confirmed by a `checkpoint` (kind=qa). A plan with zero
-  `human-qa` criteria never triggers a QA checkpoint.
+  `artifact` → checked by `verify`; `human-qa` → confirmed by a `checkpoint` (kind=qa). **Every criterion is
+  one or the other** — `planner` emits no un-checkable criterion (D30). A plan with zero `human-qa` criteria
+  never triggers a QA checkpoint.
 
 ## changelog  · produced by `execute`
 - `plan_ref`

@@ -28,5 +28,10 @@ spec/               # the product spec (discuss fills it)(committed)
 **Commit policy:** everything durable is committed; only `.workflow/state.json` (a regenerable view for
 the console) is gitignored.
 
+**Memory tiers (D38 — `shared/memory-model.md`):** every durable file is **volatile** (rewrite freely:
+`state.json`, `handoff.md`), **stable** (change only with the code that changes it, CI-gated: `spec/`,
+architecture diagrams under `spec/` or a `diagrams/` sibling), or **append-only** (supersede, never edit:
+`decisions/`, the `# Sessions` stream). Skills key off location + filename to know their rights.
+
 Still to close: read/write ownership per file + the request/response protocol; whether `spec/` and
-`.knowledge/` merge under a single docs root; symbol-level knowledge paths.
+`.knowledge/` merge under a single docs root; symbol-level knowledge paths; the exact diagrams location.

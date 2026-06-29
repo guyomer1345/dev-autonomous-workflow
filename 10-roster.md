@@ -12,6 +12,8 @@ Claude-Code-native plugin source at the repo root:
 - `agents/<name>.md` — leaf worker capabilities
 - `shared/schemas.md` — inter-capability artifact schemas
 - `shared/format.md` — the authoring format every package file follows (D31/D34)
+- `shared/memory-model.md` — the three-tier rule for what the loop may rewrite/change/never-touch (D38)
+- `rules/<topic>.md` — thin baseline engineering rules, specialized per project by `/start` (D40)
 
 (Later: `hooks/`, `CLAUDE.md`, `.claude-plugin/plugin.json`.) The repo is now **both** the spec (`00`–`10`)
 and the package source.
@@ -91,6 +93,21 @@ The bootstrap command (D10/D28). **greenfield** = repo-setup → scaffold → (s
 sub-steps to expand: orchestrator CLAUDE.md (`01`), console launch (`03`), brownfield ingest (`06`), full
 disk layout (`05`).
 
+## Adoption deltas — workflow-kit + GSD (D36–D45)
+Capability changes to author next (decisions captured; skill bodies not yet edited):
+- `prioritize` — **waves**: dependency-group the ready set; run a wave; re-pick (D36).
+- `execute` — **divergence tiers** (cosmetic / prerequisite-repair-as-separate-commit / structural-stop, D37);
+  **refuse** a destructive `plan` with no verified `backup`, run+verify it first (D42).
+- `planner` — set `risk_class` + require `backup` when destructive (D42); **decision-coverage gate** —
+  every `decision-record` maps to ≥1 step or block (D43); emit **no un-checkable** acceptance criterion (D30).
+- `adjudicate` — **conjunction-of-signals**: an LLM verdict gates only with a corroborating deterministic
+  signal; AI-only → advisory (D45). Propagates to `verify`/`debug`/`decision-engineer`.
+- `commit` — **secret-scan** the staged diff; stop on a hit (D44).
+- `document` — own **same-item** doc + Mermaid-C4 diagram freshness; audit-phase **prune pass** (D41).
+- new thin **`rules/`** baseline + `/start` **enforcement wiring** (lint/test/CI/hooks), nearest-file-wins (D40).
+- `shared/memory-model.md` (D38) added; `shared/schemas.md` plan gains `risk_class`/`backup`/`decisions[]`.
+
 ## Still open
-- The **collision model** — when two items are independent enough to run in parallel (`02` / `07`).
+- The **collision-model independence test** — when two items are independent enough to share a wave (`02` / `07`).
 - `init` **brownfield-ingest** detail (depends on Space-6 ingest mechanics).
+- D41 freshness mechanisms (staleness signal, prune pass) + #8 (verify reads diff?) — `07`.

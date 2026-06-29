@@ -13,7 +13,8 @@ Deliberately deferred — known unknowns, to close during build or later.
 - **Commit-message convention** — **CLOSED (D32):** Conventional Commits + `Refs:`/`Closes:` trailers.
   Remaining sliver: whether the workflow's own generated commits carry the `Co-Authored-By` trailer.
 - **Agent roster v1** — **CLOSED in `10`** (names, I/O contracts, skill-vs-agent, topology). Remaining
-  slivers: the collision model (`02`) and the `prioritize` interrupt model (`09`).
+  sliver: the collision-model **independence test** (`02`) — waves decided the grouping (D36); the
+  `prioritize` interrupt model is closed (pure queue, D26).
 - **What a checkpoint is** (`04`) — data model now in `shared/schemas.md` (demo/qa/setup + verdict).
   Remaining: which help features are MVP.
 - **Outward-action permission model** (`04`, D35) — mechanics of the local-autonomous / outward-gated
@@ -23,12 +24,15 @@ Deliberately deferred — known unknowns, to close during build or later.
   (`gh issue close`). MVP-safe default = always-gated per-action; the open part is standing auth + batching.
   *Surfaced 2026-06-29 (live: the harness gated a push to `main`).*
 - **Website screen list** (`03`).
-- **Disk layout** (`05`) — the full file tree + protocols.
+- **Disk layout** (`05`) — the full file tree + protocols; incl. the exact diagrams location (D41).
+- **Adoption follow-ons (D38–D45)** — the **prune-pass** mechanism and **staleness-detection** signal that
+  keep STABLE/guidance files fresh (D41); whether `verify` samples the real `git diff` vs trusts the
+  `changelog` (#8); authoring the thin baseline `rules/` + `/start` enforcement wiring (D40).
 
 ## Deferred (post-MVP or later)
-- **Knowledge maintenance / freshness model** (`06`).
+- **Knowledge graph regenerate-vs-incremental** (`06`) — shape decided (D38/D41), mechanism deferred.
 - **Model + effort routing** map (`01`).
-- **Collision model** details (`01`/`02`).
+- **Collision-model independence test** (`01`/`02`) — waves grouping decided (D36).
 - **Arbiter** batch-vs-one input contract (`01`).
 - **Optional SDK "runner"** for fully-autonomous restart (`01`) — deferred add-on; MVP uses
   human-prompted restart. Decided in principle; build + verify SDK auth (subscription vs API key) later.

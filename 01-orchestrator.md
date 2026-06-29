@@ -26,8 +26,10 @@ stopping to ask the human:
 
 ## Concurrency **[DECIDED]**
 Parallel by default — run as many agents concurrently as the work allows; serialize only when tasks
-collide. Requires a **collision model** (how independence is judged — file/module/area overlap).
-**[OPEN — see 07]**
+collide. Realized as **waves** (D36): `prioritize` groups independent ready items into a wave, runs it in
+parallel, then re-picks; dependents fall to the next wave; build hooks run **once per wave** (parallel
+agents hitting build tools cause lock contention). Still needs a **collision model** — the independence
+test itself (file/module/area overlap). **[grouping DECIDED (D36); independence test OPEN — see 07]**
 
 ## Session lifecycle **[DECIDED / partly OPEN]**
 - PC must be on (Claude can't run with the machine off).

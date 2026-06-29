@@ -279,9 +279,118 @@ standing, batching, which checkpoint kind).
 
 ---
 
+## Inspiration / adoption pass — workflow-kit + GSD (session 2026-06-29)
+
+A full read of the user's prior `workflow-kit` (the human-driven `/stage-a → execute → verify → refine →
+document` kit that inspired this project), the GSD ("Get Stuff Done") spec-driven system, and best-practice
+research. Framing: **both inspirations are human-driven; this project is the autonomous version**, so the
+transferable parts are the *content of each phase* and the *discipline gates* — and the gates matter **more**
+here, because no human watches each step. Verbosity deliberately **not** taken (their prose is one team's
+scar tissue; this roster stays terse, D31).
+
+## D36 — Waves = the collision-model realization **[DECIDED]**
+Parallelism (D9) is realized as **waves**: `prioritize` dependency-analyses the ready set, groups independent
+items into a wave, runs the wave in parallel, then re-picks; dependent items fall to the next wave. Build
+hooks run **once per wave** (parallel agents hitting build tools cause lock contention). Partially closes the
+collision open: the *grouping mechanism* is decided; the *independence test* (file/module/area overlap) stays
+open.
+*Rejected:* ad-hoc per-item independence checks; always-sequential. *Evidence:* GSD waves + user. → `01`,
+`10`/`prioritize`, `07`.
+
+## D37 — Execute divergence convergence tiers **[DECIDED]**
+`execute`'s divergence handling is tiered: **cosmetic** (helper moved, line drift) → adapt + record;
+**discovered-prerequisite-repair** (in-scope-adjacent fix the plan didn't name) → apply as a **separate
+commit**, record, continue; **structural** (plan assumes something untrue) → stop + escalate. Preserves
+execute's zero-decision invariant — the escalation *is* the decision boundary, and a prerequisite repair is
+never silently folded into a planned commit.
+*Rejected:* a flat "record a divergence" with no tiering; rolling prerequisite repairs into planned commits
+(hides that the executor stumbled into them). *Evidence:* workflow-kit execute taxonomy + user. →
+`skills/execute`, `10`.
+
+## D38 — Knowledge/docs design law + three-tier memory invariant **[DECIDED]**
+**The law:** a file earns its place only if it holds **non-derivable intent** or is the loop's **cross-session
+memory**; everything else is **generated on demand** or **enforced by CI** — because prose rots silently while
+code and checks fail loudly. **Three-tier memory invariant** every skill obeys:
+- **VOLATILE** — rewrite freely each iteration (`state.json`, `handoff.md`).
+- **STABLE** — change only in the **same item as the code that changes it**, CI-gated (`spec/`, diagrams).
+- **APPEND-ONLY** — supersede, never edit (`decisions/`, the audit / `# Sessions` stream).
+*Rejected:* undated prose docs a human must refresh (the observed rot); Diátaxis's four-quadrant tree
+(multiplies surface a loop must keep in sync). *Evidence:* best-practice research (primary: ADR immutability,
+CLAUDE.md size discipline, docs-as-code) + the `idea-testing` rot pattern (empty `diagrams/`, undated
+research, documented-not-enforced `logging.md`). → `05`, `06`, `shared/memory-model.md`, `07`.
+
+## D39 — Space-6 split: generated structure vs experiential memory **[DECIDED — sharpens D13]**
+The two halves of Space 6 sit on opposite sides of D38's law. **Structural code graph = GENERATED**
+(tree-sitter/repomap, regenerable, never authoritative prose, never hand-edited — a hand-maintained map goes
+stale and lies). **Experiential per-file memory = the only durable hand-written layer** (the non-derivable
+`why` + the `# Sessions` postmortems). Names the boundary D13 already leaned toward.
+*Rejected:* a hand-maintained structural map; Code Property Graph as agent context (overkill — security-scan
+step only). *Evidence:* Aider repomap (generated → cannot drift) + research. → `06`.
+
+## D40 — Baseline rules + `/start` enforcement wiring **[DECIDED]**
+The package ships a **thin baseline `rules/`** (code-style / testing / security / ops — *principles only*, not
+workflow-kit's volume); projects override via **nearest-file-wins** (package < project < path-scoped).
+`/start` **specializes** them per project **and wires the enforcement layer** — `.editorconfig`,
+linter/formatter/typechecker config, test runner, and the **CI/hook gates** that make enforceable rules fail
+loudly. The orchestrator `CLAUDE.md` (≤~200 lines) holds only non-enforceable behavioural guidance, governed
+by the deletion test (*"would removing this line cause a specific mistake? if not, cut it"*). Discipline is
+mostly **CI-enforced, not prose** — closes the day-one "no baseline guardrail" gap.
+*Rejected:* shipping all discipline as prose (the documented-not-enforced rot); folding everything into
+`CLAUDE.md`. *Evidence:* Google eng-practices (nearest-file-wins) + Cursor/Claude rules conventions +
+`idea-testing` `logging.md` rot + user. → new package `rules/`, `commands/start`, `10`; complements D34.
+
+## D41 — Diagrams-as-code + loop-owned freshness + prune pass **[DECIDED; mechanisms OPEN]**
+Architecture diagrams are **Mermaid C4 L1/L2 inline** in the architecture doc, updated by `document` in the
+**same item as the code** (skip L3/L4 — auto-generate the code level). Two freshness behaviours the loop owns:
+**staleness must be machine-detectable** (not a date a human forgets) and a periodic **prune pass** (deletion
+test over `CLAUDE.md` + `rules/`) in the audit phase — bloat makes the agent ignore its own instructions. The
+two **mechanisms are OPEN** (`07`) — decided that they exist, not how.
+*Rejected:* separate `.mmd`/binary diagram tools (don't diff); human date-stamps; hand-maintained C4 code
+level. *Evidence:* C4 + Mermaid-in-GitHub + the empty `idea-testing` `diagrams/`. → `skills/document`, `06`,
+`07`.
+
+## D42 — Plan risk-class + Backup contract **[DECIDED]**
+The `plan` carries **`risk_class`** ∈ `{code-only, data-additive, data-destructive, prod-touching}` and, when
+destructive, a required **`backup`** block (what / mechanism / verification / restore). `planner` sets the
+class; `execute` **refuses** a destructive plan with no verified backup, runs+verifies the backup **before**
+the destructive step, and records it. The **local-irreversible** twin of D35 (which gates only outward
+actions) — an unattended executor must not run a `DROP`/migration without a proven rollback.
+*Rejected:* relying on D35 (covers push/`gh`, not a local destructive op); operator confidence as the gate.
+*Evidence:* workflow-kit `risk_class`/Backup, sharpened for unattended execution + user ratify. →
+`shared/schemas.md` (plan), `skills/planner`, `skills/execute`.
+
+## D43 — Decision-coverage gate **[DECIDED]**
+`planner` cross-checks that **every decision** in the item's decision records maps to **≥1 plan step**; an
+unmapped decision **blocks/escalates** the plan. The `plan` gains a `decisions[]` reference so coverage is
+machine-checkable; the records live in the product's append-only `decisions/` (D38). Stops resolved intent
+from silently evaporating between `discuss`/`decision-engineer` and `execute`.
+*Rejected:* trusting decisions to survive into the plan implicitly. *Evidence:* GSD decision-coverage gate +
+user ratify. → `shared/schemas.md` (plan), `skills/planner`; connects D24 (`document` ingests the decision
+stream).
+
+## D44 — Secret-scan gate in `commit` **[DECIDED]**
+Before committing, `commit` scans the staged diff for high-signal secret patterns (key prefixes, private-key
+headers, `password|secret|api_key|token` set to a non-placeholder literal); on a hit it **stops and
+escalates** rather than committing. An autonomous committer needs this more than a human one — a committed
+secret lives in history forever.
+*Rejected:* trusting the executor never to stage a secret. *Evidence:* workflow-kit `commit` secret scan +
+user; fits D32/D35. → `skills/commit`.
+
+## D45 — Conjunction-of-signals for AI judges **[DECIDED]**
+In `adjudicate`: an LLM verdict **gates** (fail/block) only when a **deterministic signal corroborates** it (a
+failing test, a thrown error, a lint/type violation, a tree mismatch); an AI-only finding is **advisory /
+low-confidence**, never a hard gate. Propagates to `verify` / `debug` / `decision-engineer` (which specialize
+`adjudicate`, D24). False-positive control so AI judgment alone can't stall or whipsaw the loop.
+*Rejected:* AI-verdict-alone gating. *Evidence:* workflow-kit `verify-ui` conjunction rule, generalized +
+user ratify. → `skills/adjudicate`; strengthens D24's confidence-gate.
+
+---
+
 ## Not yet decided (tracked in `07`)
-Knowledge maintenance / ingest mechanics; model/effort map; collision details; Arbiter input contract;
-autonomous reset mechanism; website stack. Intake follow-ons: engineering-feasibility pass; demo-skill
-mechanics; commitment-status storage. `init` follow-ons: brownfield ingest, console launch, orchestrator
-CLAUDE.md, full disk layout. Skill-review follow-ons: incidental-issue-resolution detection (`close-issue`
-beyond 1:1) — deferred; outward-action permission mechanics (D35) — see `07`.
+Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
+decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:
+engineering-feasibility pass; demo-skill mechanics; commitment-status storage. `init` follow-ons: brownfield
+ingest, console launch, orchestrator CLAUDE.md, full disk layout. Skill-review follow-ons:
+incidental-issue-resolution detection — deferred; outward-action permission mechanics (D35). Adoption
+follow-ons (D38–D45): the **prune-pass** mechanism, the **staleness-detection** signal, and whether `verify`
+samples the real diff vs trusts the `changelog` (#8). All → `07`.
