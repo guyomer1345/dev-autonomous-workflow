@@ -16,14 +16,20 @@ A **local HTTP loopback service** (the website's backend) is the message channel
 ## Disk layout **[PROVISIONAL first cut — D29; EXPAND]**
 `init` (`commands/start.md`) scaffolds this provisional layout in a target project:
 ```
-.workflow/
-  state.json        # live console state — RUNTIME, gitignored
-  handoff.md        # orchestrator reset/handoff state   (committed)
-  backlog.md        # issues + roadmap items             (committed)
-  decisions/        # decision-records                   (committed)
-  checkpoints/      # checkpoint request/verdict records (committed)
-spec/               # the product spec (discuss fills it)(committed)
-.knowledge/         # knowledge base — Space 6           (committed)
+<launch root>      # where Claude runs = the orchestrator's home
+  CLAUDE.md         # orchestrator brief (greenfield: here; brownfield: a marked block in the existing one)
+  .workflow/
+    config.json     # project_root (./project | .) + run config    (committed)
+    loop.md         # routing graph + diagram (fixed topology)      (committed)
+    state.json      # live position (item/phase/wave) — RUNTIME, gitignored
+    handoff.md      # durable resume anchor                         (committed)
+    backlog.md      # issues + roadmap items                        (committed)
+    decisions/      # decision-records (append-only, global)        (committed)
+    checkpoints/    # checkpoint request/verdict records (global)   (committed)
+    items/<id>/     # per-item working artifacts: plan/changelog/verdict/debug-report  (committed)
+  spec/             # the product spec (discuss fills it)           (committed)
+  .knowledge/       # code map — Space 6                            (committed)
+  <project_root>/   # product code (greenfield: project/ ; brownfield: the repo root itself)
 ```
 **Commit policy:** everything durable is committed; only `.workflow/state.json` (a regenerable view for
 the console) is gitignored.
@@ -33,5 +39,12 @@ the console) is gitignored.
 architecture diagrams under `spec/` or a `diagrams/` sibling), or **append-only** (supersede, never edit:
 `decisions/`, the `# Sessions` stream). Skills key off location + filename to know their rights.
 
+**Resume model (D48).** `state.json` is the volatile live pointer (rewritten in place); `handoff.md` is the
+durable resume anchor (program counter — current item + loop position + parked work); **git history is the
+append-only completed-step log** (each item ends in a `commit`). Mid-run the orchestrator reads `state.json`;
+a cold start reads `handoff.md` + `git log` and rebuilds. **Bounded by construction (D51):** every
+always-read file (`CLAUDE.md`, `state.json`, `handoff.md`, `loop.md`) holds current state only — never history.
+
 Still to close: read/write ownership per file + the request/response protocol; whether `spec/` and
-`.knowledge/` merge under a single docs root; symbol-level knowledge paths; the exact diagrams location.
+`.knowledge/` merge under a single docs root (and whether they sit at the launch root or under
+`<project_root>`, D49); symbol-level knowledge paths; the exact diagrams location.

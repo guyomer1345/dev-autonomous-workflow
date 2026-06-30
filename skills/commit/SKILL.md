@@ -26,6 +26,8 @@ After `document`, per completed phase/item.
 ## Rules
 - One commit per completed item; never bundle unrelated items.
 - The message must trace back to the item — no bare "wip"/"fix" subjects.
+- Bookkeeping rides this commit: the backlog item's done-flip and the `handoff.md` rewrite happen **before**
+  committing, so the item commit captures them. `close-issue` is the only post-commit tail step.
 
 ## Output
 A commit — the checkpoint marker. Its `Closes:` trailer names the issue that `close-issue` then closes.

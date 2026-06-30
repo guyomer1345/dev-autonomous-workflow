@@ -14,9 +14,13 @@ Claude-Code-native plugin source at the repo root:
 - `shared/format.md` — the authoring format every package file follows (D31/D34)
 - `shared/memory-model.md` — the three-tier rule for what the loop may rewrite/change/never-touch (D38)
 - `rules/<topic>.md` — thin baseline engineering rules, specialized per project by `/start` (D40)
+- `templates/` — files `/start` installs into a target: `orchestrator-CLAUDE.md`, `loop.md`,
+  `settings.json` (loop permission rules: `allow` local / `ask` outward) (D52/D57/D58)
+- `hooks/guard.sh` — PreToolUse gate (secret-scan + verify-before-commit); installed to `.claude/hooks/` (D58)
 
-(Later: `hooks/`, `CLAUDE.md`, `.claude-plugin/plugin.json`.) The repo is now **both** the spec (`00`–`10`)
-and the package source.
+**Driver added (D46/D47):** the orchestrator **`CLAUDE.md`** (root brief) + **`.workflow/loop.md`** (routing
+graph + diagram) + **`hooks/`** (the enforced gates). (Later: `.claude-plugin/plugin.json`.) The repo is now
+**both** the spec (`00`–`10`) and the package source.
 
 ## Skill vs agent **[DECIDED — D24, D27]**
 - **skill** = a procedure / controller — run by the orchestrator; defines *how*; **may dispatch agents**.
@@ -85,13 +89,15 @@ research                  (service, callable from anywhere)
   (added `close-issue`, D33).
 - **Authoring-format pass complete (D31/D34):** all 17 skills + 2 agents follow `shared/format.md` and
   carry no spec-internal refs.
+- **Dogfood-validated (D52):** the orchestrator design *drives* — a throwaway greenfield repo ran two tasks
+  (happy + fail/decision) end-to-end; MVP install = loose `.claude/` files (D57). Findings → D53–D57.
 
 ## `init` / `/start`  **[BUILT v1 — D29 → `commands/start.md`]**
 The bootstrap command (D10/D28). **greenfield** = repo-setup → scaffold → (stub) console → hand to
 `discuss`; **fully supported now.** **brownfield/integrate** = the shared scaffold plus a Space-6
-**ingest** pass + reconciliation checkpoint; **mostly STUB** pending ingest mechanics (`06`). Stubbed
-sub-steps to expand: orchestrator CLAUDE.md (`01`), console launch (`03`), brownfield ingest (`06`), full
-disk layout (`05`).
+**ingest** pass + reconciliation checkpoint; **mostly STUB** pending ingest mechanics (`06`). Orchestrator
+`CLAUDE.md` driver now specced (D46–D49). Stubbed sub-steps to expand: console launch (`03`), brownfield
+ingest (`06`), full disk layout (`05`).
 
 ## Adoption deltas — workflow-kit + GSD (D36–D45)
 Capability changes to author next (decisions captured; skill bodies not yet edited):

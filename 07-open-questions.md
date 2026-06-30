@@ -3,8 +3,9 @@
 Deliberately deferred — known unknowns, to close during build or later.
 
 ## Must close before build
-- **Rest of the macro-loop** (`01`) — the phase set (execute → test → document → audit → next) + how
-  checkpoint / reset slot in. *Intake stage now closed in `09` (inception/steering covered there).*
+- **Rest of the macro-loop** — **CLOSED**: the spine lives in `10` + renders as `.workflow/loop.md` (D47);
+  the **orchestrator `CLAUDE.md` driver** is specced in `01` (D46); checkpoint = `04`, reset = the
+  handoff/resume model (D48). *Intake stage closed in `09`.*
 - **Intake follow-ons** (`09`) — engineering-feasibility pass; demo-skill mechanics (serving,
   refine-round limits, on-disk location); commitment-status storage (spec doc vs Space 6 node frontmatter).
   *(Interrupt model closed: pure queue, D26.)*
@@ -24,10 +25,28 @@ Deliberately deferred — known unknowns, to close during build or later.
   (`gh issue close`). MVP-safe default = always-gated per-action; the open part is standing auth + batching.
   *Surfaced 2026-06-29 (live: the harness gated a push to `main`).*
 - **Website screen list** (`03`).
-- **Disk layout** (`05`) — the full file tree + protocols; incl. the exact diagrams location (D41).
-- **Adoption follow-ons (D38–D45)** — the **prune-pass** mechanism and **staleness-detection** signal that
-  keep STABLE/guidance files fresh (D41); whether `verify` samples the real `git diff` vs trusts the
-  `changelog` (#8); authoring the thin baseline `rules/` + `/start` enforcement wiring (D40).
+- **Disk layout** (`05`) — the full file tree + protocols; the exact diagrams location (D41); and whether
+  `spec/`+`.knowledge/` sit at the launch root or under `<project_root>` (D49).
+- **Orchestrator hooks** (D58) — `hooks/guard.sh` now enforces **secret-scan** + **verify-before-commit**
+  (hard blocks); **outward-action** gating is the settings `ask` rule (deliberate prompt). Still open:
+  **build-once-per-wave** (a wave-coordinator, not a command gate); **outward gating under full bypass**; and
+  the **command-chaining gap** — broad `Bash` allow + `ask` prefix-match misses `cd x && git push`, so the
+  robust outward gate ultimately needs the guard-hook/bus checkpoint-queue, not just `ask` rules.
+- **First-launch workspace trust** (D58) — the shipped `settings.json` + hooks are **ignored until the folder
+  is trusted**, and the trust **dialog doesn't render in some terminals (e.g. WSL)**; `/start` + setup docs must
+  give the manual `hasTrustDialogAccepted` flag method, not just "accept the dialog." (Validated: after trust,
+  the dogfood run took **zero** local permission prompts.)
+- **`@import`-survives-`/compact`** — a one-session test; if it re-resolves, the brownfield install (D50) can
+  switch from the inline marked block to a cleaner `@import`.
+- **Console + comms bus** (`03`/`05`) — the **critical-path runtime dependency**: the dogfood showed every
+  step autonomy-drives *except* the blocking qa `checkpoint`, which needs the bus to deliver the human verdict.
+- **Real dispatch validation** — the dogfood *simulated* the `research` agent dispatch; the orchestrator→agent
+  call + structured return is validated in the harness-real run.
+- **Package install** — loose `.claude/` files are MVP (D57); plugin packaging + `shared/` resolution open.
+- **Adoption follow-ons (D38–D51)** — the **retention & archival law** for the append-only tier + the
+  **prune-pass** mechanism + **staleness-detection** signal (D41/D51); whether `verify` samples the real
+  `git diff` vs trusts the `changelog` (#8); authoring the thin baseline `rules/` + `/start` enforcement
+  wiring (D40).
 
 ## Deferred (post-MVP or later)
 - **Knowledge graph regenerate-vs-incremental** (`06`) — shape decided (D38/D41), mechanism deferred.

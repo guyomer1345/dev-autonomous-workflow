@@ -22,6 +22,7 @@ The problem/idea + its `kind` (bug|feature|debt), `severity`, and `source`.
 
 ## Rules
 - Capture only — never start fixing here.
+- The backlog item stores only `github_ref`; open/closed state lives in GitHub, not mirrored locally.
 - Opening the GitHub issue is an **outward action** — gated behind explicit human permission: the backlog
   entry is local and immediate, the `gh issue create` is queued for approval unless pre-authorized.
 - `severity` is set here (e.g. a universal-invariant-class bug); it feeds `prioritize`'s ordering, but the

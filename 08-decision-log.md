@@ -384,13 +384,172 @@ low-confidence**, never a hard gate. Propagates to `verify` / `debug` / `decisio
 *Rejected:* AI-verdict-alone gating. *Evidence:* workflow-kit `verify-ui` conjunction rule, generalized +
 user ratify. → `skills/adjudicate`; strengthens D24's confidence-gate.
 
+## D46 — Orchestrator `CLAUDE.md` = the launch-root brief; advisory backbone + hooks enforce **[DECIDED]**
+The package's driver is the target project's **root `CLAUDE.md`** (Claude Code's always-loaded,
+post-`/compact`-re-injected brief) — "orchestrator" names its *role*, not a separate file; the always-loaded
+session at the launch root **is** the orchestrator. Written lean (a frame, not the per-capability *how*), it
+encodes: identity + three-layer memory (D4), a pointer to the loop, the read→place→advance control algorithm,
+the invariants, checkpoints, handoff. Because `CLAUDE.md` is **advisory context, not enforced configuration**,
+the loop *sequence* runs model-on-rails while the **non-negotiable invariants become deterministic hooks**
+(no commit before `verify` passes; secret-scan D44; outward-action gate D35; build-once-per-wave D36) — the
+brief marks which lines are hook-enforced vs disposition. Exempt from `shared/format.md` (it is the
+always-loaded brief, not a typed node) but shares the voice + carries no spec-internal refs (D34).
+*Rejected:* `CLAUDE.md` prose as enforced control flow (Claude treats it as context, not config); a
+workflow-script driving the whole loop (poor fit for a long-running human-in-the-loop session).
+*Evidence:* Claude Code docs (CLAUDE.md advisory; hooks enforce; root survives `/compact`); industry —
+hard-code routing, LLM inside nodes (Anthropic *Building Effective Agents*, LangGraph, Step Functions,
+Temporal); + user ratify. → `01`, `commands/start.md`, future `hooks/`.
+
+## D47 — Loop graph lives in a pointed-to file; definition vs position **[DECIDED]**
+The routing graph (nodes + pass/fail edges + Mermaid diagram) is the single source of truth in
+**`.workflow/loop.md`**; the root `CLAUDE.md` carries only a **pointer** and the orchestrator **reads it on
+demand** to route. The pointer (plain text) survives `/compact`; the file is read fresh — so we never depend
+on `@import` re-resolution (undocumented). Split **definition** (the fixed topology — STABLE) from
+**position** (`state.json` — volatile); `loop.md` never accumulates run-history. Each skill keeps a
+**one-line local `Route`** (its own successors, self-description); `loop.md` owns the global graph; `10`
+stays a design doc, not loaded at runtime.
+*Rejected:* inlining the full graph in `CLAUDE.md` (triple-maintenance vs `10` + skill `Route`s);
+`@import`-ing the graph (compaction re-resolution undocumented); stripping `Route` from skills (breaks D31
+format, makes skills non-self-describing).
+*Evidence:* single-source-of-truth for the graph (LangGraph `StateGraph`, Step Functions ASL, Airflow DAG);
+Claude Code `@import` is eager + 4-hop but compaction behaviour unconfirmed; + user (his "point at a live
+graph file" proposal). → `01`, `05`, `.workflow/loop.md`.
+
+## D48 — Resume/state model: volatile pointer + durable anchor + git log **[DECIDED]**
+"Where am I in the loop" splits per durable-execution practice: **`state.json`** = the volatile live pointer
+(item / phase / wave; gitignored console view, rewritten in place); **`handoff.md`** = the durable resume
+anchor (program counter — current item + loop position + parked work, committed); **git history** = the
+append-only completed-step log (each item ends in a `commit`, D32). Mid-run reads `state.json`; a cold start
+reads `handoff.md` + `git log` and rebuilds. Replay is idempotent — `prioritize` (pure queue, D26) never
+re-picks a committed item.
+*Rejected:* `handoff.md` only (conflates console view + anchor, loses live state); `state.json` only
+(gitignored — not durable across clone/machine, too fragile as the authority).
+*Evidence:* Temporal event-sourced history + replay; LangGraph checkpoint `next` pointer + idempotency keys;
+Martin Fowler event sourcing; + user ratify. → `01` (session lifecycle), `05`.
+
+## D49 — Per-mode repo layout; the launch-root constraint **[DECIDED]**
+Only the **launch-root `CLAUDE.md`** (and parents) is always-loaded + re-injected post-`/compact`; a subdir
+`CLAUDE.md` loads on-demand and is not restored. So the orchestrator brief must be the launch-root brief, and
+layout splits by mode (D28/D29): **greenfield** — the launch root holds the orchestrator `CLAUDE.md` +
+`skills/`/`agents/`/`commands/`/`loop.md`, and the product lives in **`project/`** with its own untouched
+`CLAUDE.md`. **brownfield** — the product stays at the repo root (no relocation), the workflow machinery is
+added in subdirs, and the orchestrator framing is a marked block in their root `CLAUDE.md` (D50). A committed
+**`.workflow/config.json`** carries `project_root` (`./project` | `.`) so code-touching skills stay
+path-agnostic.
+*Rejected:* always-product-subdir (relocating a live brownfield repo breaks paths/CI + nested-git friction);
+always-flat-root + marked block (gives up the clean greenfield `CLAUDE.md` separation).
+*Evidence:* Claude Code load/compaction hierarchy (only launch-root re-injected); + user (his `workflowdir/`
++ `project/` proposal) + ratify. → `commands/start.md`, `05`, `10`.
+
+## D50 — Brownfield `CLAUDE.md` install = inline marked self-gating block **[DECIDED]**
+Integrating into a project that already has a root `CLAUDE.md`, `/start` **appends a sentinel-marked block**
+to it (inline = guaranteed `/compact` survival), idempotent on install/update/uninstall via the markers,
+never touching user content. The block **self-gates** ("act as orchestrator only when a run is active; else
+an ordinary session") so casual human sessions in the repo aren't hijacked. The existing `CLAUDE.md` is also
+read as a **primary ingest source** for `rules/` + the reconstructed `spec/` (highest-signal artifact in the
+repo).
+*Rejected:* `@import`-ing a separate orchestrator file (cleaner separation, but compaction re-resolution
+undocumented — too risky for the bootloader; kept as a cheap one-session test to adopt later); always-on
+(no self-gate — intrusive on a shared repo).
+*Evidence:* root text survives `/compact` (confirmed) vs `@import` (unconfirmed); marked-block idempotency
+precedent; + user. → `commands/start.md`, `06` (ingest).
+
+## D51 — Always-read files bounded by construction; retention law deferred **[DECIDED + OPEN]**
+The files the orchestrator reads **every turn** — root `CLAUDE.md`, `state.json`, `handoff.md`, `loop.md` —
+are **rewritten in place, never appended to**: current state only, no history, within a small size budget
+(history lives in git). The master rule (context is scarce, D3) applied to disk. The complementary
+**retention & archival law** for the genuinely unbounded set — the **append-only** tier (`decisions/`, the
+`# Sessions` stream) + `backlog.md` closed items, plus indexed retrieval for large `.knowledge/`/`spec/` — is
+**deferred to its own pass** and **closes D41** (prune-pass + staleness mechanisms); the cheap archive is
+rollup-and-link with git as the cold store.
+*Rejected:* letting any always-read file accumulate history (fatal to context).
+*Evidence:* master rule (D3); D38 tiers (only append-only grows unbounded); + user (raised the growth-bound
+concern). → `shared/memory-model.md`, `01`; OPEN → `07`/D41.
+
+## D52 — Orchestrator dogfood: the driver is validated **[DECIDED — validated]**
+A throwaway greenfield repo (`~/Documents/dogfood-orchestrator`) was scaffolded with the package + authored
+`CLAUDE.md`/`loop.md`/`config.json`, and Claude **drove it as the orchestrator** (design-drive simulation)
+across two tasks — a happy-path feature (G1) and a fail/decision feature (G2). The `read → place → advance`
+control algorithm held across **both** the happy path and the failure/decision/human-gate paths
+(`decision-engineer → research → decision-record`; `verify-fail → debug → refine → planner → execute →
+re-verify-pass`; a real qa `checkpoint`; `create-issue → close-issue` with outward gating). Confirmed live:
+the loop-graph pointer (lean `CLAUDE.md` + on-demand `loop.md`); the resume model (cold-start reconstruction
+from `handoff.md` + `git log`); gitignored `state.json`; plan-declared QA (D30 — G1 no checkpoint, G2 one);
+conjunction-of-signals (D45 — a real `KeyError` gated, not an AI hunch). Surfaced findings → **D53–D57**.
+*Evidence:* two-task simulation, real Bash/edits/commits (3 clean commits). → `10` build status.
+
+## D53 — Disk layout + artifact/state schemas (dogfood) **[DECIDED]**
+Closes `schemas.md`'s "paths TBD." **Per-item working artifacts** live under `.workflow/items/<id>/`
+(`plan.md`, `changelog.md`, `verdict.md`, `debug-report.md`); **per-type append-only records** stay global
+(`.workflow/decisions/`, `.workflow/checkpoints/`). The **resume contract** gets real schemas: `state.json`
+`{ status, node, current_item, wave, note }` (`node` ∈ the `loop.md` node labels) and `handoff.md`
+`{ current_item, loop_position, parked[] }`. Rule: per-item ephemeral artifacts are item-scoped; cross-item
+memory is type-scoped.
+*Rejected:* a flat `.workflow/` (plan/changelog/verdict collide across items); leaving paths TBD (resume needs
+a defined `state.json`). *Evidence:* dogfood (had to invent `items/<id>/`). → `shared/schemas.md`, `05`.
+
+## D54 — Item-tail ordering: bookkeeping rides the item commit **[DECIDED]**
+The completion tail flips the backlog item → **done** and rewrites `handoff.md` **before** `commit`, so the
+durable bookkeeping is captured by the item's own commit. (Sim-1 committed first and left them orphaned;
+sim-2 with flip-first produced a clean tree.) `close-issue` is the one **post-commit** step (it needs the
+commit SHA) and writes no loop-bookkeeping (see D55).
+*Rejected:* commit-then-flip (orphans durable files); a separate bookkeeping commit (breaks
+one-commit-per-item). *Evidence:* dogfood (clean vs dirty tree). → `01`, `10`, `skills/commit`.
+
+## D55 — GitHub owns issue open/closed state **[DECIDED]**
+The backlog `issue` carries only `github_ref` (+ local `kind`/`severity`/`source`); the **open/closed state
+lives in GitHub**, not duplicated in `backlog.md`. So `close-issue` (post-commit) changes no local
+loop-bookkeeping — it just closes the GitHub issue + comments the SHA. Removes the post-commit orphan and a
+stale duplicate.
+*Rejected:* mirroring `state ∈ {open,closed}` locally (duplicates state an external system owns → drift +
+post-commit bookkeeping). *Evidence:* dogfood (the close-issue ordering snag). → `shared/schemas.md` (issue),
+`skills/close-issue`, `skills/create-issue`, `shared/memory-model.md`.
+
+## D56 — `decision-record` id + machine-checkable coverage **[DECIDED — sharpens D43]**
+The `decision-record` gains an **`id`** (e.g. `D-001`); `plan.decisions[]` holds those ids; the D43 coverage
+gate checks each id maps to ≥1 step. Makes the decision↔plan link real, not convention.
+*Rejected:* referencing decisions by prose/title (not machine-checkable). *Evidence:* dogfood (the plan's
+`decisions:[D-001]` had no id field to point at). → `shared/schemas.md` (decision-record, plan).
+
+## D57 — Package install location for MVP **[DECIDED — partial]**
+The capability package installs as **loose `.claude/` files** in the target — `.claude/commands/`,
+`.claude/skills/<name>/SKILL.md`, `.claude/agents/<name>.md` — so `/start` + skills are harness-discoverable;
+`shared/` co-locates and is referenced by relative path. Resolves the D25/D49 "at the launch root" ambiguity
+for MVP. **Open:** plugin packaging (`.claude-plugin/plugin.json`) + robust `shared/` resolution.
+*Rejected:* package dirs at the bare repo root (Claude Code discovers commands/skills under `.claude/`).
+*Evidence:* dogfood install. → `10`, `commands/start.md`; OPEN → `07`.
+
+## D58 — Autonomous permission model: shipped allowlist + `ask` gate + guard hook **[DECIDED]**
+The harness-real `/start` ran but **prompted constantly for routine local actions** (fatigue) and **pushed to
+`origin/main`** — the outward gate (D35) wasn't enforced (advisory prose only), so it collapsed into the same
+prompt stream and got approved. Both are one problem: permission-prompts as the *only* enforcement. Fix
+(Claude Code best practice): the package **ships `.claude/settings.json`** with `permissions.allow` **broad for
+local** work (`Bash` + `Edit`/`Write`/`Read` + `Task`/`Web*`) → prompt-free, and a **thorough `ask` list** for
+**outward** actions (`git push`, `gh`, publish/deploy/cloud CLIs, `ssh`/`scp`/`rsync`, `curl`/`wget`) → a
+deliberate gate. (Broad-allow chosen over an enumerated safelist because per-toolchain enumeration can't
+anticipate every project and `cd x && cmd` chaining defeats prefix-matched allows.) Precedence is **deny > ask > allow**,
+so local runs silently while outward always asks — exactly D35, *without* full bypass. The "never do this"
+gates become a **PreToolUse hook** (`hooks/guard.sh`): **secret-scan** (block a staged secret) +
+**verify-before-commit** (block a commit whose item's verify failed) — legitimate hard-blocks (exit 2, which
+overrides allow and fires even under bypass). `/start` surfaces a **one-time message** (accept the
+workspace-trust dialog; outward stays gated; you don't need `--dangerously-skip-permissions`). Modes are
+**user-controlled** — a `CLAUDE.md`/command cannot set them, so `/start` only recommends.
+*Rejected:* recommending full `--dangerously-skip-permissions` (auto-approves outward → destroys D35);
+hard-blocking `git push` in the hook (kills the approve-and-push flow — outward is an *ask*, not a forbid);
+leaving gates as advisory prose (the run pushed). *Still open:* **build-once-per-wave** (a wave-coordinator,
+not a command gate) and **outward gating under full bypass** (needs the console/bus checkpoint-queue).
+*Evidence:* dogfood `/start` (constant prompts + a push to `origin/main`); Claude Code permission/hook docs
+(deny>ask>allow; hooks precede + override permission rules; modes user-controlled). → `commands/start.md`,
+`templates/settings.json`, `hooks/guard.sh`, `01`, `10`, `07`; realizes D46, protects D35.
+
 ---
 
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:
 engineering-feasibility pass; demo-skill mechanics; commitment-status storage. `init` follow-ons: brownfield
-ingest, console launch, orchestrator CLAUDE.md, full disk layout. Skill-review follow-ons:
+ingest, console launch, full disk layout (incl. `spec/`+`.knowledge/` placement). Skill-review follow-ons:
 incidental-issue-resolution detection — deferred; outward-action permission mechanics (D35). Adoption
-follow-ons (D38–D45): the **prune-pass** mechanism, the **staleness-detection** signal, and whether `verify`
-samples the real diff vs trusts the `changelog` (#8). All → `07`.
+follow-ons (D38–D51): the **retention & archival law** + the **prune-pass** mechanism + the
+**staleness-detection** signal (D41/D51), and whether `verify` samples the real diff vs trusts the
+`changelog` (#8). All → `07`.

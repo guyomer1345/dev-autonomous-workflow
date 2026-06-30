@@ -23,17 +23,33 @@ built-in Claude Code command.
 2. **Scaffold the workflow layout** (provisional — Space 5, EXPAND):
    ```
    .workflow/
-     state.json        # live console state — RUNTIME, add to .gitignore
-     handoff.md        # reset/handoff state           (committed)
+     config.json       # project_root + run config      (committed)
+     loop.md           # routing graph + diagram        (committed)
+     state.json        # live position — RUNTIME, add to .gitignore
+     handoff.md        # durable resume anchor          (committed)
      backlog.md        # issues + roadmap items         (committed)
      decisions/        # decision-records               (committed)
      checkpoints/      # checkpoint request/verdict logs (committed)
    spec/               # the product spec (discuss fills this)   (committed)
    .knowledge/         # code map — Space 6                      (committed)
+   project/            # product code (greenfield; brownfield uses the repo root)
    ```
    Add `.workflow/state.json` to the target's `.gitignore`; everything else is committed.
-3. **Install orchestrator framing** — activate the workflow's `CLAUDE.md` / operating instructions so this
-   session behaves as the thin-router orchestrator. ⛔ STUB — to author; depends on the full loop (`01`).
+3. **Install the orchestrator brief** (the driver — `01`), from the package `templates/`:
+   - **greenfield:** copy `templates/orchestrator-CLAUDE.md` → the launch-root **`CLAUDE.md`** (fill
+     `<project>`/`<project_root>`) and put the product under **`project/`** (its own `CLAUDE.md` left to the
+     product); set `project_root: ./project`.
+   - **brownfield:** the product stays at the repo root; wrap `templates/orchestrator-CLAUDE.md` in the
+     **sentinel markers** and **append** it to the *existing* root `CLAUDE.md` (never clobber — idempotent via
+     the markers); read that existing `CLAUDE.md` as a **primary ingest source**; set `project_root: .`.
+   - Copy `templates/loop.md` → **`.workflow/loop.md`** and write **`.workflow/config.json`** (`project_root` +
+     run config).
+   - Copy `templates/settings.json` → **`.claude/settings.json`** (loop permission rules: `allow` local
+     actions, `ask` outward) and `hooks/guard.sh` → **`.claude/hooks/guard.sh`** (secret-scan +
+     verify-before-commit hard gates). `build-once-per-wave` is deferred.
+   - **Surface the one-time permission message** to the human: *"This is an autonomous loop. Accept the
+     workspace-trust dialog so the package can pre-approve the loop's local actions; outward actions
+     (push / issues / deploy) will still ask — by design. You don't need `--dangerously-skip-permissions`."*
 4. **Launch the local console** (Space 3). ⛔ STUB — website stack/screens still open.
 5. **Commit** the initialised scaffold.
 
@@ -55,4 +71,3 @@ built-in Claude Code command.
 - Space-6 **ingest** for brownfield (the real codebase mapping / llm-wiki build).
 - The **console** launch (Space 3).
 - The full **disk layout** (Space 5) — the tree above is a provisional first cut.
-- The orchestrator **`CLAUDE.md`** operating instructions (`01`).

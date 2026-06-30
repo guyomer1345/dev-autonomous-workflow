@@ -17,6 +17,12 @@ demand** or **enforced by CI** — prose rots silently, code and checks fail lou
 - A `decision-record` is never edited — a reversal is a **new** record that supersedes (status flip).
 - Structural code maps are **generated, never hand-written** (D39) — not a tier, an output.
 - Enforceable rules live in lint/test/CI/hooks, not prose (D40); prose shrinks to non-derivable intent.
+- **Always-read files are bounded by construction (D51):** `CLAUDE.md`, `state.json`, `handoff.md`, `loop.md`
+  hold current state only — rewritten in place, never grown — so the loop can't inflate its own context cost.
+  History lives in git. The **retention & archival law** for the append-only tier (rollup + indexed retrieval,
+  git as cold store) is the open companion (D41 → `07`).
+- **Don't duplicate state an external system owns (D55):** e.g. GitHub issue open/closed — the backlog holds
+  only the `github_ref` pointer; mirroring the state locally creates drift + post-commit bookkeeping.
 
 ## Open
 The **staleness-detection** signal and the **prune-pass** mechanism that keep STABLE/guidance files fresh are

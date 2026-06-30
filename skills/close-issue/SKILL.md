@@ -22,6 +22,9 @@ At item completion, immediately after `commit`.
 ## Rules
 - Close only the completed item's own issue — 1:1. Detecting issues *incidentally* resolved by the change
   is out of scope for now.
+- **GitHub owns open/closed state** — the backlog holds only `github_ref`, never a duplicated local state;
+  closing writes no loop-bookkeeping, so this stays a clean post-commit step (the item-tail done-flip already
+  rode the commit).
 - Closing the GitHub issue is an **outward action** — gated behind explicit human permission (queued for
   approval unless pre-authorized).
 - No `github_ref` (item came from steering, not an issue) → nothing to close; exit quietly.
