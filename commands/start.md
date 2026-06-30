@@ -27,13 +27,17 @@ built-in Claude Code command.
      loop.md           # routing graph + diagram        (committed)
      state.json        # live position — RUNTIME, add to .gitignore
      handoff.md        # durable resume anchor          (committed)
-     backlog.md        # issues + roadmap items         (committed)
-     decisions/        # decision-records               (committed)
-     checkpoints/      # checkpoint request/verdict logs (committed)
-   spec/               # the product spec (discuss fills this)   (committed)
-   .knowledge/         # code map — Space 6                      (committed)
-   project/            # product code (greenfield; brownfield uses the repo root)
+     backlog.md        # live OPEN queue (issues + roadmap; closed leave) (committed)
+     checkpoints/      # RESERVED — demoted (D60); no writer yet
+   <project_root>/     # the product (greenfield: project/ ; brownfield: repo root)
+     llms.txt          # thin agent entry point → docs/knowledge/  (committed)
+     docs/             # docs-root (D62) — durable product knowledge
+       spec/           # product spec (discuss fills this)   (committed)
+       architecture.md # inline Mermaid-C4 (document-owned)  (committed)
+       knowledge/      # code map — Space 6                  (committed)
+       decisions/      # decision-records = ADRs (append-only) (committed)
    ```
+   `.workflow/items/<id>/` is **not** scaffolded here — `planner` `mkdir`s each per item on demand (D59).
    Add `.workflow/state.json` to the target's `.gitignore`; everything else is committed.
 3. **Install the orchestrator brief** (the driver — `01`), from the package `templates/`:
    - **greenfield:** copy `templates/orchestrator-CLAUDE.md` → the launch-root **`CLAUDE.md`** (fill
@@ -54,14 +58,16 @@ built-in Claude Code command.
 5. **Commit** the initialised scaffold.
 
 ## 2. Greenfield (new project)  — fully supported
-- Leave `spec/` and `.knowledge/` empty; they grow as the project is built.
+- Scaffold an empty `<project_root>/docs/` (spec, architecture, knowledge, decisions); it grows as the project
+  is built (D62).
 - Hand off to **`discuss`** (inception) to build the spec from zero → then the normal loop
   (`prioritize → planner → …`).
 
 ## 3. Brownfield (integrate existing codebase)  — mostly STUB (EXPAND)
-- **Ingest** the existing code → populate `.knowledge/` (code graph + per-file nodes, code-derived
-  purpose) and a **reconstructed `spec/`** from the code. ⛔ STUB — depends on the Space-6 **ingest
-  mechanics**, still open (`06`/`07`). For now: scaffold an empty `.knowledge/` and record a TODO to
+- **Ingest** the existing code → populate `docs/knowledge/` (code graph + per-file nodes) and a
+  **reconstructed `docs/spec/`**. **Adopt an existing `docs/`** if present — write members to known subpaths,
+  never clobber; namespace ours on a name collision (D62). ⛔ STUB — depends on the Space-6 **ingest
+  mechanics**, still open (`06`/`07`). For now: scaffold an empty `docs/knowledge/` and record a TODO to
   ingest once the mechanics exist.
 - **Reconciliation checkpoint** — surface the reconstructed understanding ("here's what I think the app
   does, its screens, its stack") via `checkpoint` for the user to confirm/correct before the loop drives.

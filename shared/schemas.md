@@ -1,9 +1,11 @@
 # Shared Artifact Schemas
 
 The data formats that flow between capabilities. One source of truth — skills/agents reference these by
-name. On-disk storage paths are still TBD (disk layout).
+name. On-disk paths are fixed by D53; each schema notes its **write-mode** (rewrite-in-place · append ·
+new-record-supersede · create-per-item) and **tier** (see `shared/memory-model.md`, D38). *Retention bounds
+(the read/Layer-1 law) are tracked separately in `07`/D41.*
 
-## spec
+## spec  · *rewrite-in-place · STABLE (changes only with the code it specifies)*
 The product definition `discuss` produces and the whole build runs against.
 - `audience` — who it's for
 - `runtime` — where it runs
@@ -15,10 +17,10 @@ The product definition `discuss` produces and the whole build runs against.
 - `tech_stack` — value | `"TBD → decision-engineer"`
 - `commitment` ∈ `{ locked, provisional, unspecified }` — tagged per element
 
-## roadmap  · produced by `planner` (decompose mode)
+## roadmap  · produced by `planner` (decompose mode) · *emitted as items into the live `backlog.md` queue (D59)*
 - `phases[]` — `{ name, goal, depends_on[], acceptance, commitment }`
 
-## plan  · produced by `planner` (plan-one mode)
+## plan  · produced by `planner` (plan-one mode) · *created per item under `.workflow/items/<id>/` (planner `mkdir`s it on demand, D59); committed while the item is open (crash-survival), the dir pruned once closed by the audit pass (D61)*
 - `goal`
 - `source_spec_ref`
 - `decisions[]` — refs (by `id`) to the `decision-record`s this plan implements; every one must map to ≥1
@@ -33,46 +35,60 @@ The product definition `discuss` produces and the whole build runs against.
   one or the other** — `planner` emits no un-checkable criterion (D30). A plan with zero `human-qa` criteria
   never triggers a QA checkpoint.
 
-## changelog  · produced by `execute`
+## changelog  · produced by `execute` · *append within the item's lifetime; `.workflow/items/<id>/`; item-scoped ephemeral*
 - `plan_ref`
 - `actions[]` — `{ step, files, result }`
 - `divergences[]` — `{ step, expected, actual, why }`
 
-## verify-verdict  · produced by `verify`
+## verify-verdict  · produced by `verify` · *created per item in `.workflow/items/<id>/`; item-scoped ephemeral*
 - `pass`
 - `mismatches[]` — `{ expected, actual }`
 - `confidence`
 
-## decision-record  · produced by `decision-engineer`
+## decision-record  · produced by `decision-engineer` · *append-only — one record per decision; a reversal is a NEW record that supersedes (status flip), never an edit (D38); global under `<project_root>/docs/decisions/` (D62)*
 - `id` — stable id (e.g. `D-001`); `plan.decisions[]` reference these, and coverage is checked id → step
+- `status` ∈ `{ active, superseded }` · `supersedes` / `superseded_by` — the reversal chain; a flip writes a
+  NEW record and sets these. Retention GCs superseded bodies to git, keeping a tombstone in
+  `decisions/index.md` (D61)
 - `question`
 - `options[]`
 - `chosen`, `why`
 - `confidence`
-- `sources[]`
+- `sources[]` — the durable distillate of any `research` dispatched for this decision (the heavy research
+  notes are ephemeral scratch, discarded — D59)
 
-## debug-report  · produced by `debug` (also the knowledge-base `# Sessions` entry format)
+## debug-report  · produced by `debug` · *item-scoped ephemeral in `.workflow/items/<id>/`; its **durable form** is the per-file `# Sessions` entry `document` promotes (D59) — a report not promoted leaves no durable trace*
 - `symptom`, `cause`, `fix`, `avoid`
 - `confidence`
 
-## checkpoint  · the `checkpoint` gate
+## checkpoint  · the `checkpoint` gate · *RESERVED — `.workflow/checkpoints/` is demoted pending the outward-permission model (D60); today the verdict is a bus message, not a written record*
 - `request` — `{ kind: demo|qa|setup, what, expected, how?(←setup-guide), blocking: true }`
 - `verdict` — `{ pass, notes }`  · pass → continue · fail → debug→refine
 
-## issue  · produced by `create-issue`, closed by `close-issue`
+## issue  · produced by `create-issue`, closed by `close-issue` · *filed into `backlog.md` — a **live open queue** (rewrite-in-place; closed entries leave, GC'd by `prioritize`), not append-only (D59)*
 - `{ title, kind: bug|feature|debt, description, severity, source }`
 - `github_ref` — the mirrored GitHub issue number (`create-issue` opens it; `close-issue` closes it)
 - **open/closed state lives in GitHub** (source of truth) — the backlog holds only `github_ref`, never a
-  duplicated local `state` (D55), so `close-issue` writes no local loop-bookkeeping.
+  duplicated local `state` (D55), so `close-issue` writes no local loop-bookkeeping; `prioritize` drops a
+  closed entry at pick time.
 
-## state.json  · the live loop pointer (volatile, gitignored) — D53
+## config.json  · written once by `/start`, read on demand · *rewrite-in-place · static after init (committed)*
+- `project_root` — `./project` (greenfield) | `.` (brownfield); makes code-touching skills path-agnostic (D49)
+- `run` — per-project run config (model/effort routing, wave caps — fields grow as those land)
+
+## state.json  · the live loop pointer (volatile, gitignored) — D53 · *rewritten in place each iteration*
 - `status` ∈ `{ intake, building, idle }`
 - `node` — current loop node; value ∈ the `loop.md` node labels (e.g. `planner:plan-one`, `verify`)
 - `current_item` — backlog id or `null` · `wave` — wave id or `null` · `note` — human-readable cursor
 
-## handoff.md  · the durable resume anchor (committed) — D53
-- `current_item`, `loop_position`, `parked[]`. A cold start reads this + `git log` and rebuilds position.
+## handoff.md  · the durable resume anchor (committed) — D53 · *rewritten whole each handoff, never appended*
+- `current_item`, `loop_position`, `parked[]`, `base_sha` — the commit it was written against; a cold start
+  reads this + `git log <base_sha>..HEAD` (bounded to one session's delta, D61) and rebuilds position.
 
 ## per-item artifacts  · on disk — D53
-`plan` / `changelog` / `verify-verdict` / `debug-report` live under `.workflow/items/<id>/`; `decision-record`s
-and `checkpoint`s stay global under `.workflow/decisions/` and `.workflow/checkpoints/`.
+`plan` / `changelog` / `verify-verdict` / `debug-report` live under `.workflow/items/<id>/` — `planner`
+`mkdir`s the dir on demand when it writes `plan.md` (D59); the dir is **item-scoped**, committed while the item
+is open (crash-survival) and **pruned once closed** by the `audit` pass (D61). `decision-record`s stay global +
+append-only under `<project_root>/docs/decisions/` (D62), with a VOLATILE `index.md` + superseded bodies GC'd to git;
+`checkpoints/` is **reserved** (D60). Rule: per-item ephemeral artifacts are item-scoped; cross-item memory is
+type-scoped.

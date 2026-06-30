@@ -339,7 +339,7 @@ mostly **CI-enforced, not prose** — closes the day-one "no baseline guardrail"
 `CLAUDE.md`. *Evidence:* Google eng-practices (nearest-file-wins) + Cursor/Claude rules conventions +
 `idea-testing` `logging.md` rot + user. → new package `rules/`, `commands/start`, `10`; complements D34.
 
-## D41 — Diagrams-as-code + loop-owned freshness + prune pass **[DECIDED; mechanisms OPEN]**
+## D41 — Diagrams-as-code + loop-owned freshness + prune pass **[DECIDED — mechanisms closed by D61]**
 Architecture diagrams are **Mermaid C4 L1/L2 inline** in the architecture doc, updated by `document` in the
 **same item as the code** (skip L3/L4 — auto-generate the code level). Two freshness behaviours the loop owns:
 **staleness must be machine-detectable** (not a date a human forgets) and a periodic **prune pass** (deletion
@@ -348,6 +348,8 @@ two **mechanisms are OPEN** (`07`) — decided that they exist, not how.
 *Rejected:* separate `.mmd`/binary diagram tools (don't diff); human date-stamps; hand-maintained C4 code
 level. *Evidence:* C4 + Mermaid-in-GitHub + the empty `idea-testing` `diagrams/`. → `skills/document`, `06`,
 `07`.
+*Closed by D61:* the prune-pass + staleness-detection mechanisms are cap-and-archive + a script/LLM-split
+`audit` pass; distillation deferred.
 
 ## D42 — Plan risk-class + Backup contract **[DECIDED]**
 The `plan` carries **`risk_class`** ∈ `{code-only, data-additive, data-destructive, prod-touching}` and, when
@@ -427,7 +429,7 @@ re-picks a committed item.
 *Evidence:* Temporal event-sourced history + replay; LangGraph checkpoint `next` pointer + idempotency keys;
 Martin Fowler event sourcing; + user ratify. → `01` (session lifecycle), `05`.
 
-## D49 — Per-mode repo layout; the launch-root constraint **[DECIDED]**
+## D49 — Per-mode repo layout; the launch-root constraint **[DECIDED — docs-root sliver closed by D62]**
 Only the **launch-root `CLAUDE.md`** (and parents) is always-loaded + re-injected post-`/compact`; a subdir
 `CLAUDE.md` loads on-demand and is not restored. So the orchestrator brief must be the launch-root brief, and
 layout splits by mode (D28/D29): **greenfield** — the launch root holds the orchestrator `CLAUDE.md` +
@@ -454,17 +456,19 @@ undocumented — too risky for the bootloader; kept as a cheap one-session test 
 *Evidence:* root text survives `/compact` (confirmed) vs `@import` (unconfirmed); marked-block idempotency
 precedent; + user. → `commands/start.md`, `06` (ingest).
 
-## D51 — Always-read files bounded by construction; retention law deferred **[DECIDED + OPEN]**
+## D51 — Always-read files bounded by construction; retention law deferred **[DECIDED — retention closed by D61]**
 The files the orchestrator reads **every turn** — root `CLAUDE.md`, `state.json`, `handoff.md`, `loop.md` —
 are **rewritten in place, never appended to**: current state only, no history, within a small size budget
 (history lives in git). The master rule (context is scarce, D3) applied to disk. The complementary
 **retention & archival law** for the genuinely unbounded set — the **append-only** tier (`decisions/`, the
-`# Sessions` stream) + `backlog.md` closed items, plus indexed retrieval for large `.knowledge/`/`spec/` — is
+`# Sessions` stream), plus indexed retrieval for large `.knowledge/`/`spec/` — is
 **deferred to its own pass** and **closes D41** (prune-pass + staleness mechanisms); the cheap archive is
 rollup-and-link with git as the cold store.
 *Rejected:* letting any always-read file accumulate history (fatal to context).
 *Evidence:* master rule (D3); D38 tiers (only append-only grows unbounded); + user (raised the growth-bound
 concern). → `shared/memory-model.md`, `01`; OPEN → `07`/D41.
+*Amended by D59:* `backlog.md` reclassified as a live open queue (closed items leave, GC'd by `prioritize`) —
+removed from the append-only retention set above; only `decisions/` + the `# Sessions` stream remain unbounded.
 
 ## D52 — Orchestrator dogfood: the driver is validated **[DECIDED — validated]**
 A throwaway greenfield repo (`~/Documents/dogfood-orchestrator`) was scaffolded with the package + authored
@@ -542,14 +546,111 @@ not a command gate) and **outward gating under full bypass** (needs the console/
 (deny>ask>allow; hooks precede + override permission rules; modes user-controlled). → `commands/start.md`,
 `templates/settings.json`, `hooks/guard.sh`, `01`, `10`, `07`; realizes D46, protects D35.
 
+## D59 — Write-law leak closures (Layer 0 of the retention pass) **[DECIDED]**
+Before the retention *read* law (D41) can land, the *write* law (D38) had unwired leaks — append-only
+artifacts with no writer, no on-disk home, or no stated write-mode. A three-agent doc-surface sweep mapped
+them; closed as one set:
+1. **Per-item dirs are created on demand.** `planner` (plan-one) `mkdir`s `.workflow/items/<id>/` when it
+   writes the first per-item artifact (`plan.md`). `start.md` cannot scaffold `items/<id>/` — no `<id>`
+   exists at init and git ignores empty dirs — so it scaffolds only the `items/` *role*, not an instance.
+2. **`backlog.md` is a live open queue, not append-only** (corrects D51). Rewrite-in-place; closed items
+   **leave** — `prioritize` GCs at pick time (drops roadmap items `commit` flipped done; filters `issue`
+   entries whose `github_ref` is closed), honoring D55 (close-issue still writes no local bookkeeping). It is
+   read on-demand by `prioritize`, bounded by open-WIP, not by age.
+3. **`research` heavy notes are ephemeral scratch** with no durable home — the durable distillate is the
+   caller's record (`decision-record` `why`+`sources[]`, or `debug-report`); notes are discardable (the
+   `create-demo` throwaway pattern). No new durable surface.
+4. **`document` owns the architecture doc** (inline Mermaid-C4 L1/L2), updated same-item — D41 named it owner
+   but `document` never wrote it. The step is **location-agnostic** (the doc's home is the open docs-root
+   question).
+5. **`schemas.md` hygiene:** a **write-mode + tier** line per schema (cross-linked to `memory-model.md`) and a
+   `config.json` schema; `debug-report`'s durable form is named as the per-file `# Sessions` entry; the
+   `# Sessions` log is **per-file sections**, not one global stream (fixes `05`/`11` wording); the ghost
+   `log.md` (Karpathy lineage in `06`) is dropped — its role is the per-file `# Sessions`.
+*Rejected:* adding `items/<id>/` to the static scaffold (id is runtime, not init-time); keeping `backlog.md`
+append-only (D51's lump — closed items grow it forever); a durable home for research notes (duplicates the
+`decision-record`). *Evidence:* the three-agent sweep — every age-growing artifact unbounded; `checkpoints/`
+and the architecture doc had **zero** writers; `items/` referenced everywhere but never scaffolded. →
+`shared/schemas.md`, `shared/memory-model.md`, `05`, `06`, `11`, `skills/{planner,prioritize,document}`,
+`agents/research`, `commands/start.md`; amends D51; precedes the D41 retention law (Layer 1 — closed in D61).
+
+## D60 — `checkpoints/` demoted to reserved; disposition deferred to the outward-permission model **[DECIDED — defer]**
+`.workflow/checkpoints/` was an orphan — listed as a durable append-only dir, but **no skill writes it**
+(`checkpoint` only posts to the bus and blocks). Its disposition is **not a retention question**: qa/demo
+verdicts are disposable (the consequence is already in git on pass / `# Sessions` on fail), but **setup /
+publish-approval** verdicts are *outward-action approval events* the open outward-permission model (D35, `07`)
+may want as a **durable approval ledger**. Deciding persist-vs-drop now would pre-empt that model. So
+`checkpoints/` is **demoted to reserved** (writer + retention TBD), pulled out of the retention-bound set, and
+its disposition folds into the outward-permission pass — whatever persists there carries its own retention rule.
+*Rejected:* dropping it now (discards a possible outward-action audit trail before the model that needs it
+exists); keeping it active-but-unbounded (the orphan we are fixing). *Evidence:* the skills sweep (`checkpoint`
+writes only to the bus; `checkpoints/` has no writer). → `05`, `commands/start.md`, `shared/schemas.md`, `07`
+(outward-permission model, D35).
+
+## D61 — Retention/read law: cap-and-archive + mechanical/judgment split **[DECIDED — closes D41]**
+The append-only tier is bounded by **read-cost** (what loads per pass), not disk — the working tree is a
+**bounded cache; git is the ledger**. Closes D41's open mechanisms. Two moves:
+**(1) Bound = cap-and-archive, NOT distillation.** Keep the last *K* raw entries on disk; drop older ones to
+git (the file carries a one-line archive pointer). Bounds the read with **zero judgment** — counts, moves,
+deletes. Per stream: **`# Sessions`** (per node) caps last-K raw + a deferred `Lessons` zone, oldest → git;
+**`decisions/`** keeps a VOLATILE `index.md` (`id · title · status · one-line`) + active bodies, superseded
+bodies dropped to git (tombstone in the index); **`items/<id>/`** stays committed while the item is open
+(crash-survival) and the dir is **pruned once closed** in the audit pass (essence already moved:
+debug-report→Sessions, decisions→`decisions/`, diff→git); the **`git log` cold-start read** is bounded by
+recording `base_sha` in `handoff.md` and resuming `<base_sha>..HEAD` (one session's delta, not project age).
+**(2) Mechanical vs judgment split.** The four caps are **deterministic → a shipped retention script**; only
+the D41 **deletion-test over `CLAUDE.md` + `rules/`** needs an LLM. Both run in an **`audit` maintenance item**
+that `prioritize` injects when a **count/size threshold** trips (machine-detectable) or every *N* items. So
+retention is **enforced** (a script), not advised — D40 applied to disk hygiene. **Sessions distillation**
+(postmortems → lessons) is the lossy, model-authored part and is **DEFERRED** — cap-and-archive bounds the read
+without it; distillation is a later signal-quality feature.
+**Prerequisites (deltas):** `decision-record` gains `status` + `supersedes`/`superseded_by`; `handoff.md` gains
+`base_sha`; nodes gain an archive-pointer line; the `# Sessions` entry format is **strict/lint-parseable**
+(`## [date] kind | title`) so the script can split entries.
+*Rejected:* shipping distillation in v1 (model-authored compression of safety memory — high leverage if wrong);
+handoff git-tags (per-item handoff → tag explosion, D54); an LLM doing the mechanical file-surgery (a script is
+more reliable for memory removal). *Open:* exact `K`/thresholds (build-time tuning); authoring the script
+(depends on the format/fields landing); `decisions/` final location (docs-root pass) — the design is
+location-agnostic. *Staleness* (a doc that's *wrong*, not *big*) stays a separate diff-based signal that
+schedules a doc-fix, not a prune. *Evidence:* the Layer-0 sweep (only append-only grows unbounded); D38 tiers;
+D40 (mechanical→enforced); D54 (per-item handoff). → `shared/memory-model.md`, `shared/schemas.md`, `05`, `06`,
+`skills/{document,prioritize}`, `11`, `07`; closes D41; built on D59–D60.
+
+## D62 — Unified docs-root under `<project_root>/docs/` **[DECIDED — closes D49's sliver]**
+Decides the four docs-root forks from first principles. **(1) Unify + locate:** `spec/`, the code-map, and the
+inline-C4 `architecture.md` live under one **`<project_root>/docs/`** root, in **both modes** — because the
+launch-root↔`project_root` line *is* the process↔product line (`.workflow/` = how it was built, `docs/` = what
+was built + why), and because **brownfield forces `project_root`** (a repo's docs go in its own `docs/`), so
+consistency forces greenfield to match (one rule, resolved via `config.json:project_root`). The purity counter
+dissolves: extracting `project/` yields a *self-documented* product (code + spec + architecture + code-map)
+while `.workflow/` — the only machinery — stays behind. Nothing in `docs/` is always-loaded, so depth costs no
+hot-path context (D49/master rule). **(2) `decisions/` joins → `docs/decisions/`:** decision records are
+**ADRs** (durable "why" = non-derivable intent, D38), and D38's own evidence base is ADR-immutability +
+docs-as-code; they're product knowledge, not run bookkeeping, so they move docs-side while **`checkpoints/`**
+(run-approval events) stays in `.workflow/`. **(3) Un-hide `.knowledge/` → `docs/knowledge/` (visible):** half
+of it is the *durable hand-written* layer (D39), not pure machine output, and docs-as-code wants it reviewable
+in PRs; the dotfile misrepresented it. **(4) `llms.txt` stays a thin root manifest** at `<project_root>/llms.txt`
+(the convention is a root entry point) pointing **into** `docs/knowledge/` — progressive disclosure.
+**Brownfield rule:** ingest **adopts-and-merges** into an existing `docs/` (write members to known subpaths,
+never clobber; namespace ours on a name collision). `/start` scaffolds an empty `<project_root>/docs/` at init
+so `discuss`'s spec has a home before code exists.
+*Rejected:* docs at the launch root for greenfield (splits the rule across modes — brownfield can't); leaving
+`decisions/` in `.workflow/` (an ADR is product knowledge, not machinery); keeping `.knowledge/` hidden
+(implies untouchable, but it's half hand-written); burying `llms.txt` under `docs/` (breaks the root-manifest
+convention). *Evidence:* D38 (docs-as-code + ADR immutability), D39 (hand-written experiential layer), D49
+(per-mode, path-agnostic via `config.json`), master rule (on-demand → no hot-path cost). → `05`, `06`,
+`commands/start.md`, `templates/orchestrator-CLAUDE.md`, `shared/{schemas,memory-model,format}.md`,
+`skills/{document,execute,prioritize}`, `07`, `11`; closes D49's docs-root sliver.
+
 ---
 
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:
 engineering-feasibility pass; demo-skill mechanics; commitment-status storage. `init` follow-ons: brownfield
-ingest, console launch, full disk layout (incl. `spec/`+`.knowledge/` placement). Skill-review follow-ons:
+ingest, console launch, full disk-layout protocols (the `spec/`+`.knowledge/` docs-root placement closed — D62). Skill-review follow-ons:
 incidental-issue-resolution detection — deferred; outward-action permission mechanics (D35). Adoption
-follow-ons (D38–D51): the **retention & archival law** + the **prune-pass** mechanism + the
-**staleness-detection** signal (D41/D51), and whether `verify` samples the real diff vs trusts the
-`changelog` (#8). All → `07`.
+follow-ons: the **retention & archival law** is **closed** (D59–D60 write-law leaks + D61 cap-and-archive read
+law); what remains is **Sessions distillation** (deferred), `K`/threshold tuning, and authoring the retention
+script. Plus whether `verify` samples the real diff vs trusts the `changelog` (#8). **Two new (user-raised):**
+a synthesized **project-state view**, and a **framework version-update** skill. All → `07`.

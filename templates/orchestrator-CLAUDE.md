@@ -66,10 +66,10 @@ resumes from `handoff.md` + `git log` (completed items are committed, so nothing
 | `.workflow/loop.md` | the routing graph + diagram | stable |
 | `.workflow/state.json` | live position (item / phase / wave) | volatile, gitignored |
 | `.workflow/handoff.md` | durable resume anchor | volatile |
-| `.workflow/backlog.md` | issues + roadmap items | volatile |
-| `.workflow/items/<id>/` | per-item plan / changelog / verdict / debug-report | committed |
-| `.workflow/decisions/` | decision records (global) | append-only |
-| `.workflow/checkpoints/` | checkpoint requests + verdicts (global) | append-only |
+| `.workflow/backlog.md` | live open queue: issues + roadmap (closed leave) | volatile |
+| `.workflow/items/<id>/` | per-item plan / changelog / verdict / debug-report (planner mkdirs on demand; pruned closed in audit) | committed |
+| `<project_root>/docs/decisions/` | decision records / ADRs (global) | append-only |
+| `.workflow/checkpoints/` | RESERVED — demoted pending the outward-permission model (D60) | reserved |
 | `<project_root>/` | the product code | — |
-| `spec/` · `.knowledge/` | product spec · code map | stable · generated |
+| `<project_root>/docs/` | spec · architecture.md · knowledge code-map (D62) | stable · generated + append-only `# Sessions` |
 | `.claude/skills/` · `.claude/agents/` · `.claude/commands/` | the capability package | stable |

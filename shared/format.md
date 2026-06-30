@@ -23,7 +23,7 @@ sections — name `shared/schemas.md` artifacts; don't re-explain them in prose.
   *defined* here, not described.
 - **## Workflow** — optional. Numbered steps only when genuinely multi-step; omit for lean skills.
 - **## Rules** — optional. Boundaries / negative instructions — what it must NOT do (e.g. "`execute` never
-  edits `.knowledge/`; that's `document`"). Use to stop drift.
+  edits `docs/knowledge/`; that's `document`"). Use to stop drift.
 - **## Output** — required. The artifact it emits (named from `schemas.md`).
 - **## Route** — required. `pass → … · fail → …` — the directed edges of the loop.
 - **## Calls** — optional. Sub-skills / agents it dispatches (a route is not a call).

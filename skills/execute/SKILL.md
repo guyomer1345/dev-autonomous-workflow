@@ -20,7 +20,7 @@ A `plan` (goal, ordered verifiable `steps`, `acceptance_criteria`).
 - **Zero autonomous decisions.** A choice the plan didn't make is a blocker, not a judgement call.
 - **Escalate, never improvise.** On a blocker (an undecided option, missing info), stop and raise it up —
   the orchestrator routes it (e.g. to `decision-engineer`), then execution resumes from the resolved plan.
-- **Stay in its lane.** Execute writes code per the plan; it does **not** update `.knowledge/` or the spec
+- **Stay in its lane.** Execute writes code per the plan; it does **not** update `docs/knowledge/` or the spec
   (that's `document`) and never chooses anything (that's `planner` / `decision-engineer`).
 
 ## Output

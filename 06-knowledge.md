@@ -6,20 +6,22 @@ lets it document-as-it-goes and stay autonomous. Two halves: a **code graph** + 
 experiential memory**.
 
 ## Lineage **[DECIDED — D1 research]**
-- **Karpathy's LLM-Wiki** = the pattern → **ADOPT** (`index.md` + append-only `log.md`,
-  wikilinks/backlinks, ingest/query/lint).
+- **Karpathy's LLM-Wiki** = the pattern → **ADOPT** (`index.md` + an append-only log,
+  wikilinks/backlinks, ingest/query/lint). *Our schema carries the append-only log as the per-file
+  `# Sessions` sections inside each node, not a separate `log.md` (D59).*
 - **OKF (Open Knowledge Format)** = the formalized on-disk schema → **ADAPT** (directory of markdown,
   frontmatter with a required `type`, relative-link edges, reserved `index.md`/`log.md`).
 - **llms.txt** = thin root manifest / agent entry point → small role.
 
-## Schema **[DECIDED — format only]**
-`.knowledge/` committed with the repo:
+## Schema **[DECIDED — format only; located by D62]**
+`docs/knowledge/` committed with the repo; a thin `llms.txt` sits at `<project_root>/` and points in (D62):
 ```
-.knowledge/
-├── llms.txt          # agent entry point (H1 + summary + pointers)
-├── index.md          # catalog of all nodes
-├── graph.json        # machine-readable typed edge list
-└── nodes/<repo-path>/<file>.md   # one node per source file
+<project_root>/
+├── llms.txt              # agent entry point (H1 + summary + pointers)
+└── docs/knowledge/
+    ├── index.md          # catalog of all nodes
+    ├── graph.json        # machine-readable typed edge list
+    └── nodes/<repo-path>/<file>.md   # one node per source file
 ```
 Per-file node:
 - **frontmatter:** `type`, `path`, `purpose` (the file's job), `tags`, `last_reviewed`.
@@ -48,8 +50,11 @@ step only.)
 ## Granularity **[DECIDED]**
 Start file-level; leave a seam for symbol/function-level later.
 
-## Maintenance / freshness **[OPEN — mechanisms only; D41 set the shape]**
-The **shape** is decided (D38/D41): the structural graph regenerates (it cannot drift); `document` keeps
-durable docs + diagrams fresh in the **same item as the code**; an audit-phase **prune pass** keeps
-guidance high-signal. Still open: the concrete **staleness-detection** signal, the **prune-pass**
-mechanism, and regenerate-vs-incremental for the graph. → see 07.
+## Maintenance / freshness **[DECIDED — D61 closed the mechanisms]**
+The structural graph regenerates (it cannot drift); `document` keeps durable docs + the inline-C4 architecture
+doc fresh in the **same item as the code**; an `audit` pass keeps guidance high-signal. **Retention (D61):**
+each node's `# Sessions` is **cap-and-archived** — last-*K* raw entries on disk, older entries dropped to git
+with a one-line archive pointer; a deterministic script does this, so the entry format is **strict/lint-parseable**
+(`## [date] kind | title`) to split entries mechanically. A `Lessons` zone (distilled patterns) is left as a
+**deferred** signal-quality feature. **Staleness** = a diff-based signal (code changed without its node) that
+schedules a doc-fix, not a prune. Still open: regenerate-vs-incremental for the graph (`07`).

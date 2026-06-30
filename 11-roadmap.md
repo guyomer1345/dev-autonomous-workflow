@@ -20,13 +20,14 @@ six-space design lives in `00`–`10`; this doc tracks **status + sequence**, no
    nearest-file-wins — what makes output *disciplined*, not just working. Not authored.
 3. **Knowledge generation (Space 6).** The **generated** code-map (D39) the loop reads; `document` writes
    `.knowledge` semi-by-hand today. `planner` / `debug` depend on it, and brownfield ingest builds on it.
-4. **Retention & archival law (D41, Space 5/6).** Bound the **append-only** tier (`decisions/`, the Sessions
-   stream, `backlog.md`) — rollup + git-as-cold-store + a staleness/prune mechanism. **← next chat.**
-5. **Unified docs-root layout (Space 5/6 — open in `05`/`07`).** Draw the top-level box: whether `spec/` +
-   `.knowledge/` + the inline-C4 architecture doc unify under one `docs/` root, and whether that root sits at
-   the launch root or under `<project_root>` (D49). The `/diagrams`-folder question is already settled (inline
-   Mermaid-C4, D41 — a standalone `diagrams/` was rejected). Every greenfield scaffold + brownfield ingest
-   converts a project to this layout. **← next chat (same doc surface as retention).**
+4. **Retention & archival law (D41) — DESIGN CLOSED (D59–D61).** Layer 0 write-law leak closures (D59–D60) +
+   Layer 1 **cap-and-archive** read law (D61): the append-only tier is bounded (last-*K* on disk, rest in git),
+   enforced by a deterministic `audit` script `prioritize` injects on a threshold. Build slivers remaining:
+   **author the retention script** + `K`/threshold tuning; **Sessions distillation** deferred.
+5. **Unified docs-root layout (Space 5/6) — DONE (D62).** `spec/` + `architecture.md` + `knowledge/` +
+   `decisions/` unify under **`<project_root>/docs/`** (both modes; `.workflow/` stays at the launch root); a
+   thin `llms.txt` sits at the project root. Greenfield scaffolds it; brownfield adopts-and-merges into an
+   existing `docs/`.
 
 ## Remaining — important, stageable
 - **Checkpoint triggers + MVP help (Space 4).** Conversational checkpoints work; demo/setup trigger rules and
@@ -43,12 +44,16 @@ six-space design lives in `00`–`10`; this doc tracks **status + sequence**, no
 - **Model/effort routing (Space 1).**
 - **Packaging/distribution.** Plugin packaging, templates' home, `shared/` resolution, first-launch trust-UX
   doc (D57/D58).
+- **Project-state view (user-raised).** No single synthesized "where is this project" surface (done · how it
+  connects · what's left); data is scattered across `00–11`/`08`/`backlog`/`.knowledge`. Likely a *generated*
+  view (a `status` skill / console screen). Prereq for **self-hosting** (driving this project with itself). → `07`.
+- **Framework version-update skill (user-raised).** The package is a public repo; consuming projects install a
+  snapshot that goes stale. An `/update` skill that pulls latest + **migrates** schema/format changes (not a
+  blind overwrite). Follow-on to packaging (D57). → `07`.
 
 ## Recommended sequence
-1. **Next chat:** retention & archival law (D41) **+** the `document`/knowledge freshness delta **+** the
-   **unified docs-root layout** — one coherent pass on the same doc surface (`document` *owns* the prune; the
-   Sessions stream is what retention bounds; the docs-root is the box around `spec/` + `.knowledge/` + the
-   architecture doc).
+1. **Retention + freshness + docs-root — DONE** (D59–D62). Cap-and-archive retention (D61); docs-root unified
+   under `<project_root>/docs/` (D62). This closes the whole doc-surface pass.
 2. The rest of the **D36–D45 skill deltas** (waves, divergence tiers, coverage/conjunction gates).
 3. **`rules/` baseline + `/start` enforcement wiring** (D40).
 4. **Knowledge generation** (Space 6) → then brownfield **ingest**.

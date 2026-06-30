@@ -28,7 +28,8 @@ Core principle: produce the plan others execute against; raise any real build de
    spans more than one logical unit. Each split is its own plan/item.
 
 ## Output
-`roadmap` (decompose) → backlog · or `plan` (plan-one) → `execute`.
+`roadmap` (decompose) → backlog · or `plan` (plan-one) → `execute`. In plan-one, `planner` `mkdir`s
+`.workflow/items/<id>/` on demand and writes `plan.md` there — the first per-item artifact (D59).
 
 ## Route
 → `execute` (plan-one) · → backlog / `prioritize` (decompose).
