@@ -86,16 +86,20 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
 - **Framework version-update skill (user-raised)** — `/update` pulls the latest public-repo package +
   **migrates** schema/format changes (not a blind overwrite). Follow-on to packaging. **[stageable]**
 
-## Recommended sequence
-1. **The D36–D45 skill-body deltas** — make the engine *disciplined* + multi-lane (waves, divergence tiers,
-   coverage/conjunction gates, secret-scan body).
-2. **`rules/` baseline + `/start` enforcement wiring** (D40).
-3. **Knowledge generation** (Space 6) → then **brownfield ingest**; author the **retention script** alongside.
-4. **The demo skill mechanics** + the checkpoint data-model / triggers (the intake / alignment loop).
-5. **Website C1 console** (visible payoff, doable now) → **C2 bus** (unblocks unattended autonomy + the robust
-   outward gate).
-6. **Waves coordination**, the **SDK overnight runner**, **model/effort routing**, **packaging**, and the two
-   user-raised items (**state view**, **version-update**).
+## Recommended sequence — phased (user-set, 2026-06-30)
+**Phase 1 — Close the foundations + guiding documents.** Finish the decided-but-unwritten core at the spec
+level so the engine is *disciplined + knowledge-complete* before any UI: the **D36–D45 skill-body deltas**,
+the **`rules/` baseline + `/start` enforcement wiring** (D40), **knowledge generation** → **brownfield
+ingest**, the **retention script** (D61), and a coherence/completeness pass tying up the remaining `[core]`
+guiding-doc loose ends. *(Next chat starts here — first item: the D36–D45 skill-body deltas.)*
+**Phase 2 — Define the website + demo (design, not build).** Close the Space-3 and Space-4 *design* questions
+as a complete spec: the website screen list / contact-UX / stream-vs-snapshot / stack, **and** the demo skill
+mechanics (serving/running the sandbox, refine limits, on-disk location) + the checkpoint data model /
+triggers.
+**Phase 3 — Build the website** (C1 console → C2 bus).
+**Phase 4 — Build the demo.**
+Everything `[stageable]`/`[later]` — waves coordination, the SDK overnight runner, model/effort routing,
+packaging, the state-view, the version-update skill — slots around these phases as it pays off.
 
 ## The one-liner
 The engine **drives** and is now **self-maintaining** (retention + freshness + docs-root). What's left is to
