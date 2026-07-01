@@ -690,6 +690,39 @@ tokens). *Evidence:* git-traced to `852179e` (+31 `Dxx`); the gate now reports z
 `scripts/check-no-spec-refs.sh`, the affected package files, `10`, `11`; closes scan findings #1–15; complements
 D34/D40/D46.
 
+## D65 — Two-tier drift defense: mechanical auto-fix at the gate, semantic drift → ticket → `prioritize` → the existing loop **[DECIDED]**
+Keeping docs aligned with code splits by the mechanical-vs-judgment law (D61), and **both tiers feed the normal
+queue rather than blocking** (the loop never stalls):
+- **Mechanical tier (per commit):** a deterministic checker (the `scripts/check-no-spec-refs.sh` no-refs gate,
+  plus project lint/format/dead-node) runs at commit time and **auto-fixes what a script can fix with zero
+  judgment** (strip a leaked ref, reformat), re-checks, and lets the commit proceed — and **logs what it fixed**
+  (no silent masking of the upstream generator, per D59). It runs as a step in `commit` (visible in the loop)
+  with a **git pre-commit hook** as the human/catch-all backstop, both calling the same script. Hard blocks stay
+  reserved for the never-want-irreversible class only — secrets + committing over a failed `verify` (the existing
+  `guard.sh` gates).
+- **Semantic tier (judgment):** drift a script can't safely fix (a stale/contradictory/over-claimed doc, a
+  missing owner) is **never auto-resolved inline** — an unreviewed commit-time agent deciding *which side is
+  right* can "fix" in the wrong direction and launder a code bug into resolved docs (foreclosed by D45/D64).
+  Instead the detector files a `create-issue` ticket into `backlog.md` with the evidence, **severity set from the
+  commitment-class** (a locked contradiction rides high so it isn't starved; cosmetic drift sits as low `debt`).
+  The **authority call is deferred to remediation:** `prioritize` schedules the ticket in normal urgency ×
+  dependency order (D26), and the fix runs through the **existing loop** — `decision-engineer`/`adjudicate`
+  decides authority (locked → fix the code · provisional → finalize · unspecified → **steering to the human**),
+  then `planner` → `execute`/`document` → `verify` → `commit`. **No new agent.**
+- **One queue, two detectors:** the fast per-commit gate and the periodic alignment scan (D63) are
+  shallow-vs-deep detectors that file tickets the same way, so all drift converges on one backlog.
+*Rejected:* hard-blocking doc drift (stalls the loop — hard blocks are only for the never-want-irreversible
+class); auto-resolving authority inline at commit (an unreviewed AI guess that can mask a code bug — D45/D64); a
+standalone **docs-engineer** agent (its sub-roles are already owned — detection by the D63 scan + `research`
+readers, authority by `decision-engineer`, the edit by `execute`/`document`; a specialized doc-authoring worker
+is **reserved** for heavy generative reconstruction, e.g. brownfield `ingest` spec-from-code, and added only if
+the generic workers prove insufficient — `07`).
+*Evidence:* this session — the alignment scan surfaced the drift, and the discussion turned on remediating it
+without stalling or laundering code bugs. Builds on D63 (scan), D26 (pure queue), D40 (mechanical → enforced),
+D45 (no AI-only action), D23/D64 (commitment-based authority), D33 (`create-issue` → backlog). →
+`skills/{prioritize,commit,decision-engineer,execute,document}`, `hooks/`, `scripts/check-no-spec-refs.sh`,
+`07`, `11`; extends D40's enforcement wiring; complements D63.
+
 ---
 
 ## Not yet decided (tracked in `07`)
@@ -703,4 +736,5 @@ law); what remains is **Sessions distillation** (deferred), `K`/threshold tuning
 script. Plus whether `verify` samples the real diff vs trusts the `changelog` (#8). **Two new (user-raised):**
 a synthesized **project-state view**, and a **framework version-update** skill. **Alignment pass (D63/D64):**
 authoring the alignment-scan **skill** is knowledge-gated (D63); two prevention follow-ons — **single-source
-status** and a **capture-time blast-radius sweep** — are undecided (D64). All → `07`.
+status** and a **capture-time blast-radius sweep** — are undecided (D64). The **doc-authoring agent** is
+reserved and the **drift-gate wiring** (a `commit`-skill step + git pre-commit backstop) is open (D65). All → `07`.

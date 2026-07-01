@@ -32,7 +32,8 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   backup** (D42) + **decision-coverage gate** (D43); `adjudicate` **conjunction-of-signals** (D45 →
   verify/debug/decision-engineer); `commit` **secret-scan** body (D44). **[core]**
 - **`rules/` baseline + `/start` enforcement wiring** (D40) — per-project lint/test/CI/hook gates,
-  nearest-file-wins. What makes output *disciplined*, not just working. Not authored. **[core]**
+  nearest-file-wins. What makes output *disciplined*, not just working. Not authored. The **two-tier drift
+  defense** (D65 — mechanical auto-fix gate · semantic drift → ticket → `prioritize`) wires here. **[core]**
 - **Engineer agent?** — a possible roster slot for a deep-implementation / feasibility agent (`02`/`09`). **[stageable]**
 
 ### Space 3 — Website / console + bus  *(role decided; unbuilt — NOT merely "later")*

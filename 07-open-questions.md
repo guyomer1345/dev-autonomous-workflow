@@ -50,7 +50,9 @@ Deliberately deferred — known unknowns, to close during build or later.
   (deferred — lossy/model-authored), `K`/threshold tuning, and **authoring the retention script** (depends on
   the strict `# Sessions` format + the `decision-record` `status` + `handoff.base_sha` fields landing). Also:
   whether `verify` samples the real `git diff` vs trusts the `changelog` (#8); authoring the thin baseline
-  `rules/` + `/start` enforcement wiring (D40).
+  `rules/` + `/start` enforcement wiring (D40); the **two-tier drift defense** (D65) — a mechanical auto-fix
+  gate (the `scripts/check-no-spec-refs.sh` no-refs check + lint) run as a `commit` step + git pre-commit
+  backstop, with semantic drift filed as a ticket → `prioritize`.
 
 ## Deferred (post-MVP or later)
 - **Knowledge graph regenerate-vs-incremental** (`06`) — shape decided (D38/D41), mechanism deferred.
@@ -76,3 +78,8 @@ Deliberately deferred — known unknowns, to close during build or later.
   it, **reconciling local customizations + migrating schema/format changes** (a version bump can change
   `state.json`/`schemas` shapes — not a blind overwrite). The natural follow-on to packaging (D57); the
   framework-level analogue of the retention/freshness law.
+- **Doc-authoring agent (reserved — D65).** A specialized heavy-doc-reconstruction worker (e.g. brownfield
+  `ingest` building a spec from code — a generative task that doesn't fit `execute`'s plan-driven model).
+  **Not added now** — drift remediation reuses the existing loop (`decision-engineer` authority →
+  `execute`/`document` edit). Revisit when building brownfield `ingest` / the D63 alignment scan, and only if
+  the generic workers prove insufficient. Cousin of the open "engineer agent?" slot (`02`).
