@@ -24,12 +24,10 @@ Core principle: produce the plan others execute against; raise any real build de
    `checkpoint`; default to `artifact`.
 4. Raise any genuine build decision to `decision-engineer` rather than guessing (e.g. a `TBD → stack`
    pointer left by `discuss`).
-5. **Session-sizing:** in plan-one, split the plan if one ≤200k-token session can't finish it, or if it
-   spans more than one logical unit. Each split is its own plan/item.
 
 ## Output
 `roadmap` (decompose) → backlog · or `plan` (plan-one) → `execute`. In plan-one, `planner` `mkdir`s
-`.workflow/items/<id>/` on demand and writes `plan.md` there — the first per-item artifact (D59).
+`.workflow/items/<id>/` on demand and writes `plan.md` there — the first per-item artifact.
 
 ## Route
 → `execute` (plan-one) · → backlog / `prioritize` (decompose).

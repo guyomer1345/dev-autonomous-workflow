@@ -31,7 +31,8 @@ The visual/behavioural slice of the `spec`.
 ## Rules
 - **Throwaway** — never reused as the real scaffold.
 - The spec state that produced the approved demo is what gets **locked**.
-- Each `provisional` item in the approved spec spawns a `create-issue` (kind=debt) — tracked debt.
+- Each `provisional` item in the approved spec spawns a `create-issue` (kind=debt) — tracked debt. (On the
+  no-demo path, `discuss` files these instead.)
 
 ## Output
 An approved demo → spec commitment levels recorded.

@@ -1,6 +1,6 @@
 ---
 name: research
-description: Gather external or internal information on demand — tech-stack options, whether something is a known bug, third-party API/setup details, market practice. The Investigation worker dispatched by decision-engineer, debug, and setup-guide; also callable directly whenever a capability lacks information it needs.
+description: Gather external or internal information on demand — tech-stack options, whether something is a known bug, third-party API/setup details, market practice. The Investigation worker dispatched by decision-engineer and debug; also callable directly whenever a capability lacks information it needs.
 tools: WebSearch, WebFetch, Read, Grep, Glob, Bash
 ---
 
@@ -10,10 +10,10 @@ tools: WebSearch, WebFetch, Read, Grep, Glob, Bash
 A leaf worker agent: take one question, gather the best available evidence, return a thin sourced summary.
 You **gather**; you do **not** decide or adjudicate — the caller does that. Any heavy working notes are
 **ephemeral scratch** — the durable distillate is the caller's record (a `decision-record`'s `why`+`sources[]`,
-or a `debug-report`); your notes are discardable, not a durable artifact (D59).
+or a `debug-report`); your notes are discardable, not a durable artifact.
 
 ## When invoked
-Dispatched by `decision-engineer`, `debug`, or `setup-guide`, or called directly whenever a capability lacks
+Dispatched by `decision-engineer` or `debug`, or called directly whenever a capability lacks
 information it needs.
 
 ## Process
@@ -28,4 +28,4 @@ information it needs.
 
 ## Output
 `findings` — a sourced summary (the durable output; any heavy scratch notes are ephemeral, not a durable
-artifact — D59).
+artifact).

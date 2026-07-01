@@ -1,6 +1,6 @@
 ---
 name: verify
-description: Check that built artifacts conform to what was asked — plan vs changelog, and whether the spec intent and the plan's acceptance criteria were met. Operates on artifacts, not runtime behaviour. Use after execute (skippable for trivial changes); on failure, hand off to debug.
+description: Check that built artifacts conform to what was asked — plan vs changelog, and whether the spec intent and the plan's acceptance criteria were met. Operates on artifacts, not runtime behaviour. Use after execute; on failure, hand off to debug.
 ---
 
 # Verify — artifact conformance ({asked} vs {done})

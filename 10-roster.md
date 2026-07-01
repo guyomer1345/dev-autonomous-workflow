@@ -87,8 +87,8 @@ research                  (service, callable from anywhere)
 ## Build status
 - **All 17 capability files written** (`skills/`, `agents/`) + `shared/schemas.md`. Roster v1 complete
   (added `close-issue`, D33).
-- **Authoring-format pass complete (D31/D34):** all 17 skills + 2 agents follow `shared/format.md` and
-  carry no spec-internal refs.
+- **Authoring-format pass complete (D31/D34):** all 15 skills + 2 agents follow `shared/format.md` and
+  carry no spec-internal refs (grep-gated — `scripts/check-no-spec-refs.sh`).
 - **Dogfood-validated (D52):** the orchestrator design *drives* — a throwaway greenfield repo ran two tasks
   (happy + fail/decision) end-to-end; MVP install = loose `.claude/` files (D57). Findings → D53–D57.
 
@@ -100,7 +100,7 @@ The bootstrap command (D10/D28). **greenfield** = repo-setup → scaffold → (s
 ingest (`06`), full disk layout (`05`).
 
 ## Adoption deltas — workflow-kit + GSD (D36–D45)
-Capability changes to author next (decisions captured; skill bodies not yet edited):
+Capability changes decided; skill bodies **not yet edited** unless marked landed:
 - `prioritize` — **waves**: dependency-group the ready set; run a wave; re-pick (D36).
 - `execute` — **divergence tiers** (cosmetic / prerequisite-repair-as-separate-commit / structural-stop, D37);
   **refuse** a destructive `plan` with no verified `backup`, run+verify it first (D42).
@@ -109,9 +109,9 @@ Capability changes to author next (decisions captured; skill bodies not yet edit
 - `adjudicate` — **conjunction-of-signals**: an LLM verdict gates only with a corroborating deterministic
   signal; AI-only → advisory (D45). Propagates to `verify`/`debug`/`decision-engineer`.
 - `commit` — **secret-scan** the staged diff; stop on a hit (D44).
-- `document` — own **same-item** doc + Mermaid-C4 diagram freshness; audit-phase **prune pass** (D41).
 - new thin **`rules/`** baseline + `/start` **enforcement wiring** (lint/test/CI/hooks), nearest-file-wins (D40).
-- `shared/memory-model.md` (D38) added; `shared/schemas.md` plan gains `risk_class`/`backup`/`decisions[]`.
+- **Landed:** `document` same-item doc + Mermaid-C4 freshness + audit prune (D41); `shared/memory-model.md`
+  (D38); `shared/schemas.md` plan `risk_class`/`backup`/`decisions[]`.
 
 ## Still open
 - The **collision-model independence test** — when two items are independent enough to share a wave (`02` / `07`).

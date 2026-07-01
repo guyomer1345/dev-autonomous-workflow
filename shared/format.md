@@ -45,8 +45,11 @@ sections — name `shared/schemas.md` artifacts; don't re-explain them in prose.
 - Concise over complete: drop any section that only restates what Claude can already infer.
 - Define contracts, don't pad prose. Jargon gets one defining line or a `schemas.md` link.
 - One term per concept, used consistently across the roster.
-- **No spec-internal references.** State behaviour in plain language; decision IDs (`Dxx`) and design-doc
-  numbers live only in the design docs + decision log, which point *down* to the file — never the reverse.
+- **No spec-internal references.** State behaviour in plain language across the *entire* shipped package —
+  `skills/`, `agents/`, `shared/`, `commands/`, `templates/`, `hooks/`. Decision IDs (`Dxx`), design-doc
+  numbers, and `Space N` labels live only in the design docs + decision log, which point *down* to the file —
+  never the reverse. A commit-time grep gate (`scripts/check-no-spec-refs.sh`) enforces this so it can't
+  silently regress.
 - This format is **v1** — validated as we apply it skill-by-skill; if a skill fights it, that's signal
   about the format, not the skill.
 

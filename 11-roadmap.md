@@ -10,7 +10,7 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   read→place→advance algorithm, the resume model (`state.json` / `handoff.md` / git), and the autonomous
   **permission model** (broad-allow + `ask` outward + `guard.sh`) — **dogfood-validated** end-to-end, zero
   local prompts after trust (D46–D58).
-- **Space 2 — Roster + contracts.** 17 skills + 2 agents, I/O schemas, hub-and-spoke topology (D24–D34, D53).
+- **Space 2 — Roster + contracts.** 15 skills + 2 agents, I/O schemas, hub-and-spoke topology (D24–D34, D53).
 - **Space 5 — Disk layout + retention.** `.workflow/` tree + schemas (D53); the **retention/read law**
   (cap-and-archive, D59–D61); the **unified `<project_root>/docs/` root** (D62).
 - **Space 6 (partial) — Document freshness/prune.** `document` owns same-item freshness + the `audit` prune
@@ -72,6 +72,15 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
 - **Retention script** — author the deterministic `audit` script (cap-and-archive, GC, prune) + tune
   `K`/thresholds; **Sessions distillation** deferred (D61). **[stageable]**
 - **Graph regenerate-vs-incremental** — the mechanism for keeping the generated graph current. **[later]**
+- **Spec↔implementation alignment scan** — a whole-project, fan-out reconciliation (decisions/spec ↔ code),
+  each divergence classified by the commitment model (locked→drift · provisional→finalize · unspecified→
+  steering) and scheduled by the D61 audit trigger (interval / threshold / after-big-change). Detection is the
+  backstop; prevention (the grep gate, single-source status, capture-time blast-radius checks) shrinks the
+  drift upstream. **Manual multi-agent scan runnable now** — proved out 2026-07-01, it found the D59–D62
+  ref-leak regression. **Crystallized into a skill after knowledge generation** (which upgrades it from
+  brute-force file reads to code-map-driven) and shipped as a **lightweight agent fan-out, not a Workflow** (a
+  periodic user-run skill must not consume most of a session). Relates to the project-state view + self-hosting.
+  **[core; scan doable now, skill knowledge-gated]**
 
 ### Cross-cutting — packaging, validation, self-hosting
 - **Packaging/distribution** — plugin packaging (`.claude-plugin/`), `shared/` resolution, first-launch

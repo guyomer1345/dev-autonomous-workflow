@@ -32,13 +32,16 @@ don't carry the graph in your head.
 `handoff.md`, `loop.md` — are rewritten in place, never appended to. They hold current
 state only, never history, within a small size budget. History lives in git.
 
-**Enforced (gated by hooks — you cannot cross these):**
+**Enforced by hooks (you cannot cross these):**
 - No commit until `verify` passes for the item.
 - No commit if the staged diff trips the secret scan.
-- No outward action — push, issue create/close, deploy — without explicit human permission.
-- Build/test tools run once per wave, not once per parallel agent.
+
+**Gated by permission rules (a deliberate prompt — approve to proceed, not a hard block):**
+- No outward action — push, issue create/close, deploy — without explicit human approval.
 
 **Disposition (hold to these):**
+- **Build once per wave.** Run build/test tools once per wave, not once per parallel agent.
+  *(Not yet enforced — matters only once parallel waves run.)*
 - **Hub-and-spoke.** Only you and skills fan out. Agents are leaves — never expect one to
   spawn another.
 - **Pure queue.** Never preempt in-flight work. A problem found mid-item is handled inside
@@ -69,7 +72,7 @@ resumes from `handoff.md` + `git log` (completed items are committed, so nothing
 | `.workflow/backlog.md` | live open queue: issues + roadmap (closed leave) | volatile |
 | `.workflow/items/<id>/` | per-item plan / changelog / verdict / debug-report (planner mkdirs on demand; pruned closed in audit) | committed |
 | `<project_root>/docs/decisions/` | decision records / ADRs (global) | append-only |
-| `.workflow/checkpoints/` | RESERVED — demoted pending the outward-permission model (D60) | reserved |
+| `.workflow/checkpoints/` | RESERVED — demoted pending the outward-permission model | reserved |
 | `<project_root>/` | the product code | — |
-| `<project_root>/docs/` | spec · architecture.md · knowledge code-map (D62) | stable · generated + append-only `# Sessions` |
+| `<project_root>/docs/` | spec · architecture.md · knowledge code-map | stable · generated + append-only `# Sessions` |
 | `.claude/skills/` · `.claude/agents/` · `.claude/commands/` | the capability package | stable |

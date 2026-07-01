@@ -644,6 +644,54 @@ convention). *Evidence:* D38 (docs-as-code + ADR immutability), D39 (hand-writte
 
 ---
 
+## Alignment-scan pass (session 2026-07-01)
+
+## D63 — Alignment scan: scan-first, then a knowledge-gated lightweight-fan-out skill **[DECIDED]**
+The maintainer's "are the docs + planning aligned with the implementation?" concern is realized as a
+whole-project reconciliation between the design docs + decision log and the shippable package. Two-part call:
+**(1) run it first as a manual, one-off multi-agent scan** and **derive the skill from what the run teaches** —
+the fan-out decomposition and the finding schema are discovered empirically, and a *complete* skill can't be
+authored before knowledge generation exists anyway; **(2) the eventual skill is knowledge-gated and ships as a
+lightweight agent fan-out, NOT a Workflow** — a periodic, every-project scan must not consume most of a user
+session (a full Workflow is acceptable only for a one-off on our own repo). Method: **bidirectional** (the
+decision log as a top-down checklist + a filtered bottom-up file sweep); each divergence classified by the
+**commitment model** (locked → drift/bug · provisional → finalize-later · unspecified → steering), known tracked
+gaps excluded; candidates **adversarially verified** before they count. Scheduled by the D61 `audit` trigger
+(interval / threshold / after-big-change); detection is the backstop, prevention (D64) shrinks the drift upstream.
+*Rejected:* skill-first (the fan-out shape is exactly what the run discovers, and a pre-knowledge-gen skill is a
+stub to rewrite); a Workflow-based shipped skill (too costly for a periodic user-run scan).
+*Evidence:* the 2026-07-01 run — 8 area finders + a 2-lens adversarial verify, 15 confirmed findings — surfaced a
+systemic regression (D64) no eyeball pass had caught. → `11`, `06`, `09` (relates to the project-state view +
+self-hosting); complements `document` freshness + brownfield `ingest`.
+
+## D64 — No-spec-internal-refs extended to the whole package + mechanically enforced; four body fixes **[DECIDED]**
+The alignment scan (D63) found a **systemic regression**: the D59–D62 doc-surface capture pass (commit
+`852179e`) reintroduced **52 spec-internal reference lines** (31 `Dxx` tokens + doc-numbers + `Space N`) into the
+shippable package — violating locked D34 because **D34 was advisory prose with no gate** (the project's own
+D38/D40 thesis — prose rots silently, only checks fail loudly — demonstrated on itself). Calls:
+- **Scope:** D34's no-refs rule covers the **entire shipped package** (`skills/ agents/ shared/ commands/
+  templates/ hooks/`), not just the three dirs D34 literally named — `commands/start.md` + templates are
+  runtime-loaded, so the same rationale applies (extends D46). The numbered design docs + decision log keep their
+  refs (they are the down-pointing provenance).
+- **Enforcement:** a committed **grep gate** (`scripts/check-no-spec-refs.sh`) fails on any leak — D40 applied to
+  the meta-repo (mechanical, not advised).
+- **Four fork resolutions:** `discuss` owns spawning provisional → debt tickets on the **no-demo path** (closes a
+  D23 coverage hole; `create-demo` owns the demo path); `planner`'s ungoverned ~200k **session-split rule cut**
+  (context exhaustion is the handoff model's job, D10/D48); `verify`'s "skippable" **narrowed** to
+  skip-the-fan-out-not-the-step (D30 makes the step unskippable); the orchestrator brief **corrected** to separate
+  hook-enforced gates (verify-before-commit, secret-scan) from the permission-rule outward gate from the
+  **deferred** build-once-per-wave (it was mislabeled as an uncrossable hook gate no hook enforces).
+- **Prevention follow-ons (OPEN → `07`):** **single-source status** (kill "done/open" duplication across
+  roadmap/roster/bodies — the root of the stale-status findings) and a **capture-time blast-radius sweep** for
+  cross-cutting decisions (the root of the topology/owner/over-claim findings).
+*Rejected:* leaving D34 advisory (the observed regression); auto-fixing findings from AI-only judgment (D45);
+relaxing D34 to allow provenance breadcrumbs in the package (leaks design artifacts into runtime context, wastes
+tokens). *Evidence:* git-traced to `852179e` (+31 `Dxx`); the gate now reports zero. → `shared/format.md`,
+`scripts/check-no-spec-refs.sh`, the affected package files, `10`, `11`; closes scan findings #1–15; complements
+D34/D40/D46.
+
+---
+
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:
@@ -653,4 +701,6 @@ incidental-issue-resolution detection — deferred; outward-action permission me
 follow-ons: the **retention & archival law** is **closed** (D59–D60 write-law leaks + D61 cap-and-archive read
 law); what remains is **Sessions distillation** (deferred), `K`/threshold tuning, and authoring the retention
 script. Plus whether `verify` samples the real diff vs trusts the `changelog` (#8). **Two new (user-raised):**
-a synthesized **project-state view**, and a **framework version-update** skill. All → `07`.
+a synthesized **project-state view**, and a **framework version-update** skill. **Alignment pass (D63/D64):**
+authoring the alignment-scan **skill** is knowledge-gated (D63); two prevention follow-ons — **single-source
+status** and a **capture-time blast-radius sweep** — are undecided (D64). All → `07`.

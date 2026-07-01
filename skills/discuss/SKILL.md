@@ -24,6 +24,9 @@ The user's intent (conversation) + any existing `spec` to extend.
    styling to *provisional*; flow and scope to *locked-candidate*.
 4. For any genuine engineering decision (stack, library, architecture), **do not decide** — record
    `TBD → decision-engineer` as a pointer. If the user states a firm preference, record it as `locked`.
+5. **Track provisional debt on the no-demo path:** at spec-completion, if the sandbox gate will not fire (no
+   demo for this item), spawn a `create-issue` (kind=debt) for each field left `provisional`, so no deferred
+   decision is silently lost. (When a demo does run, `create-demo` files these after approval instead.)
 
 ## Rules
 - Requirements only — never resolve an engineering decision; leave a `TBD → decision-engineer` pointer.
@@ -34,3 +37,6 @@ A `spec`, every field commitment-tagged, with `TBD → decision-engineer` pointe
 ## Route
 → the sandbox-gate check (`create-demo`), then `planner`. Exit when every required field is filled or
 explicitly provisional/TBD.
+
+## Calls
+`create-issue` (kind=debt) — for `provisional` fields on the no-demo path.
