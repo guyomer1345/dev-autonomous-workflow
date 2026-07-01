@@ -725,6 +725,41 @@ D45 (no AI-only action), D23/D64 (commitment-based authority), D33 (`create-issu
 
 ---
 
+## Phase 1 build — skill-body deltas (session 2026-07-01)
+
+The decided-but-unwritten D36–D45 deltas were authored into the shippable bodies (`prioritize` waves;
+`execute` divergence tiers + refuse-destructive; `planner` `risk_class`+`backup` + decision-coverage gate;
+`adjudicate` conjunction-of-signals, with `verify`/`debug` nods; `commit` secret-scan). `schemas.md` already
+carried the fields, so this was body prose, not schema work — except one gap surfaced below. Scope call:
+**pure D36–D45 now**, bodies written **forward-compatible** with the D65 gate (a light second pass on
+`commit`/`prioritize` remains, tracked under the drift-defense wiring). The no-spec-refs gate stayed green.
+
+## D66 — Prerequisite-repair rides its own commit; the divergence record gains a machine-actionable `tier` **[DECIDED — amends D54, sharpens D37]**
+Authoring the deltas surfaced one genuine tension: D37 isolates a discovered **prerequisite-repair** as a
+**separate commit**, but D54 fixed **one commit per item** and `execute` never commits (`commit` is a tail
+skill). Resolution:
+- The repair rides its **own** commit, **emitted by `commit` at the item tail** — not by `execute`, which
+  stays commit-free and decision-free. An item that hits a prerequisite-repair therefore yields **two
+  commits** (the isolated repair, then the planned change) — a **narrow carve-out to D54's
+  one-commit-per-item**. Bookkeeping (the backlog done-flip + `handoff.md` rewrite) rides the
+  **planned/completing** commit, after any repair commit.
+- `changelog.divergences[]` gains a **`tier`** ∈ `{ cosmetic, prerequisite-repair, structural }` so the tier
+  is **machine-actionable** — `commit` reads it to decide whether to split — rather than prose only `execute`
+  understands.
+*Why:* D37's point is that a stumbled-into fix stays **independently reviewable/revertible**, which a
+call-out inside a bundled commit can't give. Keeping the commit in the `commit` skill (not `execute`)
+preserves the **single-committer** design (Conventional-Commit formatting + the secret-scan gate live in one
+place) and `execute`'s zero-decision/commit-free invariant. Typing the divergence stops a body naming a tier
+the schema doesn't define — the exact doc↔implementation drift the alignment scan exists to catch (D64).
+*Rejected:* one commit per item with an in-message call-out (weakens D37 — no independent revert, and edges
+toward the fold-in D37 rejected); `execute` committing the repair itself (duplicates commit formatting +
+secret-scan into the executor, breaks its commit-free invariant); leaving the tier as prose only
+(unactionable → drifts). *Evidence:* this session — the delta-authoring pass; user picks (separate-commit for
+the repair · author the full wave model now · pure D36–D45 now). → `skills/{execute,commit}`,
+`shared/schemas.md`, `templates/loop.md`, `10`, `11`; amends D54, sharpens D37, complements D64.
+
+---
+
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:

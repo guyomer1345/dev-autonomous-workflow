@@ -10,7 +10,11 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   read→place→advance algorithm, the resume model (`state.json` / `handoff.md` / git), and the autonomous
   **permission model** (broad-allow + `ask` outward + `guard.sh`) — **dogfood-validated** end-to-end, zero
   local prompts after trust (D46–D58).
-- **Space 2 — Roster + contracts.** 15 skills + 2 agents, I/O schemas, hub-and-spoke topology (D24–D34, D53).
+- **Space 2 — Roster + contracts.** 15 skills + 2 agents, I/O schemas, hub-and-spoke topology (D24–D34, D53);
+  the **D36–D45 skill-body deltas** authored (`prioritize` waves · `execute` divergence tiers +
+  refuse-destructive · `planner` risk_class+backup + decision-coverage gate · `adjudicate`
+  conjunction-of-signals · `commit` secret-scan) + the prerequisite-repair two-commit carve-out and
+  machine-actionable divergence `tier` (D66).
 - **Space 5 — Disk layout + retention.** `.workflow/` tree + schemas (D53); the **retention/read law**
   (cap-and-archive, D59–D61); the **unified `<project_root>/docs/` root** (D62).
 - **Space 6 (partial) — Document freshness/prune.** `document` owns same-item freshness + the `audit` prune
@@ -27,10 +31,10 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
 - **Arbiter input contract** — decide a batch in dependency order vs one at a time. **[later]**
 
 ### Space 2 — Skills & agents  *(roster closed; bodies still v1)*
-- **The D36–D45 skill-body deltas** — decided, not yet authored into the bodies: `prioritize` **waves** (D36);
-  `execute` **divergence tiers** (D37) + refuse-destructive-without-backup (D42); `planner` **risk_class +
-  backup** (D42) + **decision-coverage gate** (D43); `adjudicate` **conjunction-of-signals** (D45 →
-  verify/debug/decision-engineer); `commit` **secret-scan** body (D44). **[core]**
+- **The D36–D45 skill-body deltas** — **DONE** (authored 2026-07-01; D66 added the prerequisite-repair
+  two-commit carve-out + machine-actionable divergence `tier`). Bodies written **forward-compatible with the
+  D65 gate**, so only a light second pass on `commit`/`prioritize` remains — folded into the drift-defense
+  wiring below.
 - **`rules/` baseline + `/start` enforcement wiring** (D40) — per-project lint/test/CI/hook gates,
   nearest-file-wins. What makes output *disciplined*, not just working. Not authored. The **two-tier drift
   defense** (D65 — mechanical auto-fix gate · semantic drift → ticket → `prioritize`) wires here. **[core]**
@@ -101,7 +105,8 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
 level so the engine is *disciplined + knowledge-complete* before any UI: the **D36–D45 skill-body deltas**,
 the **`rules/` baseline + `/start` enforcement wiring** (D40), **knowledge generation** → **brownfield
 ingest**, the **retention script** (D61), and a coherence/completeness pass tying up the remaining `[core]`
-guiding-doc loose ends. *(Next chat starts here — first item: the D36–D45 skill-body deltas.)*
+guiding-doc loose ends. *(The D36–D45 skill-body deltas are **done** — 2026-07-01, D66; next up: the `rules/`
+baseline + `/start` enforcement wiring, D40.)*
 **Phase 2 — Define the website + demo (design, not build).** Close the Space-3 and Space-4 *design* questions
 as a complete spec: the website screen list / contact-UX / stream-vs-snapshot / stack, **and** the demo skill
 mechanics (serving/running the sandbox, refine limits, on-disk location) + the checkpoint data model /
@@ -113,6 +118,6 @@ packaging, the state-view, the version-update skill — slots around these phase
 
 ## The one-liner
 The engine **drives** and is now **self-maintaining** (retention + freshness + docs-root). What's left is to
-make it **disciplined** (the skill deltas + `rules/`), **knowledge-complete** (generation → ingest),
+make it **disciplined** (skill deltas done — `rules/` + the drift-gate next), **knowledge-complete** (generation → ingest),
 **visible** (the console + bus), and **alignment-ready** (the demo + checkpoint mechanics). The bus is the one
 "enhancement" that's actually on the critical path for *unattended* autonomy — not merely later.
