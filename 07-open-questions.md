@@ -49,10 +49,13 @@ Deliberately deferred — known unknowns, to close during build or later.
   closures (D59–D60) + Layer 1 cap-and-archive read law (D61). What remains under it: **Sessions distillation**
   (deferred — lossy/model-authored), `K`/threshold tuning, and **authoring the retention script** (depends on
   the strict `# Sessions` format + the `decision-record` `status` + `handoff.base_sha` fields landing). Also:
-  whether `verify` samples the real `git diff` vs trusts the `changelog` (#8); authoring the thin baseline
-  `rules/` + `/start` enforcement wiring (D40); the **two-tier drift defense** (D65) — a mechanical auto-fix
-  gate (the `scripts/check-no-spec-refs.sh` no-refs check + lint) run as a `commit` step + git pre-commit
-  backstop, with semantic drift filed as a ticket → `prioritize`.
+  whether `verify` samples the real `git diff` vs trusts the `changelog` (#8).
+- **Rules baseline + `/start` enforcement wiring (D40) + two-tier drift defense (D65/D67) — AUTHORED
+  2026-07-01.** The `rules/*.md` baseline (enforced-by tags), the `shared/format.md` rules convention, the
+  `/start` step-4 enforcement wiring, the `commit` mechanical-gate step, and the `prioritize` drift-ticket note
+  are written. **Remaining sliver:** `/start`'s per-stack **`checks.sh` generator** (detect the stack → emit
+  the concrete `--fix`/`--check` runner + configs) — a `/start` runtime detail, not yet exercised in a real
+  bootstrap.
 
 ## Deferred (post-MVP or later)
 - **Knowledge graph regenerate-vs-incremental** (`06`) — shape decided (D38/D41), mechanism deferred.

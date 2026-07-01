@@ -99,19 +99,23 @@ The bootstrap command (D10/D28). **greenfield** = repo-setup → scaffold → (s
 `CLAUDE.md` driver now specced (D46–D49). Stubbed sub-steps to expand: console launch (`03`), brownfield
 ingest (`06`), full disk layout (`05`).
 
-## Adoption deltas — workflow-kit + GSD (D36–D45)
-Capability changes decided; skill bodies **not yet edited** unless marked landed:
-- `prioritize` — **waves**: dependency-group the ready set; run a wave; re-pick (D36).
+## Adoption deltas — workflow-kit + GSD (D36–D45, +D40/D65/D67)
+Skill bodies **authored** (session 2026-07-01); each delta maps to its landed home:
+- `prioritize` — **waves**: dependency-group the ready set; run a wave; re-pick (D36). **+ drift tickets ride
+  the normal queue at commitment-severity** (D65).
 - `execute` — **divergence tiers** (cosmetic / prerequisite-repair-as-separate-commit / structural-stop, D37);
   **refuse** a destructive `plan` with no verified `backup`, run+verify it first (D42).
 - `planner` — set `risk_class` + require `backup` when destructive (D42); **decision-coverage gate** —
   every `decision-record` maps to ≥1 step or block (D43); emit **no un-checkable** acceptance criterion (D30).
 - `adjudicate` — **conjunction-of-signals**: an LLM verdict gates only with a corroborating deterministic
   signal; AI-only → advisory (D45). Propagates to `verify`/`debug`/`decision-engineer`.
-- `commit` — **secret-scan** the staged diff; stop on a hit (D44).
-- new thin **`rules/`** baseline + `/start` **enforcement wiring** (lint/test/CI/hooks), nearest-file-wins (D40).
-- **Landed:** `document` same-item doc + Mermaid-C4 freshness + audit prune (D41); `shared/memory-model.md`
-  (D38); `shared/schemas.md` plan `risk_class`/`backup`/`decisions[]`.
+- `commit` — **secret-scan** the staged diff, stop on a hit (D44); **+ mechanical-gate step** (`checks.sh --fix`
+  → log; semantic drift → `create-issue`, never resolved inline) (D65/D67).
+- thin **`rules/`** baseline (enforced-by tags) + **`/start` step-4 enforcement wiring** + git `pre-commit`
+  backstop + generated `.workflow/checks.sh`, nearest-file-wins (D40/D65/D67). **Remaining:** the per-stack
+  `checks.sh` generator (a `/start` runtime detail).
+- **Also landed earlier:** `document` same-item doc + Mermaid-C4 freshness + audit prune (D41);
+  `shared/memory-model.md` (D38); `shared/schemas.md` plan `risk_class`/`backup`/`decisions[]`.
 
 ## Still open
 - The **collision-model independence test** — when two items are independent enough to share a wave (`02` / `07`).

@@ -14,7 +14,10 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   the **D36–D45 skill-body deltas** authored (`prioritize` waves · `execute` divergence tiers +
   refuse-destructive · `planner` risk_class+backup + decision-coverage gate · `adjudicate`
   conjunction-of-signals · `commit` secret-scan) + the prerequisite-repair two-commit carve-out and
-  machine-actionable divergence `tier` (D66).
+  machine-actionable divergence `tier` (D66); the **`rules/` baseline + `/start` enforcement wiring** and the
+  **two-tier drift gate** authored (thin `rules/*.md` with enforced-by tags · `/start` step-4 · `commit`
+  mechanical step + git `pre-commit` backstop + generated `checks.sh` · `prioritize` drift-ticket queue —
+  D40/D65/D67; only the per-stack `checks.sh` generator remains).
 - **Space 5 — Disk layout + retention.** `.workflow/` tree + schemas (D53); the **retention/read law**
   (cap-and-archive, D59–D61); the **unified `<project_root>/docs/` root** (D62).
 - **Space 6 (partial) — Document freshness/prune.** `document` owns same-item freshness + the `audit` prune
@@ -35,9 +38,12 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   two-commit carve-out + machine-actionable divergence `tier`). Bodies written **forward-compatible with the
   D65 gate**, so only a light second pass on `commit`/`prioritize` remains — folded into the drift-defense
   wiring below.
-- **`rules/` baseline + `/start` enforcement wiring** (D40) — per-project lint/test/CI/hook gates,
-  nearest-file-wins. What makes output *disciplined*, not just working. Not authored. The **two-tier drift
-  defense** (D65 — mechanical auto-fix gate · semantic drift → ticket → `prioritize`) wires here. **[core]**
+- **`rules/` baseline + `/start` enforcement wiring** (D40) + **two-tier drift defense** (D65/D67) —
+  **AUTHORED 2026-07-01.** Thin `rules/*.md` (enforced-by tags), the `/start` step-4 enforcement wiring
+  (auto-write greenfield / adopt-and-gap-fill brownfield), the `commit` mechanical-gate step + git `pre-commit`
+  backstop + generated `.workflow/checks.sh`, and the `prioritize` drift-ticket queue. What makes output
+  *disciplined*, not just working. **Remaining sliver:** the per-stack `checks.sh` generator (a `/start`
+  runtime detail, unexercised until a real bootstrap). **[core — done bar the generator]**
 - **Engineer agent?** — a possible roster slot for a deep-implementation / feasibility agent (`02`/`09`). **[stageable]**
 
 ### Space 3 — Website / console + bus  *(role decided; unbuilt — NOT merely "later")*
@@ -105,8 +111,9 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
 level so the engine is *disciplined + knowledge-complete* before any UI: the **D36–D45 skill-body deltas**,
 the **`rules/` baseline + `/start` enforcement wiring** (D40), **knowledge generation** → **brownfield
 ingest**, the **retention script** (D61), and a coherence/completeness pass tying up the remaining `[core]`
-guiding-doc loose ends. *(The D36–D45 skill-body deltas are **done** — 2026-07-01, D66; next up: the `rules/`
-baseline + `/start` enforcement wiring, D40.)*
+guiding-doc loose ends. *(Done 2026-07-01: the D36–D45 skill-body deltas (D66) **and** the `rules/` baseline +
+`/start` enforcement wiring + two-tier drift gate (D40/D65/D67). **Next up: knowledge generation → brownfield
+ingest** (Space 6), then the retention script.)*
 **Phase 2 — Define the website + demo (design, not build).** Close the Space-3 and Space-4 *design* questions
 as a complete spec: the website screen list / contact-UX / stream-vs-snapshot / stack, **and** the demo skill
 mechanics (serving/running the sandbox, refine limits, on-disk location) + the checkpoint data model /
@@ -117,7 +124,8 @@ Everything `[stageable]`/`[later]` — waves coordination, the SDK overnight run
 packaging, the state-view, the version-update skill — slots around these phases as it pays off.
 
 ## The one-liner
-The engine **drives** and is now **self-maintaining** (retention + freshness + docs-root). What's left is to
-make it **disciplined** (skill deltas done — `rules/` + the drift-gate next), **knowledge-complete** (generation → ingest),
+The engine **drives** and is now **self-maintaining** (retention + freshness + docs-root) and **disciplined**
+(skill deltas + `rules/` + the drift-gate authored — bar the per-stack `checks.sh` generator). What's left is
+to make it **knowledge-complete** (generation → ingest),
 **visible** (the console + bus), and **alignment-ready** (the demo + checkpoint mechanics). The bus is the one
 "enhancement" that's actually on the critical path for *unattended* autonomy — not merely later.

@@ -760,6 +760,41 @@ the repair · author the full wave model now · pure D36–D45 now). → `skills
 
 ---
 
+## Phase 1 build — rules baseline + enforcement wiring + drift gate (session 2026-07-01)
+
+The decided-but-unwritten D40 (`rules/` baseline + `/start` enforcement wiring) and the D65 drift-gate wiring
+were authored. Shipped: four thin **`rules/*.md`** (code-style · testing · security · ops — principles only,
+each enforceable one carrying an `— enforced by: <mechanism>` tag that doubles as the wiring manifest); a
+**rules-file convention** in `shared/format.md`; a new **`/start` step 4** that specializes the rules and wires
+the enforcement layer (auto-write greenfield, adopt-and-gap-fill brownfield, externals → setup checkpoint); the
+**mechanical-gate `commit` step** (auto-fix zero-judgment drift → log → proceed; semantic drift → `create-issue`
+ticket, never resolved inline) and the **`prioritize`** note that drift tickets ride the normal queue at
+commitment-severity. No schema change — the fields (`commitment`, issue `severity`/`source`, divergence `tier`)
+were already carried. The new `rules/` dir was added to the no-spec-refs gate; the gate stayed green. One
+mechanism call surfaced its own entry below (D67). **Brownfield boundary:** rules + enforcement are adopted
+now; the docs → `knowledge/` ingest stays the tracked stub.
+
+## D67 — The mechanical drift gate ships as a generated per-project `checks.sh`; the git hook is check-only **[DECIDED — sharpens D65, extends D40]**
+Authoring the drift gate forced two mechanism calls D65 left open:
+- **What ships downstream is not this repo's `check-no-spec-refs.sh`.** That script enforces *this package's*
+  no-spec-refs authoring law — meaningless in a consuming project. The downstream mechanical checker is a
+  **`/start`-generated `.workflow/checks.sh`**, built from the project's detected enforcers (format · lint ·
+  typecheck · dead-link) — the single "same script" both callers invoke.
+- **One runner, two modes.** `checks.sh --fix` auto-applies zero-judgment fixes, re-stages, and logs them —
+  run **in-loop by `commit`** (visible). `checks.sh --check` fails non-zero on residual drift — run by the git
+  **`pre-commit` backstop** for commits made *outside* the loop. The backstop **never silently rewrites** a
+  human's tree; auto-fix stays in the visible loop step.
+*Why:* D65 said "both call the same script" but left the script's provenance and the fix-vs-check split open;
+naming a repo-specific gate as the downstream checker would ship an inapplicable check, and a git hook that
+auto-fixes + re-stages would surprise a human's manual commit.
+*Rejected:* shipping `check-no-spec-refs.sh` as the project gate (checks the wrong invariant downstream); a
+single-mode script that auto-fixes everywhere (silent tree rewrites under a manual commit); putting the
+auto-fix only in the hook (invisible to the loop). *Evidence:* this build pass — the no-spec-refs gate is
+authoring-specific; the human-manual-commit case needs a non-mutating backstop. → `commands/start.md`,
+`hooks/pre-commit.sh`, `skills/commit`, `scripts/check-no-spec-refs.sh`; sharpens D65, extends D40.
+
+---
+
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:
@@ -772,4 +807,6 @@ script. Plus whether `verify` samples the real diff vs trusts the `changelog` (#
 a synthesized **project-state view**, and a **framework version-update** skill. **Alignment pass (D63/D64):**
 authoring the alignment-scan **skill** is knowledge-gated (D63); two prevention follow-ons — **single-source
 status** and a **capture-time blast-radius sweep** — are undecided (D64). The **doc-authoring agent** is
-reserved and the **drift-gate wiring** (a `commit`-skill step + git pre-commit backstop) is open (D65). All → `07`.
+reserved (D65). The **drift-gate wiring** is **authored** (D65/D67 — `commit` mechanical step + `pre-commit`
+backstop + generated `checks.sh`); what remains is `checks.sh`'s per-stack generator, which rides the `/start`
+enforcement-wiring build. All → `07`.
