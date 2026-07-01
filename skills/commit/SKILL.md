@@ -21,12 +21,19 @@ After `document`, per completed phase/item.
    `password` / `secret` / `api_key` / `token` set to a real (non-placeholder) literal. On a hit, **stop and
    escalate** — never commit the secret; once in history it lives there forever. (A guard hook re-checks this
    deterministically as the backstop — the step keeps it visible in the loop.)
-3. **Split out a prerequisite-repair, if any.** If the `changelog` recorded a `prerequisite-repair`
+3. **Run the mechanical gate.** Run the project's check runner (`.workflow/checks.sh --fix`) — it reformats,
+   applies lint fixes, and strips a stale reference: the zero-judgment fixes a script can make safely. Re-stage
+   and re-run in check mode. **Log what it fixed** (in the commit body or the `changelog`) — never silently
+   mask a bad generator. Drift a script *cannot* safely fix — a stale/contradictory/over-claimed doc, a missing
+   owner, a symbol a doc still names that the code renamed — is **not** resolved here: file a `create-issue`
+   ticket with the evidence and the affected element's `commitment`, `severity` set from it (a locked
+   contradiction rides high; cosmetic drift sits low as `debt`), and let the commit proceed.
+4. **Split out a prerequisite-repair, if any.** If the `changelog` recorded a `prerequisite-repair`
    divergence, commit that repair as its **own** commit first — typed and scanned like any other — so the
    stumbled-into fix stays reviewable and revertible apart from the planned change.
-4. Write the planned change as a **Conventional Commit** — `type(scope): summary`, type from the item's `kind`
+5. Write the planned change as a **Conventional Commit** — `type(scope): summary`, type from the item's `kind`
    (`bug → fix`, `feature → feat`, `debt → refactor`/`chore`).
-5. Add linking trailers:
+6. Add linking trailers:
    - `Refs: item #<backlog-id>` — always.
    - `Closes: #<github-issue>` — when this item resolves a tracked issue.
 
@@ -34,6 +41,10 @@ After `document`, per completed phase/item.
 - One commit for the item's planned change; a recorded `prerequisite-repair` rides its **own** preceding
   commit (the only split). Never bundle otherwise-unrelated items.
 - The message must trace back to the item — no bare "wip"/"fix" subjects.
+- The mechanical gate auto-fixes only zero-judgment issues; it **never decides which side of a doc↔code
+  contradiction is right** — that authority call is deferred to the loop (the filed ticket routes through
+  `prioritize` → planning). The installed git pre-commit hook re-runs the same check as the
+  outside-the-loop backstop.
 - Bookkeeping rides the **planned** commit: the backlog item's done-flip and the `handoff.md` rewrite happen
   **before** it (after any prerequisite-repair commit), so the completing commit captures them. `close-issue`
   is the only post-commit tail step.
@@ -43,6 +54,9 @@ A commit — the checkpoint marker. Its `Closes:` trailer names the issue that `
 
 ## Route
 → `close-issue` (close the GitHub issue this item resolved), then the loop picks the next item.
+
+## Calls
+`create-issue` — when the mechanical gate surfaces semantic drift a script can't safely fix.
 
 ## References
 Remote push and the branch lifecycle (the parallel-work merge/conflict extension) sit beyond this skill.

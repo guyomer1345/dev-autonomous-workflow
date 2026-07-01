@@ -34,6 +34,10 @@ The backlog (items with `depends_on`, `kind`, `severity`).
   interrupt.
 - The only preempt path is the **human's manual override** (steering: "do this now") — a human action, not
   an autonomous scheduling decision.
+- **Drift tickets ride the normal queue.** A doc↔code drift the commit gate or a periodic scan couldn't
+  auto-fix arrives as an ordinary `issue`; order it by the same urgency × dependency rule. Its `severity`
+  already reflects the affected element's `commitment` (a locked contradiction sorts high so it isn't starved;
+  cosmetic drift sits low as `debt`), so no special-casing.
 
 ## Output
 The next **wave** — the independent items to run together (+ the updated ordering). Serial execution runs a

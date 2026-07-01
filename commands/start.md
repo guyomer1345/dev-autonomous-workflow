@@ -25,12 +25,14 @@ built-in Claude Code command.
    .workflow/
      config.json       # project_root + run config      (committed)
      loop.md           # routing graph + diagram        (committed)
+     checks.sh         # mechanical-gate runner (generated per-stack; --fix / --check) (committed)
      state.json        # live position — RUNTIME, add to .gitignore
      handoff.md        # durable resume anchor          (committed)
      backlog.md        # live OPEN queue (issues + roadmap; closed leave) (committed)
      checkpoints/      # RESERVED — demoted; no writer yet
    <project_root>/     # the product (greenfield: project/ ; brownfield: repo root)
      llms.txt          # thin agent entry point → docs/knowledge/  (committed)
+     rules/            # engineering rules — specialized baseline, subtree-overridable (committed)
      docs/             # docs-root — durable product knowledge
        spec/           # product spec (discuss fills this)   (committed)
        architecture.md # inline Mermaid-C4 (document-owned)  (committed)
@@ -49,13 +51,34 @@ built-in Claude Code command.
    - Copy `templates/loop.md` → **`.workflow/loop.md`** and write **`.workflow/config.json`** (`project_root` +
      run config).
    - Copy `templates/settings.json` → **`.claude/settings.json`** (loop permission rules: `allow` local
-     actions, `ask` outward) and `hooks/guard.sh` → **`.claude/hooks/guard.sh`** (secret-scan +
-     verify-before-commit hard gates). `build-once-per-wave` is deferred.
+     actions, `ask` outward) and `hooks/{guard.sh,pre-commit.sh}` → **`.claude/hooks/`** (guard = secret-scan +
+     verify-before-commit hard gates; pre-commit = the mechanical-gate backstop, registered in step 4).
+     `build-once-per-wave` is deferred.
    - **Surface the one-time permission message** to the human: *"This is an autonomous loop. Accept the
      workspace-trust dialog so the package can pre-approve the loop's local actions; outward actions
      (push / issues / deploy) will still ask — by design. You don't need `--dangerously-skip-permissions`."*
-4. **Launch the local console.** ⛔ STUB — website stack/screens still open.
-5. **Commit** the initialised scaffold.
+4. **Specialize rules + wire enforcement** (the disciplined layer — auto-write greenfield, adopt-and-gap-fill
+   brownfield):
+   - **Seed the rules.** Copy the package baseline `rules/*.md` → **`<project_root>/rules/`**. Detect the
+     stack (languages, frameworks, package manager) and rewrite each `— enforced by: <mechanism>` tag with the
+     project's *concrete* tool (e.g. `formatter` → `prettier`/`black`/`gofmt`), so the agent reads real commands.
+     Nearest-file-wins: this project copy is the floor a subtree `rules/` can override.
+   - **Wire the enforcers named by the tags.** For each enforceable principle, install the concrete gate from
+     the detected stack: `.editorconfig`, formatter, linter, typechecker (where the language has one), the
+     test-runner script, a dependency-audit step, and a **CI workflow** that runs format-check + lint +
+     typecheck + test on push/PR. **Greenfield:** write these from the detected stack. **Brownfield:** *adopt*
+     what already exists — never clobber a config the project ships; record the existing tool as the enforcer
+     in the specialized `rules/`, and only **gap-fill** the missing ones.
+   - **Generate `.workflow/checks.sh`** — the one mechanical-gate runner both callers share: a
+     `--fix` mode (format + lint-fix + strip a stale reference, for the `commit` skill to run in-loop) and a
+     `--check` mode (fail non-zero on residual drift, for the git hook). It wraps the concrete tools just wired.
+   - **Register the git backstop.** Install the shipped `pre-commit.sh` as git's `.git/hooks/pre-commit` (copy
+     or symlink — git requires the exact name `pre-commit`) so a commit made *outside* the loop still hits
+     `checks.sh --check`.
+   - **Externals → checkpoint.** Anything needing an account or a provider choice (CI host, deploy creds) is an
+     outward/setup step → raise `checkpoint`(kind=setup) → `setup-guide`, don't guess.
+5. **Launch the local console.** ⛔ STUB — website stack/screens still open.
+6. **Commit** the initialised scaffold.
 
 ## 2. Greenfield (new project)  — fully supported
 - Scaffold an empty `<project_root>/docs/` (spec, architecture, knowledge, decisions); it grows as the project
@@ -64,6 +87,9 @@ built-in Claude Code command.
   (`prioritize → planner → …`).
 
 ## 3. Brownfield (integrate existing codebase)  — mostly STUB (EXPAND)
+- **Rules + enforcement are already adopted** by shared step 4 (adopt existing configs, gap-fill the missing
+  enforcers, layer our `rules/` on top). That is the *habits* half of integration and is **supported now**;
+  the **docs → knowledge** half below is the part still stubbed.
 - **Ingest** the existing code → populate `docs/knowledge/` (code graph + per-file nodes) and a
   **reconstructed `docs/spec/`**. **Adopt an existing `docs/`** if present — write members to known subpaths,
   never clobber; namespace ours on a name collision. ⛔ STUB — depends on the **ingest mechanics**, still

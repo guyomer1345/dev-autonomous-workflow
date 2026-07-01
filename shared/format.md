@@ -41,6 +41,22 @@ sections — name `shared/schemas.md` artifacts; don't re-explain them in prose.
 - **Constraints** — what to ignore / never do.
 - **Output** — the artifact or shape it returns.
 
+## Rules files (`rules/<topic>.md`)
+
+The thin baseline engineering principles — the agent-readable contract, machine-enforced where a tool can
+check it. One file per topic (`code-style`, `testing`, `security`, `ops`), principles only, not a manual.
+
+- **Shape**: `# <topic> — baseline`, a one-line precedence note, then a flat list of one-line imperative
+  principles. No Workflow/Route scaffolding — a rules file is a list, not a node.
+- **Enforcement tags**: append `— enforced by: <mechanism>` to any principle a tool can check (formatter,
+  linter, typechecker, test runner, secret-scan, CI gate). These tags are the wiring manifest `/start` reads
+  to install the enforcement layer; leave a purely behavioural principle untagged (the agent still honours it).
+- **Precedence**: nearest-file-wins — the package baseline is the floor, a project-root `rules/` overrides it,
+  and a `rules/` inside a subtree overrides the root for files under it. State this in the file's header line.
+- **Scope**: engineering principles only. Loop/orchestration behaviour belongs in the orchestrator brief, not
+  here; anything neither enforceable nor a durable engineering principle doesn't belong in the package at all.
+- Same **no-spec-refs / plain-language** law as every package file (below).
+
 ## Rules of thumb
 - Concise over complete: drop any section that only restates what Claude can already infer.
 - Define contracts, don't pad prose. Jargon gets one defining line or a `schemas.md` link.
