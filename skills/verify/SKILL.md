@@ -24,6 +24,8 @@ Lean: for small changes, judge directly without fanning out workers.
 ## Rules
 - Artifacts only — never run or observe the live app.
 - Never pass/fail a `human-qa`-gated criterion; those are confirmed by a `checkpoint` (kind=qa), not here.
+- **A `fail` gates only with a deterministic signal behind it** — a failing test, a type/lint violation, a
+  plan↔changelog mismatch. A mismatch the model merely suspects is advisory (low confidence), not a hard fail.
 
 ## Output
 `verify-verdict { pass, mismatches[], confidence }`.

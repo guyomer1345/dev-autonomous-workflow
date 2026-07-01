@@ -15,7 +15,10 @@ A question + a view-set (which realities to gather) + a confidence threshold.
 1. **Fan out** workers to gather each view independently — heavy context stays with the workers; they
    return thin summaries.
 2. **Compare & judge** the views per the implementation's rubric.
-3. **Score confidence** in the verdict.
+3. **Score confidence — conjunction of signals.** A verdict that **gates** (fail / block) needs a
+   **deterministic signal** corroborating it: a failing test, a thrown error, a lint/type violation, a
+   tree/structure mismatch. A model-only finding with no such signal is **advisory / low-confidence** — it
+   never hard-gates alone, so a lone AI hunch can't stall or whipsaw the loop.
 4. **Gate:**
    - confidence ≥ threshold → emit the verdict.
    - confidence < threshold → gather more (more workers / more tests / `research`) and re-run.

@@ -38,7 +38,9 @@ The product definition `discuss` produces and the whole build runs against.
 ## changelog  · produced by `execute` · *append within the item's lifetime; `.workflow/items/<id>/`; item-scoped ephemeral*
 - `plan_ref`
 - `actions[]` — `{ step, files, result }`
-- `divergences[]` — `{ step, expected, actual, why }`
+- `divergences[]` — `{ step, tier: cosmetic|prerequisite-repair|structural, expected, actual, why }`. A
+  `prerequisite-repair` is committed separately from the item's planned change; a `structural` divergence
+  stops execution and escalates.
 
 ## verify-verdict  · produced by `verify` · *created per item in `.workflow/items/<id>/`; item-scoped ephemeral*
 - `pass`

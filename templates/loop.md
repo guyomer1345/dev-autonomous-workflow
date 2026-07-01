@@ -10,7 +10,7 @@ the live position lives in `state.json`. Nodes are skills/agents; edges are foll
 | `create-demo` | demo approved (checkpoint pass) | `planner:decompose` |
 | `create-demo` | gate not triggered | `planner:decompose` |
 | `planner:decompose` | roadmap → backlog | `prioritize` |
-| `prioritize` | next item emitted | `planner:plan-one` |
+| `prioritize` | next wave emitted | `planner:plan-one` (per item in the wave) |
 | `prioritize` | backlog empty | `idle` (await steering) |
 | `planner:plan-one` | open decisions | `decision-engineer` → back to `planner:plan-one` |
 | `planner:plan-one` | plan ready | `execute` |
@@ -41,7 +41,7 @@ flowchart TD
   demo -->|visible surface| create-demo --> dec[planner:decompose]
   demo -->|no| dec
   dec --> prioritize
-  prioritize -->|next item| plan[planner:plan-one]
+  prioritize -->|next wave| plan[planner:plan-one]
   prioritize -->|empty| idle([idle])
   plan -->|open decision| decision-engineer --> plan
   decision-engineer -.needs evidence.-> research -.-> decision-engineer

@@ -22,7 +22,13 @@ Core principle: produce the plan others execute against; raise any real build de
 2. Map purpose → concrete changes; list the files touched; write ordered, independently-verifiable steps.
 3. Tag each `acceptance_criterion` `gate: artifact | human-qa` — `human-qa` is what later triggers a qa
    `checkpoint`; default to `artifact`.
-4. Raise any genuine build decision to `decision-engineer` rather than guessing (e.g. a `TBD → stack`
+4. **Set `risk_class`** (`code-only` · `data-additive` · `data-destructive` · `prod-touching`). When it is
+   destructive, author the required **`backup`** block (`what / mechanism / verification / restore`) —
+   `execute` verifies it before the destructive step and refuses the plan without it.
+5. **Decision-coverage gate:** list every governing decision in `plan.decisions[]` and confirm each maps to
+   ≥1 step. An unmapped decision **blocks** the plan — escalate rather than let resolved intent silently
+   evaporate between the decision and execution.
+6. Raise any genuine build decision to `decision-engineer` rather than guessing (e.g. a `TBD → stack`
    pointer left by `discuss`).
 
 ## Output

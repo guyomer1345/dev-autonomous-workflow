@@ -17,17 +17,26 @@ After `document`, per completed phase/item.
 
 ## Workflow
 1. Stage the item's changes.
-2. Write a **Conventional Commit** — `type(scope): summary`, type from the item's `kind`
+2. **Secret-scan the staged diff first.** Look for key prefixes, private-key headers, and
+   `password` / `secret` / `api_key` / `token` set to a real (non-placeholder) literal. On a hit, **stop and
+   escalate** — never commit the secret; once in history it lives there forever. (A guard hook re-checks this
+   deterministically as the backstop — the step keeps it visible in the loop.)
+3. **Split out a prerequisite-repair, if any.** If the `changelog` recorded a `prerequisite-repair`
+   divergence, commit that repair as its **own** commit first — typed and scanned like any other — so the
+   stumbled-into fix stays reviewable and revertible apart from the planned change.
+4. Write the planned change as a **Conventional Commit** — `type(scope): summary`, type from the item's `kind`
    (`bug → fix`, `feature → feat`, `debt → refactor`/`chore`).
-3. Add linking trailers:
+5. Add linking trailers:
    - `Refs: item #<backlog-id>` — always.
    - `Closes: #<github-issue>` — when this item resolves a tracked issue.
 
 ## Rules
-- One commit per completed item; never bundle unrelated items.
+- One commit for the item's planned change; a recorded `prerequisite-repair` rides its **own** preceding
+  commit (the only split). Never bundle otherwise-unrelated items.
 - The message must trace back to the item — no bare "wip"/"fix" subjects.
-- Bookkeeping rides this commit: the backlog item's done-flip and the `handoff.md` rewrite happen **before**
-  committing, so the item commit captures them. `close-issue` is the only post-commit tail step.
+- Bookkeeping rides the **planned** commit: the backlog item's done-flip and the `handoff.md` rewrite happen
+  **before** it (after any prerequisite-repair commit), so the completing commit captures them. `close-issue`
+  is the only post-commit tail step.
 
 ## Output
 A commit — the checkpoint marker. Its `Closes:` trailer names the issue that `close-issue` then closes.

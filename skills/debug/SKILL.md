@@ -18,7 +18,8 @@ crash.
 
 ## Workflow
 1. Dispatch workers to map both worlds — intended vs actual behaviour (from code + the failure signal).
-2. Judge where the divergence originates → root cause, with a confidence score.
+2. Judge where the divergence originates → root cause, with a confidence score. A cause the failing signal
+   (test / error / mismatch) actually corroborates scores high; one the model only theorizes stays low.
 3. confidence < threshold → call `research` (is this a known issue?) or request more tests, then re-run.
 
 ## Rules

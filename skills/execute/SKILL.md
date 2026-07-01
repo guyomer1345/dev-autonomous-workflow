@@ -12,9 +12,18 @@ trust the changelog.
 A `plan` (goal, ordered verifiable `steps`, `acceptance_criteria`).
 
 ## Workflow
-1. Work the plan's `steps` in order.
-2. Record every action in the `changelog` (`step, files, result`).
-3. Record any **divergence** from the plan formally (`step, expected, actual, why`) — never silently.
+1. **Guard destructive work first.** If the `plan`'s `risk_class` is destructive (`data-destructive` /
+   `prod-touching`), refuse to run the destructive step unless the plan carries a `backup` block — run and
+   verify the backup, record it in the `changelog`, *then* proceed. No verified backup → stop and escalate;
+   an unattended executor never runs an irreversible op without a proven rollback.
+2. Work the plan's `steps` in order.
+3. Record every action in the `changelog` (`step, files, result`).
+4. **Handle any divergence by tier** — never silently:
+   - **cosmetic** (a helper moved, line drift): adapt, record it, continue.
+   - **prerequisite-repair** (an in-scope-adjacent fix the plan didn't name): apply it, record it as a
+     divergence tagged `prerequisite-repair`, continue. It rides its **own commit** at the item tail so the
+     stumbled-into fix never hides inside the planned change.
+   - **structural** (the plan assumes something untrue): stop and escalate — this *is* the decision boundary.
 
 ## Rules
 - **Zero autonomous decisions.** A choice the plan didn't make is a blocker, not a judgement call.
