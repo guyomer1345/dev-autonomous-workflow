@@ -1089,6 +1089,24 @@ only when a language's **parsing** (not resolution) is the real obstacle. → `s
 
 ---
 
+## D75 — Tier-0 floor: node-recognition set ≠ edge-extraction set (widen the tail net) **[DECIDED + BUILT — corrects D73's floor to honour D72's "never nothing"]**
+D72 promised tier-0 as *"the long-tail net so an un-armed/exotic repo still gets nodes + clusters, never nothing."*
+The D73 build under-delivered: the floor recognised **only the ~15 languages that had an import regex**, so an
+exotic-language repo (Elixir, Haskell, Lua, R, …) got **zero nodes** — a net only *inside its own fence*. Fix:
+**split the two sets the floor had conflated** — a broad **node-recognition** set (`_NODE_LANGS`: every recognized
+programming language, edge-capable or not) vs the narrow **edge-extraction** set (`_LANGUAGES`: the subset with an
+import regex). Any source file → a node + directory cluster; edges only where a regex exists. Graphless data/markup/
+config/doc artifacts (json/yaml/md/html/css/sql/lockfiles) stay **excluded** — no import graph, and they'd flood the
+node set. Widening the node set surfaced a **latent cross-language false-edge bug** (a Ruby `require 'utils'` could
+suffix-match an unrelated `utils.go`/`utils.lua`) — fixed by scoping resolution to the importer's **family**
+(intra-language, C/C++ sharing headers). *Validated:* an Elixir+Haskell+Lua+R+Go repo now yields 5 nodes+clusters
+(was 1); json/md/css excluded; Ruby→Ruby only; express / Python / JS-TS / multi-lang regressions all unchanged; gate
++ `py_compile` green. → `scripts/codemap/codemap.py`, `06`, `11`; corrects D73, honours D72.
+**The process failure that let this ship — all gates green on a build *narrower than the decision* — is the real
+lesson; the workflow-rule fix for it is under discussion (see `07`), not yet captured.**
+
+---
+
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:

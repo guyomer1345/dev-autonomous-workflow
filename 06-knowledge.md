@@ -80,7 +80,10 @@ non-Python repo gets no graph at all, empty not degraded). What varies by langua
 the node set + directory clusters are identical everywhere and the two lenses inherit edge quality — so the cost
 of a language is its **resolver**, not its parser.
 - **Tier 0 — generic floor** (dir tree + shallow-regex imports, zero-dep): the long-tail safety net so an
-  un-armed repo still gets nodes + clusters. The floor, not the strategy.
+  un-armed repo still gets nodes + clusters. The floor, not the strategy. **Node-recognition ≠ edge-extraction**
+  (D75): the floor *nodes* any recognized source language (so an exotic-language repo still gets nodes+clusters —
+  "never nothing"), and adds *edges* only for the subset with an import regex; resolution is family-scoped
+  (intra-language, C/C++ share). Graphless data/markup/config/doc artifacts are excluded (no import graph).
 - **The default precise arm = zero-dep** (D74): the floor's regex extraction + a real per-language **resolver**.
   The cost is the resolver, not the parser — Python (stdlib `ast`) and **JS/TS** (tsconfig/jsconfig `paths`+`baseUrl`
   aliases + TS extension/index/barrel resolution) are both this. A precise arm subclasses the floor, so no-config →
@@ -100,8 +103,8 @@ is built up front; the Phase-4 demo forces exercising ≥1 non-Python arm.
 one language-agnostic driver over pluggable arms (add a language = `extensions` + `index()` + `edges()`, driver
 untouched). Precise arms: **Python** (`ast`) and **JS/TS** (`JsTsArm` — tsconfig `paths`/`baseUrl` + extension/index
 resolution; beats the floor 4-vs-1 on an alias fixture; no tsconfig → == the floor). Every other recognized source
-language falls to the floor (precision-first — an unresolved import yields no edge). Next arms (Java, C#, Go, …) are
-zero-dep resolver arms like `JsTsArm`; tree-sitter stays reserved for parse-hard languages.
+language falls to the floor — noded regardless (D75), with edges where a regex exists. Next arms (Java, C#, Go, …)
+are zero-dep resolver arms like `JsTsArm`; tree-sitter stays reserved for parse-hard languages.
 
 ## Granularity **[DECIDED]**
 Start file-level; leave a seam for symbol/function-level later.

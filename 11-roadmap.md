@@ -95,7 +95,7 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   pluggable arms. Precise arms: **Python** (`ast`, ported verbatim + exact regression) and **JS/TS** (`JsTsArm` —
   tsconfig/jsconfig `paths`+`baseUrl` aliases + extension/index resolution; beats the floor **4-vs-1** on an alias
   fixture; no tsconfig → == the floor). Every other recognized language falls to the **tier-0 generic floor**
-  (precision-first shallow-regex). Any recognized language now gets nodes + clusters + both lenses; **`/start`
+  (precision-first shallow-regex; D75 = nodes *any* source language, edges where a regex exists — "never nothing"). Any recognized language now gets nodes + clusters + both lenses; **`/start`
   step 4's `codemap.sh`** is a single auto-dispatching call. Validated on real `express`/`query-string`/`mux` + a
   13/13 multi-language fixture. *Remaining (D72 build set, research-ranked by prevalence):* the next precise arms —
   **Java** → **C#** → **C++**, then **Go/Rust/PHP** — as **zero-dep resolver arms** like `JsTsArm` on the same driver
