@@ -73,6 +73,25 @@ step only.)
   - `[D]` **durable** — the non-derivable `why` / intent-vs-actual / `# Sessions`. **Authored on touch** by
     `document`. This is the layer that earns its tokens — the product.
 
+## Multi-language coverage **[DECIDED — D72, research-ranked by prevalence]**
+Coverage is **three tiers**, not D70's arm-vs-fallback binary (whose fallback was never built — so *today* a
+non-Python repo gets no graph at all, empty not degraded). What varies by language is only **edge resolution**;
+the node set + directory clusters are identical everywhere and the two lenses inherit edge quality — so the cost
+of a language is its **resolver**, not its parser.
+- **Tier 0 — generic floor** (dir tree + shallow-regex imports, zero-dep): the long-tail safety net so an
+  un-armed repo still gets nodes + clusters. The floor, not the strategy.
+- **Tier 1 — shared tree-sitter engine**: one parser front-end + a per-language query (find imports) + resolver
+  (map to files) → the same `graph.json`/PageRank emitter. Each language is "query + resolver," not a new tool.
+- **Tier 2 — deep bespoke arm** where resolution is baroque (JS/TS aliases/barrels; C/C++ preprocessor + a
+  compile-DB). The stdlib-`ast` Python arm is a tier-2 that happened to be cheap.
+**Build set = prevalence, not ease** (Octoverse/SO/RedMonk 2024–25): Python (done) → JS/TS (one arm) → Java → C#
+→ C++ — GitHub's "~80% of new repos = six languages" set — then Go / Rust / PHP. Because repos are polyglot
+(median ~3 / mean ~4.5 languages), ~5 arms resolve most of *most* repos. Ease breaks ties on **order only**: Go is
+pulled early (compiler-grade graph, near-free), C++ sequences last in-wave (needs `compile_commands.json`).
+Graphless artifacts (SQL, HTML/CSS, shell, JSON/YAML, Markdown, Dockerfile, HCL) are **not** arms — no
+file-to-file import graph. Arms are **not demand-gated** — validation is free (any public repo), so the common set
+is built up front; the Phase-4 demo forces exercising ≥1 non-Python arm.
+
 ## Granularity **[DECIDED]**
 Start file-level; leave a seam for symbol/function-level later.
 

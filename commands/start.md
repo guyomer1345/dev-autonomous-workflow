@@ -83,8 +83,9 @@ built-in Claude Code command.
      `checks.sh --check`.
    - **Generate `.workflow/codemap.sh`** — the per-stack code-map runner: it invokes the shipped extractor for
      each detected language and writes `docs/knowledge/graph.json` (a typed import graph plus the *impact* and
-     *orchestration* centrality signals per file). Python needs no external tool (stdlib parsing); other stacks
-     use their matching extractor, same `graph.json` contract. Regenerable — the loop re-runs it and never
+     *orchestration* centrality signals per file). Python uses the stdlib parser; other stacks use their matching
+     tree-sitter arm, and a language with no arm falls to a generic floor (directory tree + shallow imports, same
+     `graph.json` contract) so a repo always gets at least nodes + clusters. Regenerable — the loop re-runs it and never
      hand-edits the graph.
    - **Externals → checkpoint.** Anything needing an account or a provider choice (CI host, deploy creds) is an
      outward/setup step → raise `checkpoint`(kind=setup) → `setup-guide`, don't guess.
@@ -112,6 +113,8 @@ built-in Claude Code command.
 - Then hand to the normal loop.
 
 ## Expand later
-- Additional **code-map language arms** — Python ships; other stacks plug into the same `graph.json` contract.
+- Additional **code-map language arms** — Python ships; the prevalence-ranked set (JS/TS · Java · C# · C++, then
+  Go · Rust · PHP) plugs into the same `graph.json` contract via a shared tree-sitter engine, with a generic floor
+  for un-armed languages.
 - The **console** launch.
 - The full **disk layout** — the tree above is a provisional first cut.

@@ -93,10 +93,16 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   eager · `[X]` extractive purpose · `[D]` durable `why`/Sessions on touch). **Built + validated 2026-07-02:**
   the **Python extractor** (`scripts/codemap/python_codemap.py`, stdlib `ast` + both PageRank lenses → the
   `graph.json` schema) reproduced the pressure-test graph on the real repo (225 nodes / 805 edges, 0 parse
-  failures), and **`/start` step 4 generates `.workflow/codemap.sh`** to run it. *Remaining:* other-language
-  arms (TS/etc.) on the same `graph.json` contract — **built on the D70 rule: a stack-agnostic degraded fallback
-  (dir tree + shallow imports) so "no arm" ≠ "no map", arms demand-built when a real target in that stack hits
-  `ingest`/`/start`, and the Phase-4 demo forcing ≥1 more.** `planner`/`debug` depend on it. **[core — Python arm done]**
+  failures), and **`/start` step 4 generates `.workflow/codemap.sh`** to run it. *Remaining (D72 — recast from
+  D70's arm-vs-fallback binary, research-ranked by prevalence):* other-language arms on the same `graph.json`
+  contract, via a **three-tier model** — **tier 0** a generic floor (dir tree + shallow imports, zero-dep) as the
+  long-tail safety net so an un-armed repo gets nodes+clusters not nothing; **tier 1** a shared **tree-sitter**
+  engine (per-language query + resolver); **tier 2** deep bespoke arms where resolution is baroque. Build set by
+  **prevalence, not ease** (Octoverse/SO/RedMonk 2024–25): Python (done) → **JS/TS** → **Java** → **C#** → **C++**
+  (≈80% of new repos), then **Go/Rust/PHP**; Go pulled early for fast ROI (compiler-grade graph), C++ last in-wave
+  (needs a compile-DB). Arms **no longer demand-gated** — validation is free (any public repo); built up front,
+  tier-0 covers the tail; the Phase-4 demo still forces ≥1 non-Python arm. `planner`/`debug` depend on it.
+  **[core — Python arm done; tier-0 + JS/TS next]**
 - **Brownfield ingest** — **DESIGNED (D68); the `ingest` skill is being authored.** A thin `ingest` skill over
   existing leaves (`research` read → `document` write, no new agent) that seeds behavioural-core **intent from
   the existing `CLAUDE.md`/spec** (un-derivable from code), builds `docs/knowledge/` + a reconstructed

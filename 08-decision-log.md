@@ -976,6 +976,52 @@ D67 (the `checks.sh` shipped-mechanical-enforcer precedent), D68 (the sibling st
 "Python already required" fact). → `scripts/retention.py`, `skills/{document,decision-engineer,prioritize}`,
 `commands/start.md`, `shared/{schemas,memory-model}.md`, `11`; implements D61.
 
+## D72 — Multi-language code-map: three-tier coverage + a prevalence-ranked build set **[DECIDED — supersedes D70's arm-vs-fallback binary; research-backed]**
+D70 left non-Python coverage as a binary — a per-language *arm* or a *degraded fallback* — and gated arms on a
+real target arriving (validate-on-demand). Neither survives contact: the fallback was **never built** (only
+`python_codemap.py` exists), so **today a non-Python repo gets no graph at all** — empty, not degraded — and the
+whole graph-backed half goes dark (`ingest` can't seed structural nodes, `planner`/D69 lose the impact lens,
+`debug` loses the graph, the D70 map has nothing to render). And the "can't validate without a real target"
+rationale is false — any public GitHub repo in the language is a fixture (that is how the Python `__init__` edge
+bug was caught). Recast:
+- **What varies by language is *edge resolution*, nothing else.** The node set (files) and directory clusters are
+  identical quality in every language; only import→file resolution is language-specific, and the two lenses inherit
+  edge quality. So "arm vs no-arm" is *trustworthy vs noisy weighting on the same skeleton* — once a floor exists.
+  The cost of a language is its **resolver**, not its parser.
+- **Three-tier coverage model** (replaces the binary):
+  - **Tier 0 — generic floor** (directory tree + regex-shallow imports, zero-dep): the **long-tail safety net** so
+    an un-armed/exotic repo still gets nodes + clusters, never nothing. NOT the strategy — just the floor.
+  - **Tier 1 — shared tree-sitter engine**: one parser front-end + a per-language *query* (find import nodes) +
+    *resolver* (map to files) → the existing `graph.json`/PageRank emitter. Each language is "query + resolver," not
+    a whole tool (tree-sitter was already D68's non-Python mechanism).
+  - **Tier 2 — deep bespoke arm** where resolution is baroque (JS/TS aliases/barrels/extensions; C/C++ preprocessor
+    + a compile-DB). Python's stdlib-`ast` arm is a tier-2 that happened to be cheap.
+- **Build set chosen by PREVALENCE, not ease** (research across Octoverse 2024/2025, SO 2024/2025, RedMonk Jan-2025,
+  PYPL, TIOBE, JetBrains 2024): Python (done) → **JS/TS** (one arm — top of every source, the web substrate + Node;
+  TS is a JS superset sharing the module system) → **Java** (top-4 everywhere) → **C#** (top-5) → **C++** (completes
+  GitHub's "≈80% of new repos = six languages" set). **Second wave:** **Go**, **Rust**, **PHP**. Cutoff ≈5 arms
+  covers ~80% of new repos, and because repos are polyglot (median ~3 / mean ~4.5 languages) five arms resolve most
+  of *most* repos, not just the #1 language. **Set aside as graphless** (not arms — no file-to-file import graph):
+  SQL, HTML/CSS, shell/PowerShell, JSON/YAML/TOML, Markdown, Dockerfile, HCL.
+- **Ease breaks ties on ORDER only, never on set membership.** The prevalence-#5 slot **C++** is the hardest graph
+  (textual `#include`, resolution needs `compile_commands.json` + macros/conditional-compilation) → it is the
+  heaviest lift and sequences **last in the first wave** despite its rank; **Go** (prevalence ~#9 but a
+  compiler-grade `go/packages` graph, package = directory) is pulled **early** as the fast-ROI add. Java is
+  near-compiler-grade (`package`→dir); C# is medium (namespaces decoupled from files — needs the `.csproj`
+  project-graph / Roslyn); JS/TS is the hard-but-essential tier-2.
+- **Arms are no longer demand-gated.** With validation free, the common set is **built up front**, ordered by
+  prevalence×effort; tier-0 covers the tail. The **Phase-4 demo still forces exercising ≥1 non-Python arm**
+  end-to-end (proves the contract generalizes).
+Kept from D68/D70: the `graph.json` contract (both lenses, stable module-relpath node IDs), tree-sitter as the
+non-Python mechanism, Python stays stdlib, the symbol-level granularity seam.
+*Rejected:* the flat "degraded fallback" as strategy (demoted to the tail floor); demand-gated arms (the validation
+rationale was false); pure-prevalence C++ in an early slot (front-loads the worst graph, stalls coverage); heavy
+per-project tooling / LSP-per-language (D68 — needs the toolchain + a build); shipping arms for rare languages
+(tier-0 covers the tail more cheaply). *Evidence:* the language-prevalence research (sources above; polyglot stats
+Wen et al. TOSEM 2024) + the current-state audit (only `python_codemap.py`, no fallback) + D68 (tree-sitter, two
+lenses, stdlib Python) + D70 (the binary this supersedes). → `06`, `commands/start.md`, `11`; supersedes D70's
+arm-vs-fallback + validate-on-demand.
+
 ---
 
 ## Not yet decided (tracked in `07`)
