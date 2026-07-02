@@ -44,7 +44,12 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   backstop + generated `.workflow/checks.sh`, and the `prioritize` drift-ticket queue. What makes output
   *disciplined*, not just working. **Remaining sliver:** the per-stack `checks.sh` generator (a `/start`
   runtime detail, unexercised until a real bootstrap). **[core — done bar the generator]**
-- **Engineer agent?** — a possible roster slot for a deep-implementation / feasibility agent (`02`/`09`). **[stageable]**
+- **Proportional-rigor decision gate (D69)** — a cheap O(seconds) triage in `planner` grades **every** output by
+  reversibility × blast-radius → a rigor tier (0 judgment · 1 `research` · 2 pressure-test-if-cheap · escalate to
+  the human), escalating to `decision-engineer` at that tier. The D68 **impact lens is the mechanical floor**
+  (auto-escalate high-blast-radius touches), the alignment scan the backstop; `decision-record` gains
+  `predicted_outcome` (rationale, checked opportunistically — **no back-eval stage**). Formalizes the
+  engineering-feasibility pass; **no new agent** (answers the old "engineer agent?" slot). **[stageable]**
 
 ### Space 3 — Website / console + bus  *(role decided; unbuilt — NOT merely "later")*
 - **C1 — read-only console** — render live loop state (roadmap, knowledge graph, activity, checkpoints) from

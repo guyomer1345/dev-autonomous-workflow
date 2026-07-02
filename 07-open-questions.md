@@ -6,7 +6,8 @@ Deliberately deferred — known unknowns, to close during build or later.
 - **Rest of the macro-loop** — **CLOSED**: the spine lives in `10` + renders as `.workflow/loop.md` (D47);
   the **orchestrator `CLAUDE.md` driver** is specced in `01` (D46); checkpoint = `04`, reset = the
   handoff/resume model (D48). *Intake stage closed in `09`.*
-- **Intake follow-ons** (`09`) — engineering-feasibility pass; demo-skill mechanics (serving,
+- **Intake follow-ons** (`09`) — engineering-feasibility pass **designed as the proportional-rigor decision gate
+  (D69); implementation deferred to `11`**; demo-skill mechanics (serving,
   refine-round limits, on-disk location); commitment-status storage (spec doc vs Space 6 node frontmatter).
   *(Interrupt model closed: pure queue, D26.)*
 - **`init` / bootstrap capability** (`10`, D28) — greenfield is straightforward; brownfield **ingest**

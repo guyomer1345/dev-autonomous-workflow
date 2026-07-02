@@ -47,9 +47,10 @@ The heaviest intake. Required inputs:
 - data model + integrations (carried in the spec).
 
 Output: vision + spec + a prioritized **backlog** → Roadmap sequences it → steady-state spine. Audience +
-runtime feed an **engineering-feasibility capability** (an "engineer agent" — role real, exact agent
-**[OPEN]**, see `02`) that derives technical constraints and weighs *how* to implement — separate from
-the product alignment the demo does.
+runtime feed an **engineering-feasibility capability** that derives technical constraints and weighs *how* to
+implement — separate from the product alignment the demo does. **[DESIGNED — D69:** it is the proportional-rigor
+decision gate (a triage in `planner` → tiered `research`/pressure-test via `decision-engineer`), **not** a new
+"engineer agent"; implementation deferred.]
 
 ## The demo / sandbox **[DECIDED — D21]**
 A **"create demo" skill** (config-package primitive) that emits a **throwaway, minimal, non-integrated
@@ -119,9 +120,11 @@ hole, core flow broken.** These bound the "unspecified → undefined behaviour" 
 ## Still open (this doc)
 - The rest of the macro-loop (execute → test → document → audit → next) — `01`.
 - **Engineering-feasibility pass** — the spike that de-risks the technical unknowns the demo skips.
+  **[DESIGNED — D69: the proportional-rigor decision gate; implementation deferred to `11`.]**
 - **Backlog / prioritization + interrupt model** — e.g. a bug found mid-feature: queue vs interrupt; how
   urgency is assigned.
 - **Demo skill mechanics** — how the sandbox is served/run, refine-round limits, where it lives on disk.
 - **Commitment-status storage** — where locked/provisional/unspecified is recorded (spec doc vs Space 6
   node frontmatter).
-- **Engineer agent** in the roster — `02`.
+- **Engineer agent** in the roster — **resolved (D69): no new agent** — the feasibility role is the
+  proportional-rigor gate reusing `planner`/`decision-engineer`/`research` (`02`).

@@ -831,12 +831,56 @@ routes; the product narrative ("filter by sector/cap/volatility, drop into a ran
 appeared in **neither** lens. → `06`, `commands/start.md`, `skills/{ingest,document}`, `10`, `11`, `07`;
 sharpens D39, uses D67's per-stack-generator pattern, complements D62/D63.
 
+## D69 — Proportional-rigor decision gate: a cheap triage in `planner` → tiered depth via `decision-engineer`; no back-eval **[DECIDED — implementation deferred to `11`; formalizes the engineering-feasibility pass]**
+An autonomous loop removed the senior-dev gut-check that normally catches a bad *irreversible* decision in
+review — so the loop needs to inject rigor on high-stakes calls **without** stalling the fast path or burning
+tokens. Reframe that makes it principled rather than a budget hack: **rigor ∝ (cost-of-being-wrong −
+cost-of-reversal)**, not rigor-vs-speed — even for free you would not validate a cheap-to-reverse decision, since
+trying-and-reverting beats validating up front. Calls:
+- **A cheap O(seconds) triage runs on EVERY `planner` output** — an inline checklist (no dispatch) grading
+  reversibility × blast-radius × approach-ambiguity. Universal on purpose: it is the net for the **silent
+  critical decision** that would otherwise be built at tier-0 because nobody flagged it as a decision. It assigns
+  a **rigor tier**:
+  - **Tier 0 — judgment.** LLM decides from its own knowledge; proceed. The default (~85–95% of outputs).
+  - **Tier 1 — research.** Dispatch `research` to weigh standard/market approaches against project fit (bounded
+    fan-out → synthesise). ~5–15%.
+  - **Tier 2 — pressure-test.** Run a real experiment — but **only when critical AND a cheap empirical test
+    exists**; else fall back to Tier 1 and record the residual risk. Rare.
+  - **Escalate.** A genuinely ambiguous / product-shaping call is not "research harder" → a one-line steering
+    question to the human (reuses the sandbox fence + the unspecified→steering rule).
+- **The triage lives in `planner`, not `decision-engineer`** — `decision-engineer` only fires once a decision is
+  *recognised*, and the whole point is to catch the *unrecognised* ones. `planner` triages, then escalates to
+  `decision-engineer` at the chosen tier (extends planner's decision-coverage gate).
+- **A mechanical floor + a backstop so the LLM triage need not be perfect:** the **impact-centrality lens**
+  (D68's code-map) auto-escalates any decision touching a high-blast-radius node regardless of the model's gut
+  (deterministic); the periodic **alignment scan** (D63) catches misses — prevention upstream, detection as
+  backstop.
+- **Record a prediction, don't run a back-eval.** At Tier 1/2 the `decision-record` gains
+  `predicted_outcome` / `success_signal` — **recorded rationale** (ADR consequences), checked *opportunistically*
+  by the alignment scan or a human, **not** by a per-item automated eval.
+*Rejected:* a **post-implementation quality "eval"/back-gate** (an AI grading AI-written code is inherently
+judgment → advisory-only per D45, overlaps `verify`/`code-review`/the alignment scan, and is a token sink — the
+maintainer's point: it will never say "perfect, pass"); a **binary research yes/no** gate (misses the
+proportionality — a ladder is right); putting the triage **in `decision-engineer`** (misses unrecognised critical
+decisions — must be upstream); **always-pressure-test** (waste on reversible decisions even when free, and
+unbounded time); a **separate engineer/feasibility agent** (roster bloat — the gate reuses the existing
+hub-and-spoke). *Evidence:* this session — the maintainer ran a market-weighing research pass on
+tree-sitter+PageRank in a separate chat (it *confirmed* the choice, and the **process** proved its worth even on
+a confirm), and we pressure-tested the same decision empirically on a real repo (D68); the discussion generalised
+both into one proportional-rigor gate, with D68's impact lens supplying the mechanical criticality signal.
+Builds on D22 (cheap gate → expensive validation), D23 (unspecified→steering / the fence), D43 (planner
+decision-coverage), D45 (AI-only → advisory), D63/D64 (detection backstop), D68 (impact lens). →
+`skills/{planner,decision-engineer}`, `shared/schemas.md` (`decision-record` gains `predicted_outcome`), `07`,
+`09`, `11`; **answers the open "engineer agent?" slot (no new agent) and formalizes the engineering-feasibility
+pass.** Implementation deferred (`11`).
+
 ---
 
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:
-engineering-feasibility pass; demo-skill mechanics; commitment-status storage. `init` follow-ons: brownfield
+engineering-feasibility pass **designed as the proportional-rigor gate (D69), implementation deferred**;
+demo-skill mechanics; commitment-status storage. `init` follow-ons: brownfield
 ingest **designed (D68) — the `ingest` skill is being authored**; console launch, full disk-layout protocols
 still open (the `spec/`+`.knowledge/` docs-root placement closed — D62). Skill-review follow-ons:
 incidental-issue-resolution detection — deferred; outward-action permission mechanics (D35). Adoption
