@@ -938,6 +938,44 @@ in-vision), the `07` project-state view (this is its "how pieces connect" face) 
 **Feature + architecture DECIDED; runtime-capture mechanism a direction (OPEN in `07`); build deferred to Phase 2/3.**
 → `03`, `05`, `07`, `11`.
 
+## D71 — Retention script built: the deterministic `audit` enforcer (shipped stdlib Python) **[DECIDED + BUILT — implements D61]**
+The cap-and-archive retention law (D61) becomes an enforced artifact: **`scripts/retention.py`** (stdlib Python,
+idempotent), shipped like the code-map extractor and run in the `audit` maintenance item. Four build decisions,
+each the leaner of the alternatives:
+- **Archive-state = an inline visible marker, not a manifest or frontmatter counters.** Correctness comes from
+  *counting* entries > K, so a marker is needed only for human/PR traceability of what left the working tree: a
+  one-line `<!-- retention: N Sessions entries archived -> git @ <sha> -->` at the **`# Sessions` head** (parsed
+  back so N **accumulates** across passes), and a `docs/decisions/index.md` tombstone row `| id | title |
+  superseded->X | git <sha> |`. No new file.
+- **Closed-item prune is gated on a `document`-written `promoted.json` marker.** A mechanical script can't judge
+  whether an item's essence was folded (debug-report→Sessions, decisions→`decisions/`); pruning a closed-but-
+  unpromoted dir would destroy the only durable copy. So the prune touches **only** dirs carrying
+  `promoted.json {promoted:true}`; unmarked → skipped. The safety gate is a fact `document` asserts, never a guess.
+- **Thresholds are config-overridable with shipped defaults.** `config.retention` = `sessions_k` (the script's
+  only knob) + the `prioritize` scheduling trips `decisions_active_n` / `items_closed_m` / `every_p_items`; absent
+  → 10 / 30 / 10 / 15. Cheap now, avoids a retrofit when a real project wants different numbers.
+- **Shipped-shared stdlib Python — not per-stack-generated, not bash.** Retention edits only our OWN stack-agnostic
+  `.workflow/`+`docs/` layout, so per-stack generation (à la `checks.sh`/`codemap.sh`) buys nothing. Python over
+  bash because the work is date-arithmetic + text-parse + rewrite — where portable bash (macOS bash-3.2 / BSD vs
+  GNU `sed`/`date` / Git-Bash) is fragile, while stdlib Python is byte-identical cross-OS and is **already a hard
+  package dependency** (the code-map extractor). Emergent rule: **thin shell glue = bash; parse/rewrite = Python.**
+Deletions are made in the working tree and left **staged for the `audit` item's `commit`** (`git add -A`); content
+stays recoverable at the recorded anchor. Two refinements to the pressure-tested previews: the marker lives at the
+**section head** (so `document`'s append-only entries land below it, not after it) and the item marker is
+**`promoted.json`** (not the loop's `state.json` — name collision). **Validated** on a git fixture: the three caps
+fire, N accumulates (2→5), and a re-run is a clean no-op; archived content recoverable via `git show <anchor>:path`.
+*Scope:* the three size-caps only. The prose deletion-test over `CLAUDE.md`+`rules/` stays a separate model-run
+step in the same audit item (judgment, not the script); `base_sha` bounding the git-log read is a read convention,
+not a script action; **dead-node prune** (deleted source → delete node) is a staleness signal owned by `document`,
+not this size-cap script; **Sessions distillation** stays deferred (D61).
+*Rejected:* frontmatter counters / a separate `archive-index.json` (correctness needs neither — counting decides,
+the marker is only for humans); pruning by "closed" alone (unsafe without the promotion fact); hardcoded thresholds
+(config is a cheap hedge); per-stack generation (the layout is identical everywhere); bash (OS-divergent for
+parse-heavy work, and no dependency saving since Python is already required). *Evidence:* D61 (the law implemented),
+D67 (the `checks.sh` shipped-mechanical-enforcer precedent), D68 (the sibling stdlib-Python shipped script + the
+"Python already required" fact). → `scripts/retention.py`, `skills/{document,decision-engineer,prioritize}`,
+`commands/start.md`, `shared/{schemas,memory-model}.md`, `11`; implements D61.
+
 ---
 
 ## Not yet decided (tracked in `07`)
@@ -949,8 +987,8 @@ ingest **designed (D68) — the `ingest` skill is being authored**; console laun
 still open (the `spec/`+`.knowledge/` docs-root placement closed — D62). Skill-review follow-ons:
 incidental-issue-resolution detection — deferred; outward-action permission mechanics (D35). Adoption
 follow-ons: the **retention & archival law** is **closed** (D59–D60 write-law leaks + D61 cap-and-archive read
-law); what remains is **Sessions distillation** (deferred), `K`/threshold tuning, and authoring the retention
-script. Plus whether `verify` samples the real diff vs trusts the `changelog` (#8). **Two new (user-raised):**
+law) and the **retention script is built** (D71); what remains is **Sessions distillation** (deferred) and
+`K`/threshold tuning against real runs. Plus whether `verify` samples the real diff vs trusts the `changelog` (#8). **Two new (user-raised):**
 a synthesized **project-state view**, and a **framework version-update** skill. **Alignment pass (D63/D64):**
 authoring the alignment-scan **skill** is knowledge-gated (D63); two prevention follow-ons — **single-source
 status** and a **capture-time blast-radius sweep** — are undecided (D64). The **doc-authoring agent** is

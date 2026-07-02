@@ -19,7 +19,8 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   mechanical step + git `pre-commit` backstop + generated `checks.sh` · `prioritize` drift-ticket queue —
   D40/D65/D67; only the per-stack `checks.sh` generator remains).
 - **Space 5 — Disk layout + retention.** `.workflow/` tree + schemas (D53); the **retention/read law**
-  (cap-and-archive, D59–D61); the **unified `<project_root>/docs/` root** (D62).
+  (cap-and-archive, D59–D61) + the **retention script built** (`scripts/retention.py`, D71); the **unified
+  `<project_root>/docs/` root** (D62).
 - **Space 6 (partial) — Document freshness/prune.** `document` owns same-item freshness + the `audit` prune
   (D61); the knowledge *schema* is set (D38/D39).
 
@@ -101,8 +102,11 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   the existing `CLAUDE.md`/spec** (un-derivable from code), builds `docs/knowledge/` + a reconstructed
   `docs/spec/` (default **unspecified**, reconciliation checkpoint locks invariants). `/start` brownfield stays
   a STUB until the skill + generator land. **[core for brownfield — being authored]**
-- **Retention script** — author the deterministic `audit` script (cap-and-archive, GC, prune) + tune
-  `K`/thresholds; **Sessions distillation** deferred (D61). **[stageable]**
+- **Retention script** — **BUILT 2026-07-02 (D71):** `scripts/retention.py` (stdlib Python, idempotent) does the
+  three deterministic caps (Sessions cap-and-archive · superseded-decision GC + index tombstone · promoted-item
+  prune), wired into `/start` (copy → `.claude/scripts/`) + `document` audit mode (invoke; and `document` writes
+  the `promoted.json` prune-gate). Fixture-validated (caps fire, N accumulates, re-run no-op, git-recoverable).
+  *Remaining:* `K`/threshold tuning against real runs; **Sessions distillation** deferred (D61). **[done]**
 - **Graph regenerate-vs-incremental** — the mechanism for keeping the generated graph current. **[later]**
 - **Spec↔implementation alignment scan** — a whole-project, fan-out reconciliation (decisions/spec ↔ code),
   each divergence classified by the commitment model (locked→drift · provisional→finalize · unspecified→
@@ -135,8 +139,9 @@ ingest**, the **retention script** (D61), and a coherence/completeness pass tyin
 guiding-doc loose ends. *(Done 2026-07-01: the D36–D45 skill-body deltas (D66) **and** the `rules/` baseline +
 `/start` enforcement wiring + two-tier drift gate (D40/D65/D67). **2026-07-02: knowledge generation → brownfield
 ingest DESIGNED (D68, pressure-tested on a real repo); the `ingest` skill + the Python code-map extractor
-(`scripts/codemap/`) authored, validated on the real repo, and wired into `/start` step 4.** Then: the
-retention script (+ other-language code-map arms as a follow-on).)*
+(`scripts/codemap/`) authored, validated on the real repo, and wired into `/start` step 4. The **retention
+script** (`scripts/retention.py`, D71) built + wired.** Remaining Phase-1: other-language code-map arms
+(follow-on, demand-built per D70) + a guiding-doc coherence pass.)*
 **Phase 2 — Define the website + demo (design, not build).** Close the Space-3 and Space-4 *design* questions
 as a complete spec: the website screen list / contact-UX / stream-vs-snapshot / stack, **and** the demo skill
 mechanics (serving/running the sandbox, refine limits, on-disk location) + the checkpoint data model /
