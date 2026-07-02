@@ -79,9 +79,11 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
 - **Knowledge generation** — **DESIGNED (D68, pressure-tested on a real repo):** an **own per-stack code-map
   generator** (`ast`/tree-sitter, emitted by `/start` like `checks.sh` — not an external tool), `graph.json`
   carrying **two centrality lenses** (impact + orchestration), and a **three-tier node seed** (`[G]` structural
-  eager · `[X]` extractive purpose · `[D]` durable `why`/Sessions on touch). *Remaining build:* the per-stack
-  generator script (rides the `/start` enforcement-wiring build, alongside the `checks.sh` generator).
-  `planner`/`debug` depend on it. **[core — designed; generator script unbuilt]**
+  eager · `[X]` extractive purpose · `[D]` durable `why`/Sessions on touch). **Built + validated 2026-07-02:**
+  the **Python extractor** (`scripts/codemap/python_codemap.py`, stdlib `ast` + both PageRank lenses → the
+  `graph.json` schema) reproduced the pressure-test graph on the real repo (225 nodes / 805 edges, 0 parse
+  failures), and **`/start` step 4 generates `.workflow/codemap.sh`** to run it. *Remaining:* other-language
+  arms (TS/etc.) on the same `graph.json` contract. `planner`/`debug` depend on it. **[core — Python arm done]**
 - **Brownfield ingest** — **DESIGNED (D68); the `ingest` skill is being authored.** A thin `ingest` skill over
   existing leaves (`research` read → `document` write, no new agent) that seeds behavioural-core **intent from
   the existing `CLAUDE.md`/spec** (un-derivable from code), builds `docs/knowledge/` + a reconstructed
@@ -120,8 +122,9 @@ the **`rules/` baseline + `/start` enforcement wiring** (D40), **knowledge gener
 ingest**, the **retention script** (D61), and a coherence/completeness pass tying up the remaining `[core]`
 guiding-doc loose ends. *(Done 2026-07-01: the D36–D45 skill-body deltas (D66) **and** the `rules/` baseline +
 `/start` enforcement wiring + two-tier drift gate (D40/D65/D67). **2026-07-02: knowledge generation → brownfield
-ingest DESIGNED (D68, pressure-tested on a real repo); the `ingest` skill is being authored.** Then: the
-per-stack code-map generator script + the retention script.)*
+ingest DESIGNED (D68, pressure-tested on a real repo); the `ingest` skill + the Python code-map extractor
+(`scripts/codemap/`) authored, validated on the real repo, and wired into `/start` step 4.** Then: the
+retention script (+ other-language code-map arms as a follow-on).)*
 **Phase 2 — Define the website + demo (design, not build).** Close the Space-3 and Space-4 *design* questions
 as a complete spec: the website screen list / contact-UX / stream-vs-snapshot / stack, **and** the demo skill
 mechanics (serving/running the sandbox, refine limits, on-disk location) + the checkpoint data model /
