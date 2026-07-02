@@ -1058,6 +1058,37 @@ language falls back to the tier-0 floor, never a crash. → `scripts/codemap/cod
 
 ---
 
+## D74 — JS/TS arm is a zero-dep tsconfig resolver, not tree-sitter; tree-sitter demoted to reserved **[DECIDED + BUILT — revises D72's tier-1 mechanism; implements D73's Option B as B1]**
+D72 named **tree-sitter as the tier-1 mechanism** for every non-Python language, and D73 deferred the JS/TS arm to
+it. Building it flipped the call on evidence:
+- **tree-sitter is fragile in practice.** The Python binding drifts hard across versions (`Tree.root_node`
+  property-vs-method, `Parser.parse` bytes-vs-str, `QueryCursor` present-vs-absent) and `tree-sitter-language-pack`
+  ships a vendored `builtins.Parser` that diverges from the documented API. Shipping that into arbitrary consuming
+  environments — each resolving its own tree-sitter — is a reliability liability, not the near-zero-dep tool D68 wanted.
+- **The parser was never the bottleneck (D73's own insight — a language's cost is its resolver).** The floor's regex
+  extraction already produced 152 correct JS edges on real `express` (0 false positives); what the floor *cannot* do
+  is resolve **tsconfig/jsconfig `paths`+`baseUrl` aliases** and TS extension/index/barrel resolution — and that is
+  dependency-free **resolver** logic, not parsing.
+- **The resolver is needed under tree-sitter too**, so the zero-dep arm is a strict subset — never wasted work.
+Call: the **JS/TS arm = `JsTsArm`** (subclasses the floor) = the floor's regex extraction + a resolver that reads the
+root `tsconfig.json`/`jsconfig.json` (JSONC-tolerant — strips comments + trailing commas), applies `paths` aliases +
+`baseUrl`, and does TS/JS extension + `index` resolution. **No tsconfig → it degrades exactly to the floor.** This
+makes the **default precise-arm mechanism zero-dep** (regex extraction + a per-language resolver — Python's `ast` and
+JS/TS are both this); **tree-sitter is demoted from "the mechanism" to a reserved tool** for the few languages whose
+lexical structure genuinely defeats regex extraction (e.g. C++ preprocessor/templates), still shipped as a **graceful
+optional upgrade** (absent → the floor). *Validated:* a tsconfig-paths fixture — the floor resolves **1** edge
+(relative only), `JsTsArm` resolves **4** (the three `@/`-alias/baseUrl edges the floor drops), bare `react` correctly
+external; `express` regression identical (152 edges, no-tsconfig == floor), Python + `query-string` regressions exact,
+no-spec-refs gate + `py_compile` green; tree-sitter uninstalled (env left clean). *Rejected:* B2 (tree-sitter
+extraction for JS/TS) — fragile cross-env deps for a marginal extraction gain the resolver still has to backstop.
+*Kept from D72/D73:* the `graph.json` contract, the prevalence-ranked build set, tier-0 as the floor, and the
+graceful-optional-upgrade principle (now applied to *reserved* tree-sitter, not the default path). *Consequence for
+the build set:* future arms (Java, C#, Go, …) default to a zero-dep resolver arm like `JsTsArm`; reach for tree-sitter
+only when a language's **parsing** (not resolution) is the real obstacle. → `scripts/codemap/codemap.py`, `06`,
+`commands/start.md`, `11`; revises D72, implements D73's Option B.
+
+---
+
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:

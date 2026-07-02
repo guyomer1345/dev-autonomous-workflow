@@ -42,7 +42,7 @@ edges; nobody combines a typed impact-graph + per-file memory → open intersect
 
 ## Generated vs durable — the split **[DECIDED — D39, sharpens the above]**
 The two halves sit on opposite sides of the design law (`shared/memory-model.md`, D38): the **structural
-graph** (`graph.json`, imports/calls) is **generated** (tree-sitter/repomap) — regenerable, never
+graph** (`graph.json`, imports/calls) is **generated** (mechanically, from imports/calls) — regenerable, never
 authoritative prose, never hand-edited (a hand-maintained map goes stale and lies). The **experiential
 memory** (per-file `why` + the `# Sessions` postmortems) is the **only durable hand-written layer** — the
 non-derivable intent that earns its tokens. (Code Property Graph is overkill for context — security-scan
@@ -50,8 +50,9 @@ step only.)
 
 ## Generation, the two lenses & the node seed **[DECIDED — D68, pressure-tested on a real repo]**
 - **Generator = an own script per stack, not an external tool.** `/start` emits a `.workflow/` code-map
-  generator the same way it emits `checks.sh`: Python via stdlib `ast`, other stacks via tree-sitter / the
-  native parser. Regenerable, near-zero-dep, cheap to re-run. *External tools were tested and rejected:*
+  generator the same way it emits `checks.sh`: Python via stdlib `ast`, other stacks via a zero-dep
+  regex-extraction + per-language resolver arm (tree-sitter reserved for parse-hard languages — D74). Regenerable,
+  near-zero-dep, cheap to re-run. *External tools were tested and rejected:*
   `repomix` packs context (signatures + token counts), not a typed import graph; aider-repomap does the graph
   but is a heavyweight install to ship into every consuming project.
 - **`graph.json` carries TWO centrality lenses, not one "importance" rank** — both fall out of the same
@@ -80,10 +81,14 @@ the node set + directory clusters are identical everywhere and the two lenses in
 of a language is its **resolver**, not its parser.
 - **Tier 0 — generic floor** (dir tree + shallow-regex imports, zero-dep): the long-tail safety net so an
   un-armed repo still gets nodes + clusters. The floor, not the strategy.
-- **Tier 1 — shared tree-sitter engine**: one parser front-end + a per-language query (find imports) + resolver
-  (map to files) → the same `graph.json`/PageRank emitter. Each language is "query + resolver," not a new tool.
-- **Tier 2 — deep bespoke arm** where resolution is baroque (JS/TS aliases/barrels; C/C++ preprocessor + a
-  compile-DB). The stdlib-`ast` Python arm is a tier-2 that happened to be cheap.
+- **The default precise arm = zero-dep** (D74): the floor's regex extraction + a real per-language **resolver**.
+  The cost is the resolver, not the parser — Python (stdlib `ast`) and **JS/TS** (tsconfig/jsconfig `paths`+`baseUrl`
+  aliases + TS extension/index/barrel resolution) are both this. A precise arm subclasses the floor, so no-config →
+  it degrades exactly to the floor.
+- **tree-sitter = reserved, not the mechanism** (D74 revises D72). Reach for it only where a language's *lexical
+  structure* genuinely defeats regex extraction (e.g. C/C++ preprocessor/templates), shipped as a **graceful
+  optional upgrade** (absent → the floor). Rejected as the default: the Python binding is version-fragile across
+  environments, and for JS/TS the value was resolution, not parsing.
 **Build set = prevalence, not ease** (Octoverse/SO/RedMonk 2024–25): Python (done) → JS/TS (one arm) → Java → C#
 → C++ — GitHub's "~80% of new repos = six languages" set — then Go / Rust / PHP. Because repos are polyglot
 (median ~3 / mean ~4.5 languages), ~5 arms resolve most of *most* repos. Ease breaks ties on **order only**: Go is
@@ -91,11 +96,12 @@ pulled early (compiler-grade graph, near-free), C++ sequences last in-wave (need
 Graphless artifacts (SQL, HTML/CSS, shell, JSON/YAML, Markdown, Dockerfile, HCL) are **not** arms — no
 file-to-file import graph. Arms are **not demand-gated** — validation is free (any public repo), so the common set
 is built up front; the Phase-4 demo forces exercising ≥1 non-Python arm.
-**Built (D73):** the shared engine + tier-0 floor ship as `scripts/codemap/codemap.py` — one language-agnostic
-driver over pluggable arms (add a language = `extensions` + `index()` + `edges()`, driver untouched). The Python
-`ast` arm is a tier-2; every other recognized source language falls to the floor (precision-first — an unresolved
-import yields no edge). Tier-1 tree-sitter arms (JS/TS first) plug into the same driver as a **graceful optional
-upgrade**: tree-sitter absent in a consuming project → that language uses the floor, never a crash.
+**Built (D73/D74):** the shared engine + tier-0 floor + two precise arms ship as `scripts/codemap/codemap.py` —
+one language-agnostic driver over pluggable arms (add a language = `extensions` + `index()` + `edges()`, driver
+untouched). Precise arms: **Python** (`ast`) and **JS/TS** (`JsTsArm` — tsconfig `paths`/`baseUrl` + extension/index
+resolution; beats the floor 4-vs-1 on an alias fixture; no tsconfig → == the floor). Every other recognized source
+language falls to the floor (precision-first — an unresolved import yields no edge). Next arms (Java, C#, Go, …) are
+zero-dep resolver arms like `JsTsArm`; tree-sitter stays reserved for parse-hard languages.
 
 ## Granularity **[DECIDED]**
 Start file-level; leave a seam for symbol/function-level later.

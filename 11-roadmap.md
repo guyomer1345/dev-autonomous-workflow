@@ -88,21 +88,21 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
 
 ### Space 6 — Knowledge generation & ingest
 - **Knowledge generation** — **DESIGNED (D68, pressure-tested on a real repo):** an **own per-stack code-map
-  generator** (`ast`/tree-sitter, emitted by `/start` like `checks.sh` — not an external tool), `graph.json`
+  generator** (own script, emitted by `/start` like `checks.sh` — not an external tool), `graph.json`
   carrying **two centrality lenses** (impact + orchestration), and a **three-tier node seed** (`[G]` structural
-  eager · `[X]` extractive purpose · `[D]` durable `why`/Sessions on touch). **Engine + tier-0 floor BUILT
-  (D73, 2026-07-02):** `scripts/codemap/codemap.py` — a shared language-agnostic driver over pluggable arms
-  (Python `ast` = tier-2, ported verbatim + exact regression; the **tier-0 generic floor** = every other
-  recognized source language, precision-first shallow-regex resolution). Any recognized language now gets
-  nodes + clusters + both lenses; **`/start` step 4's `codemap.sh`** is a single auto-dispatching call.
-  Validated on real `express`/`query-string`/`mux` + a 13/13 multi-language fixture. *Remaining (D72 —
-  research-ranked by prevalence):* the precise per-language arms on the same driver + `graph.json`
-  contract, via a **tier-1 shared tree-sitter** layer (per-language query + resolver) shipped as a graceful
-  optional upgrade (tree-sitter absent → the floor), plus **tier-2** bespoke arms where resolution is baroque.
-  Build set by **prevalence, not ease** (Octoverse/SO/RedMonk 2024–25): Python (done) → **JS/TS** → **Java** →
-  **C#** → **C++** (≈80% of new repos), then **Go/Rust/PHP**; Go pulled early for fast ROI (compiler-grade
-  graph), C++ last in-wave (needs a compile-DB). `planner`/`debug` depend on it.
-  **[core — engine + tier-0 done; tier-1 tree-sitter + JS/TS arm next (Option B)]**
+  eager · `[X]` extractive purpose · `[D]` durable `why`/Sessions on touch). **Engine + tier-0 floor + 2 precise
+  arms BUILT (D73/D74, 2026-07-02):** `scripts/codemap/codemap.py` — a shared language-agnostic driver over
+  pluggable arms. Precise arms: **Python** (`ast`, ported verbatim + exact regression) and **JS/TS** (`JsTsArm` —
+  tsconfig/jsconfig `paths`+`baseUrl` aliases + extension/index resolution; beats the floor **4-vs-1** on an alias
+  fixture; no tsconfig → == the floor). Every other recognized language falls to the **tier-0 generic floor**
+  (precision-first shallow-regex). Any recognized language now gets nodes + clusters + both lenses; **`/start`
+  step 4's `codemap.sh`** is a single auto-dispatching call. Validated on real `express`/`query-string`/`mux` + a
+  13/13 multi-language fixture. *Remaining (D72 build set, research-ranked by prevalence):* the next precise arms —
+  **Java** → **C#** → **C++**, then **Go/Rust/PHP** — as **zero-dep resolver arms** like `JsTsArm` on the same driver
+  + `graph.json` contract (D74 revised D72: the default arm is a zero-dep resolver, not tree-sitter — tree-sitter is
+  **reserved** for parse-hard languages, a graceful optional upgrade). Go pulled early for fast ROI (compiler-grade
+  graph); C++ last in-wave (needs a compile-DB). `planner`/`debug` depend on it.
+  **[core — engine + tier-0 + Python + JS/TS arms done (D73/D74); Java/C#/C++/Go zero-dep resolver arms next]**
 - **Brownfield ingest** — **DESIGNED (D68); the `ingest` skill is being authored.** A thin `ingest` skill over
   existing leaves (`research` read → `document` write, no new agent) that seeds behavioural-core **intent from
   the existing `CLAUDE.md`/spec** (un-derivable from code), builds `docs/knowledge/` + a reconstructed
@@ -147,8 +147,9 @@ guiding-doc loose ends. *(Done 2026-07-01: the D36–D45 skill-body deltas (D66)
 ingest DESIGNED (D68, pressure-tested on a real repo); the `ingest` skill + the Python code-map extractor
 (`scripts/codemap/`) authored, validated on the real repo, and wired into `/start` step 4. The **retention
 script** (`scripts/retention.py`, D71) built + wired. The code-map recast to a **shared engine + tier-0 generic
-floor** (D73) — any recognized language now gets a graph, not just Python.** Remaining Phase-1: the tier-1
-tree-sitter arms (JS/TS first — Option B) + a guiding-doc coherence pass.)*
+floor + Python & JS/TS precise arms** (D73/D74) — any recognized language now gets a graph, and the default precise
+arm is a **zero-dep resolver** (tree-sitter reserved for parse-hard languages).** Remaining Phase-1: the
+Java/C#/C++/Go resolver arms + a guiding-doc coherence pass.)*
 **Phase 2 — Define the website + demo (design, not build).** Close the Space-3 and Space-4 *design* questions
 as a complete spec: the website screen list / contact-UX / stream-vs-snapshot / stack, **and** the demo skill
 mechanics (serving/running the sandbox, refine limits, on-disk location) + the checkpoint data model /
