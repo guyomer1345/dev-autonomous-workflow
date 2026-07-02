@@ -11,10 +11,10 @@ its resolver, not its parser. Ships three arms today:
                            jsconfig `paths`+`baseUrl` aliases, TS/JS extension resolution,
                            and index/barrel dirs. Zero extra dep; beats the floor on the
                            alias/baseUrl edges the floor drops. No tsconfig -> = the floor.
-  - GenericArm  (tier 0) — the generic floor: shallow-regex imports across recognized
-                           source languages, best-effort resolution. The long-tail safety
-                           net so a repo in ANY recognized language gets at least nodes +
-                           directory clusters + both centrality lenses, never nothing.
+  - GenericArm  (tier 0) — the generic floor: NODES any recognized source language, and
+                           adds shallow-regex import edges for the subset that has them. The
+                           long-tail safety net so a repo in ANY recognized language gets at
+                           least nodes + directory clusters + both centrality lenses, never nothing.
 
 More precise arms (Java, C#, C++, Go, …) plug into the same contract later: a new arm is a
 `class Arm` with `extensions`, `index()`, and `edges()` — the driver below is untouched.
@@ -181,6 +181,33 @@ for _e in _JS_EXTS:
 for _e in _C_EXTS:
     _LANGUAGES[_e] = ("cpp" if _e in _CPP_EXTS else "c", "include", _C_PATTERNS)
 
+# The floor NODES a broad set of programming-language source files but EXTRACTS edges only
+# for the `_LANGUAGES` subset above that has an import regex. Separating the two is what makes
+# tier-0 a true long-tail net: an un-armed language (no regex) still gets a node + directory
+# cluster (edges empty), never nothing — the floor's whole reason to exist. Data / markup /
+# config / doc artifacts (json, yaml, md, html, css, sql, lockfiles, …) are deliberately left
+# out: they have no import graph and would flood the node set (graphless artifacts).
+_NODE_ONLY = {  # source languages we node but don't yet extract edges for (ext -> language)
+    ".ex": "elixir", ".exs": "elixir", ".erl": "erlang", ".hrl": "erlang",
+    ".hs": "haskell", ".lhs": "haskell", ".ml": "ocaml", ".mli": "ocaml",
+    ".fs": "fsharp", ".fsx": "fsharp", ".fsi": "fsharp", ".vb": "vbnet",
+    ".clj": "clojure", ".cljs": "clojure", ".cljc": "clojure",
+    ".lua": "lua", ".jl": "julia", ".r": "r", ".pl": "perl", ".pm": "perl",
+    ".groovy": "groovy", ".gradle": "groovy", ".m": "objc", ".mm": "objc",
+    ".zig": "zig", ".nim": "nim", ".cr": "crystal", ".d": "dlang", ".hx": "haxe",
+    ".elm": "elm", ".purs": "purescript", ".res": "rescript", ".sol": "solidity",
+    ".sh": "shell", ".bash": "shell", ".zsh": "shell", ".ps1": "powershell", ".psm1": "powershell",
+}
+# node-recognition (broad) = edge-capable langs + node-only langs; lang labels are best-effort
+# (a few extensions collide across languages, e.g. .m objc/matlab — the common repo case wins).
+_NODE_LANGS = {ext: meta[0] for ext, meta in _LANGUAGES.items()}
+_NODE_LANGS.update(_NODE_ONLY)
+
+
+def _family(lang):
+    """Resolution family — imports stay intra-language, except C/C++ share headers."""
+    return "c" if lang in ("c", "cpp") else lang
+
 
 def _noext(rel):
     root, _ = os.path.splitext(rel)
@@ -188,22 +215,25 @@ def _noext(rel):
 
 
 class GenericArm:
-    """Tier-0 floor. Recognizes source languages by extension, extracts import specifiers
-    with shallow regexes, and resolves them best-effort. An unresolved specifier yields NO
-    edge (intra-project only) — so over-broad regex is harmless: guessing wrong drops the
-    edge rather than inventing one. Precise where relative-path imports dominate (JS/TS,
-    C/C++, Ruby) and where package==path (Java); weak for package-graph languages (Go bare
-    imports, C# namespaces) — those earn a precise arm later. The floor, not the strategy.
+    """Tier-0 floor. **Nodes** any recognized source language (the broad `_NODE_LANGS` set —
+    an un-armed language still gets a node + directory cluster, the floor's whole point);
+    **extracts edges** only for the `_LANGUAGES` subset with an import regex, resolved within
+    the importer's family (intra-language, C/C++ sharing). An unresolved specifier yields NO
+    edge (intra-project only) — so over-broad regex is harmless: guessing wrong drops the edge
+    rather than inventing one. Precise where relative-path imports dominate (C/C++, Ruby) and
+    where package==path (Java); weak for package-graph languages (Go bare imports, C#
+    namespaces) — those earn a precise arm later. The floor, not the strategy.
     """
     name = "generic"
     tier = 0
     node_type = "module"
-    extensions = frozenset(_LANGUAGES)
+    extensions = frozenset(_NODE_LANGS)  # broad: every recognized source language gets a node
 
     def lang_of(self, path):
-        return _LANGUAGES.get(os.path.splitext(path)[1].lower(), ("unknown", "", []))[0]
+        return _NODE_LANGS.get(os.path.splitext(path)[1].lower(), "unknown")
 
-    def index(self, files):
+    @staticmethod
+    def _flat_index(files):
         # by_noext: normalized path-without-ext -> relpath (unique key for path resolution)
         # by_base:  basename-without-ext -> [relpaths] (candidate set for suffix resolution)
         by_noext, by_base = {}, collections.defaultdict(list)
@@ -212,6 +242,17 @@ class GenericArm:
             by_noext[ne] = f
             by_base[ne.rsplit("/", 1)[-1]].append(f)
         return {"by_noext": by_noext, "by_base": by_base}
+
+    def index(self, files):
+        # One resolution sub-index PER FAMILY, over edge-capable files only. Node-only
+        # languages are nodes but never edge targets; families keep imports intra-language
+        # (so a Ruby `require 'utils'` can't resolve to an unrelated utils.lua), C/C++ sharing.
+        fams = collections.defaultdict(list)
+        for f in files:
+            ext = os.path.splitext(f)[1].lower()
+            if ext in _LANGUAGES:
+                fams[_family(_NODE_LANGS[ext])].append(f)
+        return {fam: self._flat_index(fs) for fam, fs in fams.items()}
 
     @staticmethod
     def _join(base, spec):
@@ -266,11 +307,14 @@ class GenericArm:
         return None
 
     def edges(self, path, source, index):
-        _, mode, patterns = _LANGUAGES.get(os.path.splitext(path)[1].lower(), ("", "", []))
+        lang, mode, patterns = _LANGUAGES.get(os.path.splitext(path)[1].lower(), ("", "", []))
+        sub = index.get(_family(lang)) if patterns else None
+        if not sub:  # node-only language, or no edge-capable siblings in its family
+            return set()
         out = set()
         for pat in patterns:
             for m in pat.finditer(source):
-                target = self._resolve(m.group("spec"), path, mode, index)
+                target = self._resolve(m.group("spec"), path, mode, sub)
                 if target and target != path:
                     out.add(target)
         return out
@@ -351,7 +395,7 @@ class JsTsArm(GenericArm):
         return ".", []
 
     def index(self, files):
-        idx = super().index(files)
+        idx = self._flat_index(files)  # JS+TS resolve together -> one flat index, not per-family
         idx["baseUrl"], idx["paths"] = self._load_tsconfig()
         return idx
 
