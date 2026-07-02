@@ -90,19 +90,19 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
 - **Knowledge generation** — **DESIGNED (D68, pressure-tested on a real repo):** an **own per-stack code-map
   generator** (`ast`/tree-sitter, emitted by `/start` like `checks.sh` — not an external tool), `graph.json`
   carrying **two centrality lenses** (impact + orchestration), and a **three-tier node seed** (`[G]` structural
-  eager · `[X]` extractive purpose · `[D]` durable `why`/Sessions on touch). **Built + validated 2026-07-02:**
-  the **Python extractor** (`scripts/codemap/python_codemap.py`, stdlib `ast` + both PageRank lenses → the
-  `graph.json` schema) reproduced the pressure-test graph on the real repo (225 nodes / 805 edges, 0 parse
-  failures), and **`/start` step 4 generates `.workflow/codemap.sh`** to run it. *Remaining (D72 — recast from
-  D70's arm-vs-fallback binary, research-ranked by prevalence):* other-language arms on the same `graph.json`
-  contract, via a **three-tier model** — **tier 0** a generic floor (dir tree + shallow imports, zero-dep) as the
-  long-tail safety net so an un-armed repo gets nodes+clusters not nothing; **tier 1** a shared **tree-sitter**
-  engine (per-language query + resolver); **tier 2** deep bespoke arms where resolution is baroque. Build set by
-  **prevalence, not ease** (Octoverse/SO/RedMonk 2024–25): Python (done) → **JS/TS** → **Java** → **C#** → **C++**
-  (≈80% of new repos), then **Go/Rust/PHP**; Go pulled early for fast ROI (compiler-grade graph), C++ last in-wave
-  (needs a compile-DB). Arms **no longer demand-gated** — validation is free (any public repo); built up front,
-  tier-0 covers the tail; the Phase-4 demo still forces ≥1 non-Python arm. `planner`/`debug` depend on it.
-  **[core — Python arm done; tier-0 + JS/TS next]**
+  eager · `[X]` extractive purpose · `[D]` durable `why`/Sessions on touch). **Engine + tier-0 floor BUILT
+  (D73, 2026-07-02):** `scripts/codemap/codemap.py` — a shared language-agnostic driver over pluggable arms
+  (Python `ast` = tier-2, ported verbatim + exact regression; the **tier-0 generic floor** = every other
+  recognized source language, precision-first shallow-regex resolution). Any recognized language now gets
+  nodes + clusters + both lenses; **`/start` step 4's `codemap.sh`** is a single auto-dispatching call.
+  Validated on real `express`/`query-string`/`mux` + a 13/13 multi-language fixture. *Remaining (D72 —
+  research-ranked by prevalence):* the precise per-language arms on the same driver + `graph.json`
+  contract, via a **tier-1 shared tree-sitter** layer (per-language query + resolver) shipped as a graceful
+  optional upgrade (tree-sitter absent → the floor), plus **tier-2** bespoke arms where resolution is baroque.
+  Build set by **prevalence, not ease** (Octoverse/SO/RedMonk 2024–25): Python (done) → **JS/TS** → **Java** →
+  **C#** → **C++** (≈80% of new repos), then **Go/Rust/PHP**; Go pulled early for fast ROI (compiler-grade
+  graph), C++ last in-wave (needs a compile-DB). `planner`/`debug` depend on it.
+  **[core — engine + tier-0 done; tier-1 tree-sitter + JS/TS arm next (Option B)]**
 - **Brownfield ingest** — **DESIGNED (D68); the `ingest` skill is being authored.** A thin `ingest` skill over
   existing leaves (`research` read → `document` write, no new agent) that seeds behavioural-core **intent from
   the existing `CLAUDE.md`/spec** (un-derivable from code), builds `docs/knowledge/` + a reconstructed
@@ -146,8 +146,9 @@ guiding-doc loose ends. *(Done 2026-07-01: the D36–D45 skill-body deltas (D66)
 `/start` enforcement wiring + two-tier drift gate (D40/D65/D67). **2026-07-02: knowledge generation → brownfield
 ingest DESIGNED (D68, pressure-tested on a real repo); the `ingest` skill + the Python code-map extractor
 (`scripts/codemap/`) authored, validated on the real repo, and wired into `/start` step 4. The **retention
-script** (`scripts/retention.py`, D71) built + wired.** Remaining Phase-1: other-language code-map arms
-(follow-on, demand-built per D70) + a guiding-doc coherence pass.)*
+script** (`scripts/retention.py`, D71) built + wired. The code-map recast to a **shared engine + tier-0 generic
+floor** (D73) — any recognized language now gets a graph, not just Python.** Remaining Phase-1: the tier-1
+tree-sitter arms (JS/TS first — Option B) + a guiding-doc coherence pass.)*
 **Phase 2 — Define the website + demo (design, not build).** Close the Space-3 and Space-4 *design* questions
 as a complete spec: the website screen list / contact-UX / stream-vs-snapshot / stack, **and** the demo skill
 mechanics (serving/running the sandbox, refine limits, on-disk location) + the checkpoint data model /

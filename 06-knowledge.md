@@ -91,6 +91,11 @@ pulled early (compiler-grade graph, near-free), C++ sequences last in-wave (need
 Graphless artifacts (SQL, HTML/CSS, shell, JSON/YAML, Markdown, Dockerfile, HCL) are **not** arms — no
 file-to-file import graph. Arms are **not demand-gated** — validation is free (any public repo), so the common set
 is built up front; the Phase-4 demo forces exercising ≥1 non-Python arm.
+**Built (D73):** the shared engine + tier-0 floor ship as `scripts/codemap/codemap.py` — one language-agnostic
+driver over pluggable arms (add a language = `extensions` + `index()` + `edges()`, driver untouched). The Python
+`ast` arm is a tier-2; every other recognized source language falls to the floor (precision-first — an unresolved
+import yields no edge). Tier-1 tree-sitter arms (JS/TS first) plug into the same driver as a **graceful optional
+upgrade**: tree-sitter absent in a consuming project → that language uses the floor, never a crash.
 
 ## Granularity **[DECIDED]**
 Start file-level; leave a seam for symbol/function-level later.

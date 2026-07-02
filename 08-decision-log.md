@@ -1024,6 +1024,40 @@ arm-vs-fallback + validate-on-demand.
 
 ---
 
+## D73 — Multi-language code-map BUILT: shared engine + tier-0 generic floor **[DECIDED + BUILT — implements D72's tier-0 + the arm skeleton; tier-1 tree-sitter follows]**
+Refactored the single-language `python_codemap.py` into `scripts/codemap/codemap.py` — a shared,
+language-agnostic driver (discover → dispatch → resolve → dual-lens PageRank → emit `graph.json`) over
+pluggable per-language **arms**. Adding a language is a `class` with `extensions` + `index()` + `edges()`;
+the driver is untouched (this is D72's "the cost of a language is its resolver, not the tool"). Two arms ship:
+- **`PythonArm`** (tier 2) — the existing stdlib-`ast` logic ported **verbatim**; regression is exact
+  (identical node/edge/centrality output on real `psf/requests`, 37 nodes / 73 edges).
+- **`GenericArm`** (tier 0) — the zero-dep **generic floor**: ~15 recognized source languages, shallow-regex
+  import extraction, and **precision-first** resolution keyed to each language family's import semantics —
+  `rel` (JS/TS/ESM: only `.`-relative specs are intra-repo; a bare specifier is an external package) ·
+  `include` (C/C++ quoted `#include`) · `pkg` (Java/C#/Kotlin/…: dotted, ≥2-segment suffix match, no bare
+  collision) · `path` (Ruby/Go/Dart) · `mod` (Rust `mod foo;`). An unresolved specifier yields **no edge**
+  (intra-project only) — over-broad regex is harmless because the floor **misses an edge before it invents one**.
+This closes the gap D72 named: before, a non-Python repo produced **nothing** (empty, not degraded); now any
+recognized language gets nodes + directory clusters + both centrality lenses. `graph.json` gained per-node
+`lang`/`tier` + a top-level `languages` coverage map (a consumer can tell precise tier-2 edges from best-effort
+tier-0), added **backward-compatibly** (every prior field kept). `/start`'s `codemap.sh` is now a single
+`codemap.py <root>` call that auto-dispatches per file, not a per-language invocation. `python_codemap.py`
+**removed** — the engine's `PythonArm` supersedes it (keeping both would be the duplication the memory law forbids).
+*Validated:* 13/13 controlled multi-language fixture assertions (JS · C/C++ · Java · Ruby · Rust, incl.
+dir-index resolution, `<system>`-include ignore, and bare-external drops for `lodash`/`json`/`java.util.List`);
+real repos `expressjs/express` (JS — 141 nodes / 152 edges, 0 phantom / 0 `node_modules` edges; caught + fixed a
+bare-`require('ejs')` false edge that a naive basename matcher produced), `query-string` (TS/JS), `gorilla/mux`
+(Go — clusters present, honest bare-package non-resolution). Empty-repo, mixed py+js, and syntax-error-file cases
+degrade cleanly (a parse failure is recorded but the file stays a node). Spec-ref gate + `py_compile` green.
+*Rejected:* one script per language (the driver is shared — only resolution differs); a recall-first floor that
+guesses on bare specifiers (a floor that invents edges is worse than one that misses them). *Deferred (Option B /
+next):* the **tier-1 tree-sitter engine + the JS/TS bespoke arm** (aliases / barrels / `tsconfig` path-maps /
+re-exports), shipped as a **graceful optional upgrade** — tree-sitter absent in a consuming project → that
+language falls back to the tier-0 floor, never a crash. → `scripts/codemap/codemap.py`, `commands/start.md`,
+`06`, `11`; implements D72.
+
+---
+
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:
