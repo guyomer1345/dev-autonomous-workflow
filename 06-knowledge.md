@@ -67,6 +67,9 @@ step only.)
 - **Three-tier node seed** (makes "eager graph, lazy semantics" safe — a lazy node is never an empty shell):
   - `[G]` **generated-structural** — path, type, edge targets, the two lenses. **All files, eager.**
   - `[X]` **generated-extractive** — a cheap LLM-summarised `purpose.actual` + tags, for a prioritised set.
+    **The prioritised set = both lenses (impact ∪ orchestration) ∪ the spec's declared core flows — never
+    impact alone**, else seeding documents the plumbing and skips the behavioural core (the miss the two lenses
+    exist to prevent). Mechanism deferred to implementation.
   - `[D]` **durable** — the non-derivable `why` / intent-vs-actual / `# Sessions`. **Authored on touch** by
     `document`. This is the layer that earns its tokens — the product.
 

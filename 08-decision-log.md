@@ -810,6 +810,12 @@ Pressure-tested on a real full-stack repo before deciding (D63 method — run fi
   prioritized set; `[D]` the durable, non-derivable `why` / intent-vs-actual / `# Sessions` — authored **on
   touch** by `document`. A not-yet-touched node is skeleton + plausible purpose, **never an empty shell that
   lies** (the D38 rot the lazy path otherwise risks). `[D]` is the layer that earns its tokens — the product.
+  **The `[X]` prioritized set = the union of *both* lenses (impact ∪ orchestration) plus the spec's declared
+  core flows — never impact alone**, or seeding documents the plumbing and under-serves the behavioural core
+  (the same miss the two lenses exist to prevent — the impact lens buried the engine + ingestion in the run
+  below); and **no consumer treats a lens as "importance"** (`debug` → orchestration + impact; `planner`
+  "where does X live" → orchestration). *Principle captured; the selection mechanism is deferred to
+  implementation.*
 - **Brownfield ingest is a thin `ingest` skill over existing leaves, and its first job is to seed
   behavioral-core intent from the existing `CLAUDE.md` / spec.** The product narrative and "what is core" are
   **un-derivable from code** (see evidence) — they live only in the human's prose. `ingest` drives `research`
