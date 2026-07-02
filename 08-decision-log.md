@@ -1103,7 +1103,65 @@ suffix-match an unrelated `utils.go`/`utils.lua`) — fixed by scoping resolutio
 (was 1); json/md/css excluded; Ruby→Ruby only; express / Python / JS-TS / multi-lang regressions all unchanged; gate
 + `py_compile` green. → `scripts/codemap/codemap.py`, `06`, `11`; corrects D73, honours D72.
 **The process failure that let this ship — all gates green on a build *narrower than the decision* — is the real
-lesson; the workflow-rule fix for it is under discussion (see `07`), not yet captured.**
+lesson; the workflow-rule fix is D76.**
+
+---
+
+## D76 — Promise-adequacy discipline: mechanical gate + independent elicitation + honest residual **[DECIDED + BUILT — red-teamed; prevents the D75 class; supersedes the naive promise-coverage proposal]**
+D75 exposed a failure class the loop must defend against autonomously: a build **silently narrower than the
+decision's promise, passing every gate** — because the tests were drawn from the implementation's own scope, so
+nothing exercised the promise's boundary. The first fix proposed (decision-record `promises` field → planner maps
+each to a criterion → verify exercises a boundary test "outside the builder's fixtures" → a `rules/testing` line →
+alignment-scan coverage → D69 escalation on universal-keyword) was **stress-tested by five parallel red-team agents
+and unanimously rejected (HOLE-major).** Their kill-shots, all kept:
+- **Lexical detection is wrong both ways.** Universal words ("any/all/never/floor") are the *default register* of
+  engineering intent (~6 per backlog item) → a boundary test per word inverts D69's 85-95% tier-0 distribution and
+  violates the lean master rule; *and* the invariants that actually break carry **no keyword** (idempotent,
+  backward-compatible, no-false-positive — the real D75 cross-family bug had none).
+- **A single out-of-fixture witness is ∃, not ∀** — it *shifts* the tail (add Elixir → Haskell still fails), never
+  closes it; and "outside the builder's fixtures" is defeatable (D73 tested JS/C/Java/Ruby/Rust — outside the
+  Python fixture, still inside the 15). You cannot ask a blinded party to test outside a fence invisible to it.
+- **The schema field is not the root.** D72 already stated "never nothing" in prose; relocating it to a list written
+  by the same author in the same pass adds no independent recognition. Root = **recognition**, not storage.
+- **Advisory ≠ teeth.** Six model-run prose steps re-enact the pattern this project already fixed thrice (D34→D64
+  grep gate · D35→D58 hook · D40/D67→`checks.sh`). The D63 alignment scan *already existed* as the backstop for
+  "build narrower than decision" and D75 shipped straight past it (model-run, same prose, periodic/late).
+Redesign — three layers, **impact-scoped**, honest about the residual:
+1. **Mechanical property invariant (the real teeth).** Where a promise is a property of a **deterministic
+   artifact**, encode a check whose input is drawn from **outside the build's own enumeration** — model-free,
+   blocks. Built: `scripts/codemap/test_codemap.py::test_floor_invariant_never_nothing` (recognized-source-file ⇒
+   node, over exotic languages) — the airtight D75 regression gate and the template for the class.
+2. **Promise→test *linkage* gate.** `decision-record`/`plan` gain `promises[]` `{ text, kind (archetype),
+   universal, falsifier, test_ref }`, **only on impact-flagged decisions** (the D68 impact lens / a design's
+   raison d'être — *not* D69 reversibility, which tier-0's a cheap-to-reverse floor; ~85-95% of records carry
+   none). `scripts/check_promise_coverage.py` (shipped fixed, in `checks.sh --check` + pre-commit) **blocks** an
+   unlinked promise, a dangling `test_ref`, or a `universal` promise whose linked criterion isn't `boundary`-tagged.
+   Decidable, model-independent. **Ceiling (stated, not hidden): proves linkage, not adequacy** — a sham link
+   (in-scope test labelled as covering a universal) passes; adequacy rests on layers 1 + 3.
+3. **Independent adversarial elicitation (reduces the un-written-promise root).** `decision-engineer` runs a pass
+   **distinct from the decision's author** — *"what does this design promise that isn't written?"* — driven by an
+   **archetype checklist** (universality · idempotence · preservation · monotonicity · graceful-degradation ·
+   isolation · backward-compat) + **derive-from-purpose** ("floor" ⇒ covers-the-tail), each promise carrying a
+   `falsifier` (kills vacuous knob-lists — the Goodhart guard).
+The **alignment scan (D63) is reframed coverage → adequacy**: re-derive the negative class from the design's
+purpose (code-blind, so it doesn't inherit the builder's blind spot) + an **over-delivery scan** (behaviour not
+traceable to a promise — catches scope creep) + a **cross-decision invariant re-run** (satisfying promise P re-runs
+decision Q's invariants — catches D75's own shape: honouring D72 broke D73's no-phantom-edge). The *late* backstop,
+not the gate.
+*Dropped from the naive version:* the lexical trigger; verify "exercises the boundary" (violates its artifact-only
+charter — verify reads the linkage, the test-runner runs the test); D69 as the trigger (wrong axis).
+**Irreducible residual (captured, not laundered):** the *un-written* promise cannot be mechanically sealed where
+the promise isn't a deterministic-artifact property; layer 3 reduces it, the gate raises the bar to *omit-or-lie*,
+neither eliminates it. Where the artifact IS self-describing, derive the invariant from the tool's own output —
+no promise need be written (layer 1). Claiming more would re-enact D75's laundering at the spec level.
+*Built + tested:* `check_promise_coverage.py` + `test_check_promise_coverage.py` (blocks unlinked/dangling/
+non-boundary-universal — 6 tests) and the codemap floor-invariant suite (6 tests), all green. *Wired:*
+`shared/schemas.md` (decision-record + plan `promises[]`, acceptance_criteria `id`/`boundary`), `skills/planner`
+(promise-coverage gate), `skills/decision-engineer` (elicitation), `skills/verify` (linkage artifact-check, stays
+artifact-only), `rules/testing.md` (principle + `enforced by`), `commands/start.md` (copy + `checks.sh` wiring),
+`11` (alignment-scan remit). *Evidence:* the 5-agent red-team (2026-07-02) + the D75 incident + the project's
+advisory→mechanical history (D34/D46/D64/D67). → the files above; extends D43's coverage gate, corrects D75's
+process gap.
 
 ---
 

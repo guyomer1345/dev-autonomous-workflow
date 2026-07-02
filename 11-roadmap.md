@@ -122,6 +122,13 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   ref-leak regression. **Crystallized into a skill after knowledge generation** (which upgrades it from
   brute-force file reads to code-map-driven) and shipped as a **lightweight agent fan-out, not a Workflow** (a
   periodic user-run skill must not consume most of a session). Relates to the project-state view + self-hosting.
+  **Promise-adequacy remit (D76):** the scan checks promise *adequacy*, not coverage — it **re-derives** each
+  decision's negative class from the design's purpose/archetypes (blind to the code, so it doesn't inherit the
+  builder's blind spot) and diffs it against what was exercised; plus an **over-delivery scan** (behaviour not
+  traceable to any promise — catches scope creep like graphless files becoming nodes) and a **cross-decision
+  invariant re-run** (satisfying promise P re-runs decision Q's invariant tests — catches "honouring one decision
+  broke another's"). This is the *late* backstop, not the gate — it already existed and missed the D75-class once;
+  the per-commit teeth are the promise-coverage gate + the boundary/property tests.
   **[core; scan doable now, skill knowledge-gated]**
 
 ### Cross-cutting — packaging, validation, self-hosting
