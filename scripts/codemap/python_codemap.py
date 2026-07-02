@@ -61,7 +61,13 @@ def resolve(mod, mod2file):
 
 
 def import_targets(tree, self_mod):
-    """Yield dotted module names this file imports (absolute + relative resolved)."""
+    """Yield dotted module names this file imports (absolute + relative resolved).
+
+    For `from M import n1, n2` yield the most-specific `M.n1`, `M.n2` and let resolve()
+    walk up: an imported submodule resolves to itself, a name defined in M walks up to M.
+    Yielding the specific target first avoids a spurious edge to M's package `__init__`
+    on `from pkg import submodule` (which would inflate `__init__` centrality).
+    """
     self_pkg = self_mod.rsplit(".", 1)[0] if "." in self_mod else ""
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom):
@@ -73,9 +79,12 @@ def import_targets(tree, self_mod):
             else:
                 mod = node.module or ""
             if mod:
-                yield mod
-                for alias in node.names:  # `from pkg import sub` may name a submodule
-                    yield f"{mod}.{alias.name}"
+                names = [a.name for a in node.names if a.name != "*"]
+                if names:
+                    for name in names:
+                        yield f"{mod}.{name}"
+                else:  # `from mod import *`
+                    yield mod
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 yield alias.name
