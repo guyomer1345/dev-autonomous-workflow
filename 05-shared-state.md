@@ -12,6 +12,9 @@ A **local HTTP loopback service** (the website's backend) is the message channel
 - orchestrator → website: orchestrator writes `state.json`; website reads it (inotify / poll).
 - File-watching is **rejected for control-flow** (fragile, polling, races); fine only for one-way
   state display.
+- **Reserved action — `node/subgraph → ticket` (D70):** the project-map screen emits a scoped **backlog
+  item** (payload: node ID(s) + the ask) — an ordinary D69-triaged intake item, never a privileged fast-path;
+  UX deferred. Node IDs are the code-map's stable addressable keys (today relpath/module; symbol-level later).
 
 ## Disk layout **[layout DECIDED — D53/D62; read/write protocols EXPAND]**
 `init` (`commands/start.md`) scaffolds this layout in a target project:

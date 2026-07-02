@@ -882,6 +882,64 @@ pass.** Implementation deferred (`11`).
 
 ---
 
+## D70 — Project map + flow view: a console tab over the code-map — static skeleton, dynamic overlay **[DECIDED — feature + architecture; the runtime-capture mechanism is a direction, tracked OPEN in `07`]**
+The console gets a **project-map screen** rendering the code-map `graph.json` (D68) as a cluster diagram: nodes
+sized by the **impact lens**, grouped by the **directory tree**, with **semantic zoom** (cluster → file →
+[later] symbol). It is the structural face of the deferred **project-state view** (`07` — "how the pieces
+connect") and a **self-hosting** aid. Free-text search over node paths/labels is a nice-to-have, not MVP. Calls:
+- **Two layers, complementary — the flow view is an *overlay*, not a second graph.** The static map (always
+  available, no run needed) is the skeleton; a **flow** ("watch a message get sent") is a **highlighted subgraph
+  laid over it**, captured by **observing an actual run** — the union of nodes that execute during one exercised
+  behaviour *is* the flow (empirical, not a guessed semantic slice). A trace is a **lower bound** (only exercised
+  paths); the **orchestration lens** fills un-exercised branches.
+- **Noise-filter protocol (direction).** A raw trace is dominated by framework/infra. Filter =
+  **baseline-subtract** (action-trace − a null/unrelated-action trace) → **specificity-rank across flows** (a node
+  in every flow = infra → demote; in one flow = characteristic → promote — an IDF that sharpens as more flows are
+  captured) → **static-reconcile** against the orchestration lens (fill branches; flag characteristic-but-
+  disconnected nodes as noise) → optional human trim (QA-harness pattern — machine-driven where possible, human QA
+  only if necessary). Runtime differential tracing is a **working direction, not decided** — a static-slice
+  approach may still win for some stacks; the trace tooling is a **per-stack arm** on the same discipline as the
+  code-map.
+- **Interaction = a scoped intake ticket, subject to D69 — never a privileged fast-path.** Clicking a node emits a
+  **normal backlog item** (payload: node ID(s) + the ask) onto the existing loopback bus (`05`) — the decided
+  "website talks to the orchestrator only via bus + files, never routes Claude" model. It rides the **same
+  prioritization + proportional-rigor triage (D69)** as any work; the map is a *precision scoping aid for intake*,
+  **not** an edit console — else it becomes a backdoor around the disciplined intake the project exists to enforce.
+- **Three reserved seams (foundation must not foreclose the view).** (1) `graph.json` node IDs stay **stable +
+  addressable** — today **relative paths at module granularity** (`type:"module"`); **symbol-level** addressing is
+  the existing later seam (`11` Space-5/6), needed for fine-grained node-tickets/overlays and the "change how the
+  timestamp renders" case. (2) A **reserved bus action** "node/subgraph → ticket" (`05`), UX deferred. (3) A
+  **reserved flow-overlay layer** in the console data contract (`03`) — a labelled list of node IDs + edges the
+  renderer can highlight. Build nothing now; reserve the seams.
+- **Per-stack arm rule (resolves D68's "others follow").** No calendar trigger, no speculative arms. **(a)** the
+  code-map has a **stack-agnostic degraded fallback** (directory tree + shallow import graph) so "no arm" ≠ "no
+  map"; **(b)** a new arm is **demand-built** the first time a real target in that stack hits `ingest`/`/start`,
+  against the fixed `graph.json` contract (both lenses, stable IDs); **(c)** the **Phase-4 demo forces exactly one
+  more arm**, so we ship with ≥2 proving the contract generalizes. Same rule governs the trace-capture arm.
+- **Remote control.** The console stays **local-served by default**; an opt-in **"remote control" mode** serves it
+  over a temporary **Cloudflare tunnel** (already in `00`'s vision for QA phone-ping — one capability, two
+  consumers). Tunneling breaks the loopback trust model (anyone who can POST can steer the orchestrator), so remote
+  mode ships **off by default + an explicit "unsafe" warning now**; **auth (Cloudflare Access / token) is a
+  reserved future requirement**, not built now (nothing important is wired to it yet → not worth targeting).
+- **Undecided (→ `07`):** map as its **own tab vs the console home/overview**; a captured flow as a **first-class
+  knowledge artifact** (versioned, regenerable, `06`) vs **ephemeral**; the capture **trigger/boundary** UX (leans
+  on the QA harness).
+*Rejected:* **algorithmic community detection** for clustering (unstable run-to-run, doesn't match devs' mental
+model — directories are stable + self-labeling); **live browser→Claude routing** (violates the master rule +
+`03`/`05` — the bus is a ticket channel, not a request path); **static-only semantic slicing** as *the* flow
+mechanism (nothing in `graph.json` defines "the message flow" — observing a run is more grounded); a **privileged
+node-ticket fast-path** (backdoor around D69); **pre-committing a language set** for arms (speculative — fallback +
+demand-build is leaner). *Evidence:* the code-map already emits `graph.json` with both lenses (D68) and the WhatsApp
+"dive into the message-send flow, then re-scope the timestamp render" case — the visualization is a read-out of an
+artifact the knowledge space already produces, and the runtime-capture idea dissolves the semantic-slicing problem
+by *observing* rather than *inferring* the flow. Builds on D68 (code-map + two lenses = the map's data), D69
+(node-tickets ride the proportional-rigor triage), `03`/`05` (loopback bus, never routes Claude), `00` (tunnel
+in-vision), the `07` project-state view (this is its "how pieces connect" face) + the `11` symbol-level seam.
+**Feature + architecture DECIDED; runtime-capture mechanism a direction (OPEN in `07`); build deferred to Phase 2/3.**
+→ `03`, `05`, `07`, `11`.
+
+---
+
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:

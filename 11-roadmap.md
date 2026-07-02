@@ -59,8 +59,13 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   dogfood showed every step self-drives *except* the blocking qa `checkpoint`, which needs the bus to deliver
   the human verdict away from the terminal; it also unblocks the airtight outward-gate (the `cd x && push`
   chaining-gap checkpoint-queue). **[core for unattended autonomy]**
-- **Open design** — the screen list; the "contact the orchestrator" UX; stream-live vs snapshots; the
-  stack. **[design-first]**
+- **C-map — project map + flow view** (D70) — a read-only cluster diagram over the code-map `graph.json`
+  (impact-lens sizing, directory clusters, semantic zoom); static skeleton + a reserved **flow-overlay** layer
+  (runtime differential capture — a direction, mechanism OPEN), and a **node→ticket** intake action (D69-triaged).
+  Structural face of the project-state view. Stageable read-only atop C1; overlay + capture need later arms.
+  Plus **remote control** = opt-in Cloudflare-tunnel serve (warning-only now, auth later). **[stageable; overlay later]**
+- **Open design** — screen list (map **tab vs home**, D70/`07`); the "contact the orchestrator" UX (node→ticket
+  reserved); stream-live vs snapshots; the stack. **[design-first]**
 
 ### Space 4 — Checkpoints & the demo skill
 - **Demo skill mechanics** — `create-demo`'s *body* exists, but **how the sandbox is served/run, the
@@ -88,7 +93,9 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
   the **Python extractor** (`scripts/codemap/python_codemap.py`, stdlib `ast` + both PageRank lenses → the
   `graph.json` schema) reproduced the pressure-test graph on the real repo (225 nodes / 805 edges, 0 parse
   failures), and **`/start` step 4 generates `.workflow/codemap.sh`** to run it. *Remaining:* other-language
-  arms (TS/etc.) on the same `graph.json` contract. `planner`/`debug` depend on it. **[core — Python arm done]**
+  arms (TS/etc.) on the same `graph.json` contract — **built on the D70 rule: a stack-agnostic degraded fallback
+  (dir tree + shallow imports) so "no arm" ≠ "no map", arms demand-built when a real target in that stack hits
+  `ingest`/`/start`, and the Phase-4 demo forcing ≥1 more.** `planner`/`debug` depend on it. **[core — Python arm done]**
 - **Brownfield ingest** — **DESIGNED (D68); the `ingest` skill is being authored.** A thin `ingest` skill over
   existing leaves (`research` read → `document` write, no new agent) that seeds behavioural-core **intent from
   the existing `CLAUDE.md`/spec** (un-derivable from code), builds `docs/knowledge/` + a reconstructed

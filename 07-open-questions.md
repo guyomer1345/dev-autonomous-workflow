@@ -70,6 +70,13 @@ Deliberately deferred — known unknowns, to close during build or later.
 - **Optional SDK "runner"** for fully-autonomous restart (`01`) — deferred add-on; MVP uses
   human-prompted restart. Decided in principle; build + verify SDK auth (subscription vs API key) later.
 - **Website stack** (`03`).
+- **Project map + flow view (`03`, D70) — feature + architecture decided, these bits open.** (1) Map as its
+  **own tab vs the console home/overview** (lean: home/overview — it's the structural face of the project-state
+  view below). (2) A captured flow as a **first-class knowledge artifact** (versioned, regenerable, `06`) vs
+  **ephemeral** (on-demand, discarded). (3) The **runtime-capture mechanism** — differential trace is the working
+  direction, not decided; a static-slice approach may still win for some stacks; per-stack trace arm + the
+  capture **trigger/boundary** UX (leans on the QA harness) TBD. (4) **Remote-control auth** (Cloudflare Access /
+  token) — reserved, warning-only for now.
 - **Automated testing**, **test-from-anywhere**, **paid device/QA platform** (`04`) — designed-for,
   not built.
 - **Project-state view (`03`/`05`/`06`) — user-raised 2026-06-30.** No single synthesized "where is this
@@ -78,7 +85,8 @@ Deliberately deferred — known unknowns, to close during build or later.
   feels the gap **in this spec project itself**, and it bites harder on code projects — and it's a prerequisite
   for eventually **self-hosting** (driving this project's development with this project). Likely a **generated**
   view (D38 — not a hand-maintained doc that rots): a `status`/`map` skill or a console screen synthesizing
-  roadmap + backlog + decisions + graph on demand.
+  roadmap + backlog + decisions + graph on demand. **The `graph.json` cluster map (D70) is its "how the pieces
+  connect" face** — the structural half of this surface.
 - **Framework version-update skill (`10`, D57) — user-raised 2026-06-30.** The package is now a **public
   repo**; consuming projects install a snapshot (`.claude/` skills/agents/commands + `templates`/`shared`/
   `hooks`). As the framework evolves (fixes, new skills, schema/format changes) installed copies go **stale**,
