@@ -793,13 +793,52 @@ auto-fix only in the hook (invisible to the loop). *Evidence:* this build pass �
 authoring-specific; the human-manual-commit case needs a non-mutating backstop. → `commands/start.md`,
 `hooks/pre-commit.sh`, `skills/commit`, `scripts/check-no-spec-refs.sh`; sharpens D65, extends D40.
 
+## D68 — Knowledge generation: own-script per-stack code-map, two centrality lenses, three-tier node seed; ingest seeds intent from `CLAUDE.md` **[DECIDED — sharpens D39, opens brownfield ingest]**
+Pressure-tested on a real full-stack repo before deciding (D63 method — run first, derive the design). Calls:
+- **The generator is an own script per stack, not an external tool.** `/start` emits a `.workflow/`
+  code-map generator the way it emits `checks.sh` (D67): Python uses stdlib `ast`, other stacks tree-sitter /
+  the native parser — regenerable, near-zero-dep, cheap enough to re-run freely (satisfies D39's "generated →
+  cannot drift"). Rejected the two external candidates on evidence: `repomix` solves the *adjacent* problem
+  (pack context for an LLM — signatures + token counts), not a typed import graph; aider-repomap does produce a
+  PageRank import graph but is a heavyweight Python+LLM install to drag into every consuming project.
+- **Layer 1 carries TWO labeled centrality lenses from one import graph — not a single "importance" rank.**
+  *Impact* (forward PageRank: most-depended-upon → blast-radius, for `debug`/`planner`) and *orchestration*
+  (reverse PageRank / fan-out: where flows compose → "where does feature X live"). Both fall out of the same
+  extraction for free. Treating either as "importance" would mislead the loop — proven below.
+- **Three-tier node seed makes "eager graph, lazy semantics" safe.** `[G]` generated-structural (path, type,
+  edge targets, the lenses) for **all** files, eager; `[X]` cheap LLM-extractive `purpose.actual` + tags for a
+  prioritized set; `[D]` the durable, non-derivable `why` / intent-vs-actual / `# Sessions` — authored **on
+  touch** by `document`. A not-yet-touched node is skeleton + plausible purpose, **never an empty shell that
+  lies** (the D38 rot the lazy path otherwise risks). `[D]` is the layer that earns its tokens — the product.
+- **Brownfield ingest is a thin `ingest` skill over existing leaves, and its first job is to seed
+  behavioral-core intent from the existing `CLAUDE.md` / spec.** The product narrative and "what is core" are
+  **un-derivable from code** (see evidence) — they live only in the human's prose. `ingest` drives `research`
+  (read code + existing docs) → `document` (write nodes/graph/reconstructed spec); **no new agent** (the
+  doc-authoring agent stays reserved, D65). Reconstructed spec defaults to **unspecified**, with a
+  **reconciliation checkpoint** that locks only the load-bearing invariants the human confirms (avoids D23's
+  finalize-ticket flood that all-provisional would cause on a large repo). Full structural graph eager; `[D]` +
+  spec lazy with a prioritized seed.
+*Rejected:* an external tool as the generator (wrong problem / too heavy — above); one "importance" ranking
+(buries the behavioral core — evidence); eager `[D]` authoring (expensive, and unnecessary once `[X]` seeds
+the gap); all-provisional reconstructed spec (backlog flood, D23); a new doc-authoring agent (reserved until
+the generic workers prove insufficient, D65). *Evidence:* the 2026-07-02 run on a real repo (stock simulator,
+225 source files / 805 intra-project edges): own-script `ast` produced the typed graph + PageRank in ~9s with
+zero deps and zero parse failures; PageRank **diverged from naive in-degree** (`repositories/base.py` #1 over
+`log.py` despite fewer importers → recursive centrality is real signal); **yet it buried the core the
+maintainer named** — the simulation engine and ingestion logic ranked low, while the orchestration lens
+surfaced exactly `simulation_engine/{run_lifecycle,advance_service}`, `ingestion/ingest`, and the run/advance
+routes; the product narrative ("filter by sector/cap/volatility, drop into a random market moment, trade")
+appeared in **neither** lens. → `06`, `commands/start.md`, `skills/{ingest,document}`, `10`, `11`, `07`;
+sharpens D39, uses D67's per-stack-generator pattern, complements D62/D63.
+
 ---
 
 ## Not yet decided (tracked in `07`)
 Knowledge graph regenerate-vs-incremental; model/effort map; collision **independence test** (waves grouping
 decided, D36); Arbiter input contract; autonomous reset mechanism; website stack. Intake follow-ons:
 engineering-feasibility pass; demo-skill mechanics; commitment-status storage. `init` follow-ons: brownfield
-ingest, console launch, full disk-layout protocols (the `spec/`+`.knowledge/` docs-root placement closed — D62). Skill-review follow-ons:
+ingest **designed (D68) — the `ingest` skill is being authored**; console launch, full disk-layout protocols
+still open (the `spec/`+`.knowledge/` docs-root placement closed — D62). Skill-review follow-ons:
 incidental-issue-resolution detection — deferred; outward-action permission mechanics (D35). Adoption
 follow-ons: the **retention & archival law** is **closed** (D59–D60 write-law leaks + D61 cap-and-archive read
 law); what remains is **Sessions distillation** (deferred), `K`/threshold tuning, and authoring the retention

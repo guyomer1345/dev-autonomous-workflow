@@ -76,10 +76,17 @@ pays off), or **[later]** (deliberately deferred). Update as items close.
 - **Symbol-level knowledge paths** — the seam left in Space-6 granularity. **[later]**
 
 ### Space 6 — Knowledge generation & ingest
-- **Knowledge generation** — the **generated** code-map (D39, tree-sitter/repomap) the loop reads; today
-  `document` writes `docs/knowledge/` semi-by-hand. `planner`/`debug` depend on it. **[core]**
-- **Brownfield ingest** — build `docs/knowledge/` + a reconstructed `docs/spec/` from existing code; `/start`
-  brownfield is a STUB until this exists. Builds on knowledge generation. **[core for brownfield]**
+- **Knowledge generation** — **DESIGNED (D68, pressure-tested on a real repo):** an **own per-stack code-map
+  generator** (`ast`/tree-sitter, emitted by `/start` like `checks.sh` — not an external tool), `graph.json`
+  carrying **two centrality lenses** (impact + orchestration), and a **three-tier node seed** (`[G]` structural
+  eager · `[X]` extractive purpose · `[D]` durable `why`/Sessions on touch). *Remaining build:* the per-stack
+  generator script (rides the `/start` enforcement-wiring build, alongside the `checks.sh` generator).
+  `planner`/`debug` depend on it. **[core — designed; generator script unbuilt]**
+- **Brownfield ingest** — **DESIGNED (D68); the `ingest` skill is being authored.** A thin `ingest` skill over
+  existing leaves (`research` read → `document` write, no new agent) that seeds behavioural-core **intent from
+  the existing `CLAUDE.md`/spec** (un-derivable from code), builds `docs/knowledge/` + a reconstructed
+  `docs/spec/` (default **unspecified**, reconciliation checkpoint locks invariants). `/start` brownfield stays
+  a STUB until the skill + generator land. **[core for brownfield — being authored]**
 - **Retention script** — author the deterministic `audit` script (cap-and-archive, GC, prune) + tune
   `K`/thresholds; **Sessions distillation** deferred (D61). **[stageable]**
 - **Graph regenerate-vs-incremental** — the mechanism for keeping the generated graph current. **[later]**
@@ -112,8 +119,9 @@ level so the engine is *disciplined + knowledge-complete* before any UI: the **D
 the **`rules/` baseline + `/start` enforcement wiring** (D40), **knowledge generation** → **brownfield
 ingest**, the **retention script** (D61), and a coherence/completeness pass tying up the remaining `[core]`
 guiding-doc loose ends. *(Done 2026-07-01: the D36–D45 skill-body deltas (D66) **and** the `rules/` baseline +
-`/start` enforcement wiring + two-tier drift gate (D40/D65/D67). **Next up: knowledge generation → brownfield
-ingest** (Space 6), then the retention script.)*
+`/start` enforcement wiring + two-tier drift gate (D40/D65/D67). **2026-07-02: knowledge generation → brownfield
+ingest DESIGNED (D68, pressure-tested on a real repo); the `ingest` skill is being authored.** Then: the
+per-stack code-map generator script + the retention script.)*
 **Phase 2 — Define the website + demo (design, not build).** Close the Space-3 and Space-4 *design* questions
 as a complete spec: the website screen list / contact-UX / stream-vs-snapshot / stack, **and** the demo skill
 mechanics (serving/running the sandbox, refine limits, on-disk location) + the checkpoint data model /

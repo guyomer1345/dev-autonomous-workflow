@@ -20,7 +20,7 @@ experiential memory**.
 ├── llms.txt              # agent entry point (H1 + summary + pointers)
 └── docs/knowledge/
     ├── index.md          # catalog of all nodes
-    ├── graph.json        # machine-readable typed edge list
+    ├── graph.json        # machine-readable typed edge list + per-node centrality (impact & orchestration)
     └── nodes/<repo-path>/<file>.md   # one node per source file
 ```
 Per-file node:
@@ -37,7 +37,8 @@ itself a signal (drift / scope creep / bug).
 ## Steal from prior art **[DECIDED]**
 Aider repomap (tree-sitter + PageRank): auto-extract *structural* edges (imports/calls) mechanically,
 so the LLM only authors the *semantic* `why` + impact judgment. (Code Property Graph validates typed
-edges; nobody combines a typed impact-graph + per-file memory → open intersection.)
+edges; nobody combines a typed impact-graph + per-file memory → open intersection.) We steal the
+*approach*, not the *tool* — see the generator decision below (D68).
 
 ## Generated vs durable — the split **[DECIDED — D39, sharpens the above]**
 The two halves sit on opposite sides of the design law (`shared/memory-model.md`, D38): the **structural
@@ -46,6 +47,28 @@ authoritative prose, never hand-edited (a hand-maintained map goes stale and lie
 memory** (per-file `why` + the `# Sessions` postmortems) is the **only durable hand-written layer** — the
 non-derivable intent that earns its tokens. (Code Property Graph is overkill for context — security-scan
 step only.)
+
+## Generation, the two lenses & the node seed **[DECIDED — D68, pressure-tested on a real repo]**
+- **Generator = an own script per stack, not an external tool.** `/start` emits a `.workflow/` code-map
+  generator the same way it emits `checks.sh`: Python via stdlib `ast`, other stacks via tree-sitter / the
+  native parser. Regenerable, near-zero-dep, cheap to re-run. *External tools were tested and rejected:*
+  `repomix` packs context (signatures + token counts), not a typed import graph; aider-repomap does the graph
+  but is a heavyweight install to ship into every consuming project.
+- **`graph.json` carries TWO centrality lenses, not one "importance" rank** — both fall out of the same
+  import graph for free:
+  - **impact** (forward PageRank — most-depended-upon): *"if this changes, what ripples?"* → `debug` /
+    `planner` blast-radius.
+  - **orchestration** (reverse PageRank / fan-out — composes many): *"where does behaviour live / where does
+    feature X go?"*
+  Neither is "importance." The run showed impact centrality surfaces the *data foundation* (models, config,
+  base) and buries the *behavioural core*; orchestration surfaces the engine + ingestion + flow routes. The
+  **product narrative itself** (what the app is *for*, what counts as core) is in neither lens — it is pure
+  intent, carried only by the durable layer + the ingested `CLAUDE.md`/spec.
+- **Three-tier node seed** (makes "eager graph, lazy semantics" safe — a lazy node is never an empty shell):
+  - `[G]` **generated-structural** — path, type, edge targets, the two lenses. **All files, eager.**
+  - `[X]` **generated-extractive** — a cheap LLM-summarised `purpose.actual` + tags, for a prioritised set.
+  - `[D]` **durable** — the non-derivable `why` / intent-vs-actual / `# Sessions`. **Authored on touch** by
+    `document`. This is the layer that earns its tokens — the product.
 
 ## Granularity **[DECIDED]**
 Start file-level; leave a seam for symbol/function-level later.

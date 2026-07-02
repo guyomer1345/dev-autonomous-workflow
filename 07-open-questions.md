@@ -10,7 +10,10 @@ Deliberately deferred — known unknowns, to close during build or later.
   refine-round limits, on-disk location); commitment-status storage (spec doc vs Space 6 node frontmatter).
   *(Interrupt model closed: pure queue, D26.)*
 - **`init` / bootstrap capability** (`10`, D28) — greenfield is straightforward; brownfield **ingest**
-  (build the knowledge base + reconstructed spec from existing code) depends on Space-6 ingest mechanics.
+  (build the knowledge base + reconstructed spec from existing code) is **DESIGNED (D68) and the `ingest` skill
+  is being authored** — the ingest *mechanics* (own per-stack generator, two lenses, three-tier seed,
+  `CLAUDE.md`-seeded intent, unspecified-default + reconciliation checkpoint) are closed; the per-stack
+  generator *script* is the only build sliver left (rides `/start`).
 - **Commit-message convention** — **CLOSED (D32):** Conventional Commits + `Refs:`/`Closes:` trailers.
   Remaining sliver: whether the workflow's own generated commits carry the `Co-Authored-By` trailer.
 - **Agent roster v1** — **CLOSED in `10`** (names, I/O contracts, skill-vs-agent, topology). Remaining
@@ -81,8 +84,9 @@ Deliberately deferred — known unknowns, to close during build or later.
   it, **reconciling local customizations + migrating schema/format changes** (a version bump can change
   `state.json`/`schemas` shapes — not a blind overwrite). The natural follow-on to packaging (D57); the
   framework-level analogue of the retention/freshness law.
-- **Doc-authoring agent (reserved — D65).** A specialized heavy-doc-reconstruction worker (e.g. brownfield
-  `ingest` building a spec from code — a generative task that doesn't fit `execute`'s plan-driven model).
-  **Not added now** — drift remediation reuses the existing loop (`decision-engineer` authority →
-  `execute`/`document` edit). Revisit when building brownfield `ingest` / the D63 alignment scan, and only if
-  the generic workers prove insufficient. Cousin of the open "engineer agent?" slot (`02`).
+- **Doc-authoring agent (reserved — D65; trigger fired, still not added — D68).** A specialized
+  heavy-doc-reconstruction worker (e.g. brownfield `ingest` building a spec from code — a generative task that
+  doesn't fit `execute`'s plan-driven model). The "revisit when building brownfield `ingest`" trigger **fired
+  (D68)** and the call held: **`ingest` is a thin skill over the existing leaves** (`research` read →
+  `document` write), **no new agent** — reserved still, added only if the generic workers prove insufficient in
+  a real ingest run. Cousin of the open "engineer agent?" slot (`02`).
