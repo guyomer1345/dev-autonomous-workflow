@@ -10,7 +10,7 @@
 # and does not match the Dxx pattern below.
 set -uo pipefail
 
-dirs=(skills agents shared commands templates hooks rules scripts/codemap)
+dirs=(skills agents shared commands templates hooks rules scripts/codemap scripts/retention.py)
 
 # Dxx decision IDs · "Space N"/"Space-N" labels · backtick-wrapped design-doc numbers 00-11.
 pattern='\bD[0-9]{1,2}\b|Space[ -][0-9]|`0[0-9]`|`1[01]`'

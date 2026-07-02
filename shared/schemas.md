@@ -52,6 +52,9 @@ The product definition `discuss` produces and the whole build runs against.
 - `status` ∈ `{ active, superseded }` · `supersedes` / `superseded_by` — the reversal chain; a flip writes a
   NEW record and sets these. Retention GCs superseded bodies to git, keeping a tombstone in
   `decisions/index.md`
+- `index.md` — VOLATILE table `| id | title | status | ref |`. `decision-engineer` writes the active row
+  (`| <id> | <title> | active | - |`); retention flips it to a tombstone (`| <id> | <title> | superseded->X |
+  git <sha> |`) when it GCs the body — one row per id, keyed by the first column.
 - `question`
 - `options[]`
 - `chosen`, `why`
@@ -77,6 +80,10 @@ The product definition `discuss` produces and the whole build runs against.
 ## config.json  · written once by `/start`, read on demand · *rewrite-in-place · static after init (committed)*
 - `project_root` — `./project` (greenfield) | `.` (brownfield); makes code-touching skills path-agnostic
 - `run` — per-project run config (model/effort routing, wave caps — fields grow as those land)
+- `retention` — the memory-bound knobs the `audit` pass reads: `sessions_k` (per-node `# Sessions` cap — the
+  retention script's only knob) + the scheduling thresholds `prioritize` trips on (`decisions_active_n`,
+  `items_closed_m`, `every_p_items`). Absent → shipped defaults (sessions_k 10, decisions_active_n 30,
+  items_closed_m 10, every_p_items 15).
 
 ## state.json  · the live loop pointer (volatile, gitignored) · *rewritten in place each iteration*
 - `status` ∈ `{ intake, building, idle }`
@@ -90,7 +97,9 @@ The product definition `discuss` produces and the whole build runs against.
 ## per-item artifacts  · on disk
 `plan` / `changelog` / `verify-verdict` / `debug-report` live under `.workflow/items/<id>/` — `planner`
 `mkdir`s the dir on demand when it writes `plan.md`; the dir is **item-scoped**, committed while the item
-is open (crash-survival) and **pruned once closed** by the `audit` pass. `decision-record`s stay global +
+is open (crash-survival) and **pruned once closed** by the `audit` pass — but **only** after `document` folds
+its essence and writes a `promoted.json` (`{ "promoted": true }`) marker into the dir; without it the prune
+skips the dir, so retention never deletes un-promoted memory. `decision-record`s stay global +
 append-only under `<project_root>/docs/decisions/`, with a VOLATILE `index.md` + superseded bodies GC'd to git;
 `checkpoints/` is **reserved**. Rule: per-item ephemeral artifacts are item-scoped; cross-item memory is
 type-scoped.

@@ -57,6 +57,9 @@ built-in Claude Code command.
      `build-once-per-wave` is deferred.
    - Copy the shipped **code-map extractor** (`scripts/codemap/`) → **`.claude/scripts/codemap/`** — the
      per-language tool `.workflow/codemap.sh` invokes to build the knowledge graph (wired in step 4).
+   - Copy the shipped **retention script** (`scripts/retention.py`) → **`.claude/scripts/`** — the deterministic
+     `audit`-item enforcer `document` (audit mode) invokes to bound the append-only tier. Stack-agnostic (it edits
+     only the workflow's own `.workflow/`+`docs/` layout), so it ships fixed — not generated per-stack.
    - **Surface the one-time permission message** to the human: *"This is an autonomous loop. Accept the
      workspace-trust dialog so the package can pre-approve the loop's local actions; outward actions
      (push / issues / deploy) will still ask — by design. You don't need `--dangerously-skip-permissions`."*

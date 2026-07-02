@@ -23,6 +23,10 @@ After a phase/item passes its checkpoint, before or with `commit`.
 3. Append a per-file `# Sessions` entry where a postmortem applies (a `debug-report` maps directly:
    symptom / cause / fix / avoid).
 4. Flag intent-vs-actual divergence as a signal.
+5. **Mark the item promoted** — once this item's essence is folded (the `# Sessions` entry written, its
+   `decision-record`s already in `docs/decisions/`), write `.workflow/items/<id>/promoted.json`
+   (`{ "promoted": true }`). This is the sole gate the audit prune reads: no marker → the dir is never pruned, so
+   the mechanical pass can't delete un-promoted memory.
 
 ## Rules
 - **Never** flag divergence for `provisional` items, or the drift alarm chases ghosts.
@@ -33,9 +37,11 @@ Updated `docs/knowledge/` (nodes, graph, Sessions) + the architecture doc.
 ## Audit mode (retention + prune)
 A second mode, run as a maintenance item `prioritize` injects on a count/size threshold (not after each phase).
 Keeps disk + context high-signal:
-- **Run the retention script** (mechanical, deterministic): cap each node's `# Sessions` to the last *K* raw
-  entries (older → git, leave a one-line archive pointer); GC superseded `docs/decisions/` bodies to git + update
-  `docs/decisions/index.md`; prune closed `items/<id>/`. (The `git log` cold-start bound rides `handoff.base_sha`.)
+- **Run the retention script** (`.claude/scripts/retention.py` — mechanical + idempotent, counts/moves/deletes,
+  no judgment): caps each node's `# Sessions` to the last *K* (`config.retention.sessions_k`; older → git, a
+  one-line head marker under `# Sessions`), GCs superseded `docs/decisions/` bodies to git + tombstones
+  `docs/decisions/index.md`, and prunes only `items/<id>/` carrying a `promoted.json` marker (unmarked → skipped).
+  It leaves deletions staged for this item's `commit`. (The `git log` cold-start bound rides `handoff.base_sha`.)
 - **Deletion-test (judgment)** over `CLAUDE.md` + `rules/` — cut prose the agent no longer needs; bloat makes
   it ignore its own instructions.
 - **Dead-node prune:** a deleted source file → delete its `docs/knowledge/` node.

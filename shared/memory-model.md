@@ -30,10 +30,14 @@ demand** or **enforced by CI** — prose rots silently, code and checks fail lou
 ## The read-law companion
 The write law above says *who may edit*; the **retention/read law** says *how much loads*. The append-only
 tier is bounded by **cap-and-archive** — last-*K* entries on disk, older entries dropped to git (the working
-tree is a bounded **cache**, git the **ledger**). A deterministic **retention script** (cap each node's
-`# Sessions`, GC superseded `decisions/`, prune closed `items/<id>/`, bound the `git log` cold-start via
-`handoff.base_sha`) runs in an **`audit` maintenance item** that `prioritize` injects on a count/size
-threshold; only the prose deletion-test over `CLAUDE.md`+`rules/` needs the LLM (mechanical → enforced).
+tree is a bounded **cache**, git the **ledger**). A deterministic **retention script** (`scripts/retention.py`,
+shipped → `.claude/scripts/`, stdlib Python, idempotent) runs in an **`audit` maintenance item** that
+`prioritize` injects on a count/size threshold: it caps each node's `# Sessions` to `config.retention.sessions_k`
+(older → git, a one-line head marker `<!-- retention: N Sessions entries archived -> git @ <sha> -->`), GCs
+superseded `decisions/` bodies to git + tombstones `decisions/index.md`, and prunes a closed `items/<id>/`
+**only** once `document` has folded its essence and written a `promoted.json` marker (no marker → never pruned,
+so the mechanical pass can't delete un-promoted memory). The `git log` cold-start read is bounded by
+`handoff.base_sha`. Only the prose deletion-test over `CLAUDE.md`+`rules/` needs the LLM (mechanical → enforced).
 **Staleness** (a doc that's *wrong*, not *big*) is a separate diff-based signal — code changed without its node
 or the architecture doc — that schedules a doc-fix, not a prune. *Open:* `K`/thresholds; Sessions
 **distillation** (postmortems → lessons) is deferred.

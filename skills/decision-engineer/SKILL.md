@@ -22,8 +22,9 @@ The open decision + the constraints from the `spec` (audience, runtime, scale, i
 4. confidence ≥ threshold → emit a `decision-record`; else gather more / escalate to the human.
 
 ## Output
-`decision-record` `{ question, options, chosen, why, confidence, sources }`. The spec's `TBD` flips to
-`locked`.
+`decision-record` `{ question, options, chosen, why, confidence, sources }`, plus its **active row** in
+`docs/decisions/index.md` (`| <id> | <title> | active | - |` — the 4-column format retention later flips to a
+tombstone on supersede). The spec's `TBD` flips to `locked`.
 
 ## Route
 → back to the caller (`planner` / `execute`) with the decision resolved.

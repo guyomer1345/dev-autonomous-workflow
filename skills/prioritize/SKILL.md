@@ -17,8 +17,9 @@ The backlog (items with `depends_on`, `kind`, `severity`).
 ## Workflow
 1. **GC the queue first:** drop done items so `backlog.md` stays a live *open* queue, not a ledger —
    roadmap items `commit` flipped done, and `issue` entries whose `github_ref` is closed on GitHub.
-2. **Schedule maintenance:** if a retention threshold is tripped — a node's `# Sessions` > *K*,
-   `docs/decisions/` active > *N*, or `items/` closed > *M* — or every *N* items, inject a `document:audit` item.
+2. **Schedule maintenance:** if a retention threshold from `config.retention` is tripped — a node's
+   `# Sessions` > `sessions_k`, active `docs/decisions/` > `decisions_active_n`, or closed `items/` >
+   `items_closed_m` — or every `every_p_items` items, inject a `document:audit` item.
 3. Make eligible only items whose `depends_on` are already done.
 4. Order eligible items by **urgency × dependency-readiness**.
 5. **Group into a wave.** Walking from the top, gather the independent items that can run together — ones
