@@ -9,3 +9,9 @@
 - Deterministic only — no dependence on time, network, or ordering; quarantine a flaky test, never ignore it.
 - Reproduce before you fix — a bug gets a failing regression test first, then the fix that turns it green.
 - Coverage is a floor signal, not a target to game; an untested critical path is a gap regardless of the number.
+- A promise the design makes ("any X", "never nothing", idempotent, preserves data, degrades gracefully) is
+  discharged by a test whose input is drawn from **outside the implementation's own enumeration** — a property or
+  structural invariant, never a single in-scope example (a floor is only a floor at the edge it must cover).
+  Acceptance tests come from the decision's promises, not the implementation's scope: when the author picks the
+  cases, the cases inherit the author's blind spots. — enforced by: promise-coverage gate (`checks.sh --check`)
+  + the boundary/property test it links to

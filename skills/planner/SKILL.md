@@ -28,7 +28,16 @@ Core principle: produce the plan others execute against; raise any real build de
 5. **Decision-coverage gate:** list every governing decision in `plan.decisions[]` and confirm each maps to
    ≥1 step. An unmapped decision **blocks** the plan — escalate rather than let resolved intent silently
    evaporate between the decision and execution.
-6. Raise any genuine build decision to `decision-engineer` rather than guessing (e.g. a `TBD → stack`
+6. **Promise-coverage gate (impact-scoped):** for each impact-flagged decision, map every
+   `decision-record.promises[]` entry to an `acceptance_criterion` (its `test_ref`). A `universal` promise's
+   criterion must be **`boundary`-tagged** — a case drawn from *outside* the implementation's own enumerated
+   set, because one in-scope example can't discharge a "for-any" claim (a floor is only a floor at the edge it
+   must cover; prefer a property/structural check over the complement of the build's enumeration). Write the
+   resolved links + criterion ids to `.workflow/items/<id>/promises.json`; `check_promise_coverage.py` (in
+   `checks.sh --check`) **blocks** an unlinked or non-boundary promise. Reversible tier-0 decisions carry no
+   promises → nothing to map. This gate proves *linkage*, not adequacy — the boundary/property test is what
+   makes the discharge real.
+7. Raise any genuine build decision to `decision-engineer` rather than guessing (e.g. a `TBD → stack`
    pointer left by `discuss`).
 
 ## Output

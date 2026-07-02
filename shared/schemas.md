@@ -30,10 +30,18 @@ The product definition `discuss` produces and the whole build runs against.
   `execute` refuses a destructive plan without it and runs+verifies it before the destructive step.
 - `files_touched[]`
 - `steps[]` — ordered, each independently verifiable
-- `acceptance_criteria[]` — the definition-of-done; each `{ criterion, gate: artifact | human-qa }`.
-  `artifact` → checked by `verify`; `human-qa` → confirmed by a `checkpoint` (kind=qa). **Every criterion is
-  one or the other** — `planner` emits no un-checkable criterion. A plan with zero `human-qa` criteria
-  never triggers a QA checkpoint.
+- `acceptance_criteria[]` — the definition-of-done; each `{ id, criterion, gate: artifact | human-qa,
+  boundary?: bool }`. `artifact` → checked by `verify`; `human-qa` → confirmed by a `checkpoint` (kind=qa).
+  **Every criterion is one or the other** — `planner` emits no un-checkable criterion. A plan with zero
+  `human-qa` criteria never triggers a QA checkpoint. `boundary: true` marks a criterion whose case is drawn
+  from **outside the implementation's own enumerated set** (the discharge a universal promise requires).
+- `promises[]` — mirrors the impact-flagged `decision-record.promises[]` this plan implements; each promise's
+  `test_ref` resolves to an `acceptance_criteria.id` here, and a `universal` promise's linked criterion must be
+  **`boundary`-tagged** (one in-scope example can't discharge a "for-any" claim). `planner` writes these + the
+  resolvable ids to `.workflow/items/<id>/promises.json`; the **promise-coverage gate**
+  (`check_promise_coverage.py`, run by `checks.sh --check`) **blocks** an unlinked or non-boundary promise — the
+  mechanical sibling of the decision-coverage gate. It proves *linkage*, not adequacy: a universal's adequacy
+  rests on a property/structural test drawn from outside the enumeration (e.g. the code-map floor invariant).
 
 ## changelog  · produced by `execute` · *append within the item's lifetime; `.workflow/items/<id>/`; item-scoped ephemeral*
 - `plan_ref`
@@ -61,6 +69,14 @@ The product definition `discuss` produces and the whole build runs against.
 - `confidence`
 - `sources[]` — the durable distillate of any `research` dispatched for this decision (the heavy research
   notes are ephemeral scratch, discarded)
+- `promises[]` — the load-bearing claims the design must hold; **only for impact-flagged decisions** (the
+  code-map impact lens marks a high-blast-radius touch, or the decision is a design's raison d'être) — a
+  reversible tier-0 call carries none, so this stays empty on most records. Each `{ text, kind ∈ { universality,
+  idempotence, preservation, monotonicity, graceful-degradation, isolation, backward-compat }, universal: bool,
+  falsifier` (the input that would break it — a promise with no interesting falsifier is a knob-restatement,
+  dropped)`, test_ref` (the acceptance-criterion/test that discharges it) `}`. **Elicited adversarially by a pass
+  distinct from the decision's author** (see `decision-engineer`), never self-listed — the author shares the
+  blind spot that hid the promise, and a promise nobody writes is the one that ships untested.
 
 ## debug-report  · produced by `debug` · *item-scoped ephemeral in `.workflow/items/<id>/`; its **durable form** is the per-file `# Sessions` entry `document` promotes — a report not promoted leaves no durable trace*
 - `symptom`, `cause`, `fix`, `avoid`

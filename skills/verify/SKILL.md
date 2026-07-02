@@ -14,10 +14,15 @@ job and live-app confirmation is `checkpoint`'s.
 - `changelog` — what `execute` recorded doing.
 - `spec` — the intent the plan serves.
 
-## Workflow — two checks
+## Workflow — three checks
 1. **Plan ↔ changelog:** the changes the `plan` asked for match the changes the `changelog` records.
 2. **Intent met:** the `spec` intent and the plan's **`artifact`-gated** `acceptance_criteria` are reflected
    and actually achieved (the definition-of-done gate).
+3. **Promise coverage (artifact check):** every `plan.promises[]` entry resolves to an `acceptance_criterion`,
+   and a `universal` promise's criterion is `boundary`-tagged and backed by a **property/structural test** (not
+   a single in-scope example). This is the artifact-level read of what `check_promise_coverage.py` gates
+   mechanically — the gate supplies the deterministic signal, so a missing or in-scope-only discharge is a hard
+   **fail**, not a suspicion. You read the linkage; you do **not** run the test (that is the test-runner's job).
 
 Lean: for small changes, judge directly without fanning out workers.
 

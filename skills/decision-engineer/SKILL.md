@@ -19,10 +19,21 @@ The open decision + the constraints from the `spec` (audience, runtime, scale, i
 1. Frame the decision and the spec constraints.
 2. Dispatch `research` to gather options + current best practice for this and similar products.
 3. Weigh options × market practice × our spec → best fit, with a confidence score.
-4. confidence ≥ threshold → emit a `decision-record`; else gather more / escalate to the human.
+4. **Promise elicitation (impact-flagged decisions only** — the impact lens marks a high-blast touch, or the
+   decision is a design's raison d'être; reversible tier-0 calls skip it). Run an **adversarial pass distinct
+   from the framing above** — *"what does this design promise that isn't written?"* — so it doesn't inherit the
+   author's blind spot (an unwritten promise is the one that ships untested). Drive it from two author-independent
+   signals: the **archetype checklist** (universality/tail-coverage · idempotence · preservation/no-data-loss ·
+   monotonicity · graceful-degradation · isolation · backward-compat — "does the design touch this? then state
+   the invariant") and the decision's own **purpose vocabulary** ("floor" ⇒ covers-the-tail; "cache" ⇒
+   correctness == source-of-truth; "migration" ⇒ preserves-existing-state). Record each surviving promise with a
+   `falsifier` (the input that would break it — a promise with no interesting falsifier is a knob-restatement,
+   dropped, so the field can't fill with vacuous pass-the-gate text).
+5. confidence ≥ threshold → emit a `decision-record`; else gather more / escalate to the human.
 
 ## Output
-`decision-record` `{ question, options, chosen, why, confidence, sources }`, plus its **active row** in
+`decision-record` `{ question, options, chosen, why, confidence, sources, promises[] }` (`promises[]` only on
+impact-flagged decisions), plus its **active row** in
 `docs/decisions/index.md` (`| <id> | <title> | active | - |` — the 4-column format retention later flips to a
 tombstone on supersede). The spec's `TBD` flips to `locked`.
 
