@@ -26,6 +26,7 @@ built-in Claude Code command.
      config.json       # project_root + run config      (committed)
      loop.md           # routing graph + diagram        (committed)
      checks.sh         # mechanical-gate runner (generated per-stack; --fix / --check) (committed)
+     codemap.sh        # code-map generator (generated per-stack; writes docs/knowledge/graph.json) (committed)
      state.json        # live position — RUNTIME, add to .gitignore
      handoff.md        # durable resume anchor          (committed)
      backlog.md        # live OPEN queue (issues + roadmap; closed leave) (committed)
@@ -54,6 +55,8 @@ built-in Claude Code command.
      actions, `ask` outward) and `hooks/{guard.sh,pre-commit.sh}` → **`.claude/hooks/`** (guard = secret-scan +
      verify-before-commit hard gates; pre-commit = the mechanical-gate backstop, registered in step 4).
      `build-once-per-wave` is deferred.
+   - Copy the shipped **code-map extractor** (`scripts/codemap/`) → **`.claude/scripts/codemap/`** — the
+     per-language tool `.workflow/codemap.sh` invokes to build the knowledge graph (wired in step 4).
    - **Surface the one-time permission message** to the human: *"This is an autonomous loop. Accept the
      workspace-trust dialog so the package can pre-approve the loop's local actions; outward actions
      (push / issues / deploy) will still ask — by design. You don't need `--dangerously-skip-permissions`."*
@@ -75,6 +78,11 @@ built-in Claude Code command.
    - **Register the git backstop.** Install the shipped `pre-commit.sh` as git's `.git/hooks/pre-commit` (copy
      or symlink — git requires the exact name `pre-commit`) so a commit made *outside* the loop still hits
      `checks.sh --check`.
+   - **Generate `.workflow/codemap.sh`** — the per-stack code-map runner: it invokes the shipped extractor for
+     each detected language and writes `docs/knowledge/graph.json` (a typed import graph plus the *impact* and
+     *orchestration* centrality signals per file). Python needs no external tool (stdlib parsing); other stacks
+     use their matching extractor, same `graph.json` contract. Regenerable — the loop re-runs it and never
+     hand-edits the graph.
    - **Externals → checkpoint.** Anything needing an account or a provider choice (CI host, deploy creds) is an
      outward/setup step → raise `checkpoint`(kind=setup) → `setup-guide`, don't guess.
 5. **Launch the local console.** ⛔ STUB — website stack/screens still open.
@@ -90,15 +98,17 @@ built-in Claude Code command.
 - **Rules + enforcement are already adopted** by shared step 4 (adopt existing configs, gap-fill the missing
   enforcers, layer our `rules/` on top). That is the *habits* half of integration and is **supported now**;
   the **docs → knowledge** half below is the part still stubbed.
-- **Ingest** the existing code → populate `docs/knowledge/` (code graph + per-file nodes) and a
-  **reconstructed `docs/spec/`**. **Adopt an existing `docs/`** if present — write members to known subpaths,
-  never clobber; namespace ours on a name collision. ⛔ STUB — depends on the **ingest mechanics**, still
-  open. For now: scaffold an empty `docs/knowledge/` and record a TODO to ingest once the mechanics exist.
-- **Reconciliation checkpoint** — surface the reconstructed understanding ("here's what I think the app
-  does, its screens, its stack") via `checkpoint` for the user to confirm/correct before the loop drives.
+- **Run `ingest`.** The skill runs `.workflow/codemap.sh` to build the structural graph, seeds
+  `docs/knowledge/` nodes, and reconstructs `docs/spec/` from the existing `CLAUDE.md`/docs + code (tagged
+  `unspecified`). **Adopt an existing `docs/`** if present — write to known subpaths, never clobber; namespace
+  ours on a name collision. The durable per-file `why`/Sessions stay empty until `document` authors them on
+  first touch.
+- **Reconciliation checkpoint** — `ingest` surfaces the reconstructed understanding ("here's what I think the
+  app does, its core flows, its stack") via a blocking `checkpoint` for the user to confirm/correct; confirmed
+  invariants flip `unspecified → locked` before the loop drives.
 - Then hand to the normal loop.
 
 ## Expand later
-- Brownfield **ingest** (the real codebase mapping / llm-wiki build).
+- Additional **code-map language arms** — Python ships; other stacks plug into the same `graph.json` contract.
 - The **console** launch.
 - The full **disk layout** — the tree above is a provisional first cut.
