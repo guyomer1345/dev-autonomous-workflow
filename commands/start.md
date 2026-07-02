@@ -84,12 +84,13 @@ built-in Claude Code command.
    - **Generate `.workflow/codemap.sh`** — the code-map runner: a single call to the shipped engine
      (`.claude/scripts/codemap/codemap.py <project_root>`), which auto-dispatches each file to its language arm
      and writes `docs/knowledge/graph.json` (a typed import graph plus the *impact* and *orchestration* centrality
-     signals per file, and a per-language coverage summary tagging each language's arm tier). Python uses the
-     stdlib-`ast` arm (tier 2); every other recognized source language falls to the **tier-0 generic floor**
-     (directory-cluster nodes + shallow-regex imports, precision-first resolution, same `graph.json` contract) so a
-     repo in any recognized language gets at least nodes + clusters + both lenses — never nothing. (tier-1
-     tree-sitter arms — JS/TS, Java, C#, C++, Go, … — plug into the same engine as they land; until then those
-     languages use the floor.) Regenerable — the loop re-runs it and never hand-edits the graph.
+     signals per file, and a per-language coverage summary tagging each language's arm tier). **Python** (stdlib
+     `ast`) and **JS/TS** (`tsconfig`/`jsconfig` `paths`+`baseUrl` aliases + extension/index resolution) have precise
+     arms; every other recognized source language falls to the **tier-0 generic floor** (directory-cluster nodes +
+     shallow-regex imports, precision-first resolution, same `graph.json` contract) so a repo in any recognized
+     language gets at least nodes + clusters + both lenses — never nothing. (Further precise arms — Java, C#, Go, … —
+     are zero-dep resolver arms that plug into the same engine as they land; tree-sitter is reserved for parse-hard
+     languages, shipped as an optional upgrade.) Regenerable — the loop re-runs it and never hand-edits the graph.
    - **Externals → checkpoint.** Anything needing an account or a provider choice (CI host, deploy creds) is an
      outward/setup step → raise `checkpoint`(kind=setup) → `setup-guide`, don't guess.
 5. **Launch the local console.** ⛔ STUB — website stack/screens still open.
@@ -116,9 +117,10 @@ built-in Claude Code command.
 - Then hand to the normal loop.
 
 ## Expand later
-- Additional **code-map language arms** — Python (tier-2 `ast`) + the **tier-0 generic floor** (all other
-  recognized source languages) ship today; the prevalence-ranked precise arms (JS/TS · Java · C# · C++, then
-  Go · Rust · PHP) plug into the same engine + `graph.json` contract via a shared tree-sitter tier-1 layer, each
-  upgrading its language from the floor's best-effort edges to precise resolution.
+- Additional **code-map language arms** — Python (`ast`), **JS/TS** (tsconfig resolver), and the **tier-0 generic
+  floor** (all other recognized languages) ship today; the next prevalence-ranked precise arms (Java · C# · C++,
+  then Go · Rust · PHP) are **zero-dep resolver arms** on the same engine + `graph.json` contract, each upgrading its
+  language from the floor's best-effort edges to precise resolution. tree-sitter is reserved for parse-hard languages
+  (optional upgrade — absent → the floor).
 - The **console** launch.
 - The full **disk layout** — the tree above is a provisional first cut.

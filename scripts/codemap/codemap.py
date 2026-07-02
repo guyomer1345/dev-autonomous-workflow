@@ -4,17 +4,20 @@
 Multi-language engine: one shared driver (discover -> dispatch -> resolve -> PageRank ->
 emit) over pluggable per-language ARMS. What varies by language is only *edge resolution*;
 the node set + directory clusters are identical everywhere, so the cost of a language is
-its resolver, not its parser. Ships two arms today:
+its resolver, not its parser. Ships three arms today:
 
   - PythonArm   (tier 2) — stdlib `ast`, zero-dep, precise dotted-module resolution.
+  - JsTsArm     (tier 2) — JS/TS: the floor's extraction + a resolver that reads tsconfig/
+                           jsconfig `paths`+`baseUrl` aliases, TS/JS extension resolution,
+                           and index/barrel dirs. Zero extra dep; beats the floor on the
+                           alias/baseUrl edges the floor drops. No tsconfig -> = the floor.
   - GenericArm  (tier 0) — the generic floor: shallow-regex imports across recognized
                            source languages, best-effort resolution. The long-tail safety
                            net so a repo in ANY recognized language gets at least nodes +
                            directory clusters + both centrality lenses, never nothing.
 
-tree-sitter tier-1 arms (JS/TS, Java, C#, C++, Go, …) plug into the same contract later:
-a new arm is a `class Arm` with `extensions`, `index()`, and `edges()` — the driver below
-is untouched.
+More precise arms (Java, C#, C++, Go, …) plug into the same contract later: a new arm is a
+`class Arm` with `extensions`, `index()`, and `edges()` — the driver below is untouched.
 
 Two centrality signals per file fall out of the one import graph for free:
   - impact        (forward PageRank: most-depended-upon)  -> change blast-radius
@@ -273,7 +276,123 @@ class GenericArm:
         return out
 
 
-ARMS = [PythonArm(), GenericArm()]  # order = precedence; specific arms before the floor
+# --------------------------------------------------------------------------- #
+# JS/TS arm (tier 2) — the floor's extraction + a resolver that understands what the
+# floor cannot: tsconfig/jsconfig `paths`+`baseUrl` aliases, TS/JS extension resolution
+# (.ts/.tsx/.d.ts/.js/…), and index/barrel dirs. Zero extra dependency — the win over the
+# floor is *resolution* (alias/baseUrl edges the floor drops), not parsing. Subclasses the
+# floor so a repo with no tsconfig degrades exactly to the floor's relative-import behaviour.
+# --------------------------------------------------------------------------- #
+def _strip_jsonc(s):
+    """Strip // and /* */ comments (outside strings) and trailing commas -> parseable JSON.
+    tsconfig.json is JSONC in the wild; stdlib json can't read it."""
+    out, i, n, instr, q = [], 0, len(s), False, ""
+    while i < n:
+        c = s[i]
+        if instr:
+            out.append(c)
+            if c == "\\" and i + 1 < n:
+                out.append(s[i + 1]); i += 2; continue
+            if c == q:
+                instr = False
+            i += 1; continue
+        if c in "\"'":
+            instr, q = True, c; out.append(c); i += 1; continue
+        if c == "/" and i + 1 < n and s[i + 1] == "/":
+            i += 2
+            while i < n and s[i] != "\n":
+                i += 1
+            continue
+        if c == "/" and i + 1 < n and s[i + 1] == "*":
+            i += 2
+            while i + 1 < n and not (s[i] == "*" and s[i + 1] == "/"):
+                i += 1
+            i += 2; continue
+        out.append(c); i += 1
+    return re.sub(r",(\s*[}\]])", r"\1", "".join(out))
+
+
+class JsTsArm(GenericArm):
+    name = "jsts"
+    tier = 2
+    extensions = frozenset(_JS_EXTS)  # inherits lang_of (typescript vs javascript) from _LANGUAGES
+
+    def _read_jsonc(self, path):
+        if not os.path.isfile(path):
+            return None
+        try:
+            return json.loads(_strip_jsonc(open(path, encoding="utf-8", errors="replace").read()))
+        except Exception:
+            return None
+
+    def _load_tsconfig(self):
+        """Return (baseUrl, [(pattern, has_star, prefix, suffix, [targets])]) from the root
+        ts/jsconfig. Follows one `extends` when the child declares no paths of its own."""
+        for fn in ("tsconfig.json", "jsconfig.json"):
+            data = self._read_jsonc(fn)
+            if data is None:
+                continue
+            co = (data.get("compilerOptions") or {})
+            raw = co.get("paths") or {}
+            base = co.get("baseUrl")
+            if not raw and isinstance(data.get("extends"), str):  # one level of inheritance
+                parent = self._read_jsonc(os.path.normpath(os.path.join(os.path.dirname(fn), data["extends"])))
+                if parent:
+                    pco = (parent.get("compilerOptions") or {})
+                    raw = pco.get("paths") or raw
+                    base = base if base is not None else pco.get("baseUrl")
+            base_url = base if base is not None else "."  # TS>=4.1 allows paths without baseUrl
+            rules = []
+            for pat, targets in raw.items():
+                star = "*" in pat
+                prefix, suffix = (pat.split("*", 1) if star else (pat, ""))
+                rules.append((pat, star, prefix, suffix, list(targets)))
+            return base_url, rules
+        return ".", []
+
+    def index(self, files):
+        idx = super().index(files)
+        idx["baseUrl"], idx["paths"] = self._load_tsconfig()
+        return idx
+
+    def _resolve(self, spec, importer, mode, idx):  # mode unused (single JS/TS scheme)
+        spec = spec.strip()
+        if not spec or ":" in spec:  # empty or a scheme (node:, http:, data:) -> external
+            return None
+        if spec.startswith("."):  # relative — extension/index resolution via by_noext
+            return self._match_pathish(self._join(os.path.dirname(importer), spec), idx)
+        for pat, star, prefix, suffix, targets in idx["paths"]:  # tsconfig path aliases
+            if star:
+                if not (spec.startswith(prefix) and spec.endswith(suffix)
+                        and len(spec) >= len(prefix) + len(suffix)):
+                    continue
+                mid = spec[len(prefix): len(spec) - len(suffix)] if suffix else spec[len(prefix):]
+                cands = [t.replace("*", mid, 1) if "*" in t else t for t in targets]
+            elif spec == pat:
+                cands = list(targets)
+            else:
+                continue
+            for cand in cands:
+                hit = self._match_pathish(self._join(idx["baseUrl"], cand), idx)
+                if hit:
+                    return hit
+        if idx["baseUrl"] not in (None, ""):  # bare specifier resolved from baseUrl (non-relative roots)
+            hit = self._match_pathish(self._join(idx["baseUrl"], spec), idx)
+            if hit:
+                return hit
+        return None  # otherwise external (node_modules) -> no edge
+
+    def edges(self, path, source, index):
+        out = set()
+        for pat in _JS_PATTERNS:
+            for m in pat.finditer(source):
+                target = self._resolve(m.group("spec"), path, None, index)
+                if target and target != path:
+                    out.add(target)
+        return out
+
+
+ARMS = [PythonArm(), JsTsArm(), GenericArm()]  # order = precedence; specific arms before the floor
 
 
 def _ext_to_arm():
